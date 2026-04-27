@@ -18,6 +18,8 @@ jobs:
           distribution: 'temurin'
       - name: Grant execute permission
         run: chmod +x gradlew
+      - name: Apply spotless
+        run: ./gradlew spotlessApply
       - name: Build
         run: ./gradlew build -PghUsername=Apostrcfo2 -PghToken=${{ secrets.GH_TOKEN }}
       - name: Upload artifact
