@@ -19,7 +19,7 @@ public class PonderHandler {
     private boolean wasHolding = false;
 
     @SubscribeEvent
-    public void onGuiKeyboard(GuiScreenEvent.KeyboardInputEvent.Pre event) {
+    public void onGuiDraw(GuiScreenEvent.DrawScreenEvent.Pre event) {
         if (!(event.gui instanceof GuiInventory)) {
             holdTicks = 0;
             wasHolding = false;
