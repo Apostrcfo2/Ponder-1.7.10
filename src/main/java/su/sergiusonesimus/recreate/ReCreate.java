@@ -132,6 +132,13 @@ public class ReCreate {
         // tile entities
         registerTileEntities();
 
+        // ReCreate Handbook recipe
+        GameRegistry.addShapelessRecipe(
+                    new ItemStack(AllItems.recreate_book),
+                    new ItemStack(net.minecraft.init.Items.book),
+                    new ItemStack(AllItems.wrench)
+                );
+
         proxy.init(event);
 
         // render and other client stuff
