@@ -30,6 +30,8 @@ import su.sergiusonesimus.metaworlds.api.SubWorld;
 import su.sergiusonesimus.metaworlds.util.Direction;
 import su.sergiusonesimus.metaworlds.util.Direction.Axis;
 import su.sergiusonesimus.metaworlds.util.RotationHelper;
+import su.sergiusonesimus.recreate.content.ponder.PonderHandler;
+import su.sergiusonesimus.recreate.content.ponder.PonderRegistry;
 import su.sergiusonesimus.recreate.content.contraptions.TorquePropagator;
 import su.sergiusonesimus.recreate.content.contraptions.components.motor.CreativeMotorTileEntity;
 import su.sergiusonesimus.recreate.content.contraptions.components.structureMovement.AllSubWorldTypes;
@@ -120,6 +122,13 @@ public class ReCreate {
                 FMLCommonHandler.instance()
                     .bus()
                     .register(bookHandler);
+
+               final PonderHandler ponderHandler = new PonderHandler();
+        FMLCommonHandler.instance()
+            .bus()
+            .register(ponderHandler);
+
+        PonderRegistry.register();
 
         final SuperGlueHandler superGlueHandler = new SuperGlueHandler();
         MinecraftForge.EVENT_BUS.register(superGlueHandler);
