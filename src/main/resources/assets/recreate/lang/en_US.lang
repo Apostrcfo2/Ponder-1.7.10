@@ -2462,3 +2462,4 @@ recreate.book.sail.title=Sail
 recreate.book.sail.desc=Used with the Windmill Bearing to generate power from wind. Attach Sail blocks to the front face of a Windmill Bearing to create a windmill.\n\nMore Sails means more generated Rotational Force.
 recreate.book.mechanical_piston.title=Mechanical Piston
 recreate.book.mechanical_piston.desc=Pushes attached structures linearly when supplied with rotation. Extend Piston Extension Poles from the front face to increase the push distance.\n\nThe structure in front must be attached using Super Glue or Chassis blocks.
+recreate.book.index.title=Table of Contents

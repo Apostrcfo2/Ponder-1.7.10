@@ -32,6 +32,7 @@ public class ReCreateBookGui extends GuiScreen {
     }
 
     private void buildPages() {
+        pages.add(new IndexPage());
         pages.add(new BookPage("ReCreate", "recreate.book.cover.desc", null));
         pages.add(new BookPage("recreate.book.kinetic.title", "recreate.book.kinetic.desc", null));
         pages.add(new BookPage("recreate.book.shaft.title", "recreate.book.shaft.desc", "textures/gui/book/shaft.png"));
@@ -73,6 +74,14 @@ public class ReCreateBookGui extends GuiScreen {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
+        if (currentPage == 0) {
+            IndexPage index = (IndexPage) pages.get(0);
+            int clicked = index.getClickedTopic(mouseX, mouseY, bookX, bookY);
+            if (clicked != -1) {
+                currentPage = clicked;
+                return;
+            }
+        }
         if (mouseX > bookX + BOOK_WIDTH / 2 && mouseX < bookX + BOOK_WIDTH
             && mouseY > bookY + BOOK_HEIGHT - 20 && mouseY < bookY + BOOK_HEIGHT) {
             if (currentPage < pages.size() - 1) currentPage++;
