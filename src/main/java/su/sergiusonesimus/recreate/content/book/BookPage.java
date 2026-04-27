@@ -57,6 +57,10 @@ public class BookPage {
         }
 
         String desc = I18n.format(descKey);
-        font.drawSplitString(desc, contentX, contentY, pageWidth - 32, 0x3b2a1a);
+                for (String line : desc.split("\\\\n")) {
+                    font.drawSplitString(line.trim(), contentX, contentY, pageWidth - 32, 0x3b2a1a);
+                    int lines = (font.getStringWidth(line.trim()) / (pageWidth - 32)) + 1;
+                    contentY += lines * 9 + 4;
+                }
     }
 }
