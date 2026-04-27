@@ -9,6 +9,7 @@ import su.sergiusonesimus.recreate.content.contraptions.components.structureMove
 import su.sergiusonesimus.recreate.content.contraptions.goggles.GogglesItem;
 import su.sergiusonesimus.recreate.content.contraptions.wrench.WrenchItem;
 import su.sergiusonesimus.recreate.foundation.item.CreateCreativeTab;
+import su.sergiusonesimus.recreate.content.book.ReCreateBookItem;
 
 public class AllItems {
 
@@ -18,6 +19,7 @@ public class AllItems {
     public static Item goggles;
     public static Item wrench;
     public static Item super_glue;
+    public static Item recreate_book;
 
     public static final CreateCreativeTab BASE_CREATIVE_TAB = new CreateCreativeTab("base");
 
@@ -38,6 +40,8 @@ public class AllItems {
         registerItem(goggles);
         registerItem(wrench);
         registerItem(super_glue);
+        recreate_book = new ReCreateBookItem();
+        registerItem(recreate_book);
     }
 
     private static void registerItem(Item item) {

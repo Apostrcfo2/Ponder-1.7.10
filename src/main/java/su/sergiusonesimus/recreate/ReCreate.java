@@ -50,6 +50,7 @@ import su.sergiusonesimus.recreate.foundation.config.AllConfigs;
 import su.sergiusonesimus.recreate.foundation.data.ReCreateRegistrate;
 import su.sergiusonesimus.recreate.foundation.networking.AllPackets;
 import su.sergiusonesimus.recreate.foundation.utility.Iterate;
+import su.sergiusonesimus.recreate.content.book.BookHandler;
 
 @Mod(modid = Tags.MODID, version = ReCreate.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]")
 public class ReCreate {
@@ -113,6 +114,11 @@ public class ReCreate {
         FMLCommonHandler.instance()
             .bus()
             .register(commonEvents);
+
+        final BookHandler bookHandler = new BookHandler();
+                FMLCommonHandler.instance()
+                    .bus()
+                    .register(bookHandler);
 
         final SuperGlueHandler superGlueHandler = new SuperGlueHandler();
         MinecraftForge.EVENT_BUS.register(superGlueHandler);

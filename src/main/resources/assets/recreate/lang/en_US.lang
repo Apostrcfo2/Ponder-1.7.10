@@ -2434,3 +2434,31 @@ recreate.ponder.windmill_source.text_6=Right-click the Bearing anytime to stop a
 
 recreate.ponder.windmill_structure.header=Windmill Contraptions
 recreate.ponder.windmill_structure.text_1=Any Structure can count as a valid Windmill, as long as it contains at least 8 sail-like Blocks.
+
+item.recreate_book.name=ReCreate Handbook
+
+recreate.book.cover.desc=Welcome to ReCreate - a port of the Create mod for Minecraft 1.7.10.\n\nThis handbook will guide you through all the machines and mechanics available in this early version of the mod.\n\nClick the right side of the book to turn pages.
+recreate.book.kinetic.title=Kinetic Energy
+recreate.book.kinetic.desc=Everything in ReCreate runs on Rotational Force. Machines produce, consume, and transfer rotation through a network of Shafts, Cogwheels, and Gearboxes.\n\nWithout a source of rotation, machines will not function. Sources include the Creative Motor and the Water Wheel.
+recreate.book.shaft.title=Shaft
+recreate.book.shaft.desc=The most basic component for transferring rotational force. Shafts transmit rotation along their axis and can be connected to other kinetic components.\n\nPlace them in a line to carry rotation over distances.
+recreate.book.cogwheel.title=Cogwheel
+recreate.book.cogwheel.desc=Cogwheels transfer rotation between perpendicular axes. When two cogwheels are adjacent and their axes are aligned, they mesh together and transfer rotation.\n\nLarge Cogwheels can mesh with small ones to change rotation speed.
+recreate.book.creative_motor.title=Creative Motor
+recreate.book.creative_motor.desc=A creative-only source of infinite Rotational Force. Use it to test your contraptions without needing a power source.\n\nNot available in survival mode.
+recreate.book.water_wheel.title=Water Wheel
+recreate.book.water_wheel.desc=Generates Rotational Force from flowing water. Place it next to a water source with flow on one side to generate power.\n\nThe more water flowing against it, the more power it generates.
+recreate.book.clutch.title=Clutch
+recreate.book.clutch.desc=Controls the flow of rotation through a shaft. When powered by a Redstone signal, the Clutch disconnects and stops transmitting rotation.\n\nUseful for turning machines on and off.
+recreate.book.gearshift.title=Gearshift
+recreate.book.gearshift.desc=Similar to the Clutch, but instead of stopping rotation it reverses its direction when powered by Redstone.\n\nUseful for contraptions that need to move back and forth.
+recreate.book.gearbox.title=Gearbox
+recreate.book.gearbox.desc=Splits and redirects rotation in multiple directions at once. A Gearbox can take rotation from one side and output it to up to three other sides.\n\nNote that adjacent outputs will rotate in opposite directions.
+recreate.book.mechanical_bearing.title=Mechanical Bearing
+recreate.book.mechanical_bearing.desc=Rotates an attached structure around its axis. Build a structure on the front face of the Bearing and supply rotation to make it spin.\n\nThe structure must be attached using Super Glue or Chassis blocks.
+recreate.book.windmill_bearing.title=Windmill Bearing
+recreate.book.windmill_bearing.desc=Generates Rotational Force from wind using Sail blocks attached to its front face. The more Sails attached, the more power generated.\n\nRequires at least one Sail to function.
+recreate.book.sail.title=Sail
+recreate.book.sail.desc=Used with the Windmill Bearing to generate power from wind. Attach Sail blocks to the front face of a Windmill Bearing to create a windmill.\n\nMore Sails means more generated Rotational Force.
+recreate.book.mechanical_piston.title=Mechanical Piston
+recreate.book.mechanical_piston.desc=Pushes attached structures linearly when supplied with rotation. Extend Piston Extension Poles from the front face to increase the push distance.\n\nThe structure in front must be attached using Super Glue or Chassis blocks.
