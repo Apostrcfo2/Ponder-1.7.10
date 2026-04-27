@@ -124,9 +124,7 @@ public class ReCreate {
                     .register(bookHandler);
 
                final PonderHandler ponderHandler = new PonderHandler();
-        FMLCommonHandler.instance()
-            .bus()
-            .register(ponderHandler);
+        MinecraftForge.EVENT_BUS.register(ponderHandler);
 
         PonderRegistry.register();
 

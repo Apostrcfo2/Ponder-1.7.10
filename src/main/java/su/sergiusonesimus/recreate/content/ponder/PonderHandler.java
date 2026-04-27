@@ -7,9 +7,9 @@ import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Keyboard;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.client.event.GuiScreenEvent;
 
 @SideOnly(Side.CLIENT)
 public class PonderHandler {
@@ -19,11 +19,8 @@ public class PonderHandler {
     private boolean wasHolding = false;
 
     @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.START) return;
-
-        Minecraft mc = Minecraft.getMinecraft();
-        if (!(mc.currentScreen instanceof GuiInventory)) {
+    public void onGuiKeyboard(GuiScreenEvent.KeyboardInputEvent.Pre event) {
+        if (!(event.gui instanceof GuiInventory)) {
             holdTicks = 0;
             wasHolding = false;
             return;
@@ -35,6 +32,7 @@ public class PonderHandler {
             holdTicks++;
             if (holdTicks >= HOLD_TICKS && !wasHolding) {
                 wasHolding = true;
+                Minecraft mc = Minecraft.getMinecraft();
                 ItemStack hovered = getHoveredItem(mc);
                 if (hovered != null) {
                     PonderScreen.open(hovered);
