@@ -34,7 +34,14 @@ public class BookPage {
         font.drawString("\u00a7l" + title, contentX, contentY, 0x3b2a1a);
         contentY += 14;
 
-        gui.drawHorizontalLine(contentX, contentX + pageWidth - 32, contentY, 0x3b2a1a);
+        net.minecraft.client.renderer.Tessellator t = net.minecraft.client.renderer.Tessellator.instance;
+        t.startDrawingQuads();
+        t.setColorOpaque_I(0x3b2a1a);
+        t.addVertexWithUV(contentX, contentY + 1, 0, 0, 0);
+        t.addVertexWithUV(contentX + pageWidth - 32, contentY + 1, 0, 0, 0);
+        t.addVertexWithUV(contentX + pageWidth - 32, contentY, 0, 0, 0);
+        t.addVertexWithUV(contentX, contentY, 0, 0, 0);
+        t.draw();
         contentY += 6;
 
         if (imagePath != null) {
