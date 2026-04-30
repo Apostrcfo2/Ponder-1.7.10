@@ -1,9 +1,8 @@
 @ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
-@FieldsAreNonnullByDefault
 package net.createmod.ponder1710.api;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
+// TODO: MethodsReturnNonnullByDefault and FieldsAreNonnullByDefault not available in 1.7.10
+// import net.minecraft.FieldsAreNonnullByDefault;
+// import net.minecraft.MethodsReturnNonnullByDefault;
