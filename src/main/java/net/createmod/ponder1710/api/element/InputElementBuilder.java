@@ -1,21 +1,23 @@
 package net.createmod.ponder1710.api.element;
 
-import net.createmod.catnip.gui.element.ScreenElement;
-import net.minecraft.world.item.ItemStack;
+// import net.createmod.catnip.gui.element.ScreenElement; // TODO: catnip not available in 1.7.10
+// import net.minecraft.world.item.ItemStack; // 1.7.10 uses different package
+import net.minecraft.item.ItemStack;
 
 public interface InputElementBuilder {
 
-	InputElementBuilder withItem(ItemStack stack);
+    InputElementBuilder withItem(ItemStack stack);
 
-	InputElementBuilder leftClick();
+    InputElementBuilder leftClick();
 
-	InputElementBuilder rightClick();
+    InputElementBuilder rightClick();
 
-	InputElementBuilder scroll();
+    InputElementBuilder scroll();
 
-	InputElementBuilder showing(ScreenElement icon);
+    // TODO: ScreenElement from catnip not available in 1.7.10
+    // InputElementBuilder showing(ScreenElement icon);
 
-	InputElementBuilder whileSneaking();
+    InputElementBuilder whileSneaking();
 
-	InputElementBuilder whileCTRL();
+    InputElementBuilder whileCTRL();
 }

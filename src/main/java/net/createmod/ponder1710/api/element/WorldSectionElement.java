@@ -1,43 +1,49 @@
 package net.createmod.ponder1710.api.element;
 
-import net.createmod.catnip.data.Pair;
+// import net.createmod.catnip.data.Pair; // TODO: catnip not available - replaced with custom pair
 import net.createmod.ponder1710.api.level.PonderLevel;
 import net.createmod.ponder1710.api.scene.Selection;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
+
+// import net.minecraft.core.BlockPos; // 1.7.10 uses ChunkCoordinates
+// import net.minecraft.world.phys.BlockHitResult; // TODO: not available in 1.7.10
+// import net.minecraft.world.phys.Vec3; // 1.7.10 uses net.minecraft.util.Vec3
+import net.minecraft.util.Vec3;
+import net.minecraft.util.MovingObjectPosition; // BlockHitResult equivalent in 1.7.10
 
 public interface WorldSectionElement extends AnimatedSceneElement {
 
-	void mergeOnto(WorldSectionElement other);
+    void mergeOnto(WorldSectionElement other);
 
-	void set(Selection selection);
+    void set(Selection selection);
 
-	void add(Selection toAdd);
+    void add(Selection toAdd);
 
-	void erase(Selection toErase);
+    void erase(Selection toErase);
 
-	void setCenterOfRotation(Vec3 center);
+    void setCenterOfRotation(Vec3 center);
 
-	void stabilizeRotation(Vec3 anchor);
+    void stabilizeRotation(Vec3 anchor);
 
-	void selectBlock(BlockPos pos);
+    // BlockPos -> using x,y,z ints in 1.7.10
+    void selectBlock(int x, int y, int z);
 
-	void resetSelectedBlock();
+    void resetSelectedBlock();
 
-	void queueRedraw();
+    void queueRedraw();
 
-	boolean isEmpty();
+    boolean isEmpty();
 
-	void setEmpty();
+    void setEmpty();
 
-	void setAnimatedRotation(Vec3 eulerAngles, boolean force);
+    void setAnimatedRotation(Vec3 eulerAngles, boolean force);
 
-	Vec3 getAnimatedRotation();
+    Vec3 getAnimatedRotation();
 
-	void setAnimatedOffset(Vec3 offset, boolean force);
+    void setAnimatedOffset(Vec3 offset, boolean force);
 
-	Vec3 getAnimatedOffset();
+    Vec3 getAnimatedOffset();
 
-	Pair<Vec3, BlockHitResult> rayTrace(PonderLevel world, Vec3 source, Vec3 target);
+    // TODO: Pair from catnip not available - using Object[] as temporary replacement
+    // Pair<Vec3, BlockHitResult> rayTrace(PonderLevel world, Vec3 source, Vec3 target);
+    Object[] rayTrace(PonderLevel world, Vec3 source, Vec3 target);
 }
