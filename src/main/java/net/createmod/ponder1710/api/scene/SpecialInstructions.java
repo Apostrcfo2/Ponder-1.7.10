@@ -7,29 +7,32 @@ import net.createmod.ponder1710.api.element.ElementLink;
 import net.createmod.ponder1710.api.element.MinecartElement;
 import net.createmod.ponder1710.api.element.ParrotElement;
 import net.createmod.ponder1710.api.element.ParrotPose;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.phys.Vec3;
+
+// import net.minecraft.core.BlockPos; // 1.7.10 uses x,y,z
+// import net.minecraft.core.Direction; // 1.7.10 uses ForgeDirection
+// import net.minecraft.world.phys.Vec3; // 1.7.10 uses net.minecraft.util.Vec3
+import net.minecraft.util.Vec3;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public interface SpecialInstructions {
-	ElementLink<ParrotElement> createBirb(Vec3 location, Supplier<? extends ParrotPose> pose);
 
-	void changeBirbPose(ElementLink<ParrotElement> birb, Supplier<? extends ParrotPose> pose);
+    // TODO: ParrotElement - Parrot not in 1.7.10
+    // ElementLink<ParrotElement> createBirb(Vec3 location, Supplier<? extends ParrotPose> pose);
+    // void changeBirbPose(ElementLink<ParrotElement> birb, Supplier<? extends ParrotPose> pose);
+    // void rotateParrot(ElementLink<ParrotElement> link, double xRotation, double yRotation, double zRotation, int duration);
+    // void moveParrot(ElementLink<ParrotElement> link, Vec3 offset, int duration);
 
-	void movePointOfInterest(Vec3 location);
+    void movePointOfInterest(Vec3 location);
 
-	void movePointOfInterest(BlockPos location);
+    // movePointOfInterest(BlockPos) -> movePointOfInterest(int, int, int) in 1.7.10
+    void movePointOfInterest(int x, int y, int z);
 
-	void rotateParrot(ElementLink<ParrotElement> link, double xRotation, double yRotation, double zRotation,
-					  int duration);
+    ElementLink<MinecartElement> createCart(Vec3 location, float angle, MinecartElement.MinecartConstructor type);
 
-	void moveParrot(ElementLink<ParrotElement> link, Vec3 offset, int duration);
+    void rotateCart(ElementLink<MinecartElement> link, float yRotation, int duration);
 
-	ElementLink<MinecartElement> createCart(Vec3 location, float angle, MinecartElement.MinecartConstructor type);
+    void moveCart(ElementLink<MinecartElement> link, Vec3 offset, int duration);
 
-	void rotateCart(ElementLink<MinecartElement> link, float yRotation, int duration);
-
-	void moveCart(ElementLink<MinecartElement> link, Vec3 offset, int duration);
-
-	<T extends AnimatedSceneElement> void hideElement(ElementLink<T> link, Direction direction);
+    // Direction -> ForgeDirection in 1.7.10
+    <T extends AnimatedSceneElement> void hideElement(ElementLink<T> link, ForgeDirection direction);
 }

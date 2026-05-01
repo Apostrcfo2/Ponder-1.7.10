@@ -1,24 +1,28 @@
 package net.createmod.ponder1710.api.scene;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.createmod.catnip.outliner.Outline;
-import net.createmod.catnip.outliner.Outliner;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
+// import net.createmod.catnip.outliner.Outline; // TODO: catnip not available
+// import net.createmod.catnip.outliner.Outliner; // TODO: catnip not available
+// import net.minecraft.core.BlockPos; // 1.7.10 uses ChunkCoordinates or x,y,z
+// import net.minecraft.world.phys.Vec3; // 1.7.10 uses net.minecraft.util.Vec3
+import net.minecraft.util.Vec3;
 
-public interface Selection extends Iterable<BlockPos>, Predicate<BlockPos> {
-	Selection add(Selection other);
+public interface Selection extends Iterable<int[]>, Predicate<int[]> {
 
-	Selection substract(Selection other);
+    Selection add(Selection other);
 
-	Selection copy();
+    Selection substract(Selection other);
 
-	Vec3 getCenter();
+    Selection copy();
 
-	Outline.OutlineParams makeOutline(Outliner outliner, Object slot);
+    Vec3 getCenter();
 
-	default Outline.OutlineParams makeOutline(Outliner outliner) {
-		return makeOutline(outliner, this);
-	}
+    // TODO: makeOutline - Outliner from catnip not available in 1.7.10
+    // Outline.OutlineParams makeOutline(Outliner outliner, Object slot);
+    // default Outline.OutlineParams makeOutline(Outliner outliner) { ... }
+
+    // Helper to iterate with x,y,z
+    void forEach(Consumer<int[]> consumer);
 }

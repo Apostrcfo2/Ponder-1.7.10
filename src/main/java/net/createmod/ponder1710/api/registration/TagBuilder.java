@@ -1,28 +1,30 @@
 package net.createmod.ponder1710.api.registration;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.util.ResourceLocation;
+
+// import net.minecraft.world.level.ItemLike; // TODO: not available in 1.7.10
+import net.minecraft.item.Item;
 
 public interface TagBuilder {
 
-	TagBuilder title(String title);
+    TagBuilder title(String title);
 
-	TagBuilder description(String description);
+    TagBuilder description(String description);
 
-	TagBuilder addToIndex();
+    TagBuilder addToIndex();
 
-	TagBuilder icon(ResourceLocation location);
+    TagBuilder icon(ResourceLocation location);
 
-	TagBuilder icon(String path);
+    TagBuilder icon(String path);
 
-	TagBuilder idAsIcon();
+    TagBuilder idAsIcon();
 
-	TagBuilder item(ItemLike item, boolean useAsIcon, boolean useAsMainItem);
+    // ItemLike -> Item in 1.7.10
+    TagBuilder item(Item item, boolean useAsIcon, boolean useAsMainItem);
 
-	default TagBuilder item(ItemLike item) {
-		return item(item, true, true);
-	}
+    default TagBuilder item(Item item) {
+        return item(item, true, true);
+    }
 
-	void register();
-
+    void register();
 }
