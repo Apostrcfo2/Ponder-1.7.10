@@ -36,3 +36,6 @@ addon.local.gradle.kts
 addon.late.local.gradle
 addon.late.local.gradle.kts
 layout.json
+# Ignore JAR files in libs/ but keep .gitkeep
+libs/*.jar
+!libs/.gitkeep
