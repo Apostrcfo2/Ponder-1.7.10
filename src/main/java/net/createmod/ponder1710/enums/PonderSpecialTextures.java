@@ -1,32 +1,32 @@
 package net.createmod.ponder1710.enums;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+// import com.mojang.blaze3d.systems.RenderSystem; // not available in 1.7.10
+// import net.createmod.catnip.render.BindableTexture; // TODO: catnip not available
+// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
 
-import net.createmod.catnip.render.BindableTexture;
 import net.createmod.ponder1710.Ponder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
 
-public enum PonderSpecialTextures implements BindableTexture {
+public enum PonderSpecialTextures {
 
-	BLANK("blank.png"),
+    BLANK("blank.png"),
 
-	;
+    ;
 
-	public static final String ASSET_PATH = "textures/special/";
-	private final ResourceLocation location;
+    public static final String ASSET_PATH = "textures/special/";
+    private final ResourceLocation location;
 
-	PonderSpecialTextures(String filename) {
-		location = Ponder.asResource(ASSET_PATH + filename);
-	}
+    PonderSpecialTextures(String filename) {
+        location = Ponder.asResource(ASSET_PATH + filename);
+    }
 
-	@Override
-	public void bind() {
-		RenderSystem.setShaderTexture(0, location);
-	}
+    public void bind() {
+        // RenderSystem.setShaderTexture not available in 1.7.10
+        Minecraft.getMinecraft().getTextureManager().bindTexture(location);
+    }
 
-	@Override
-	public ResourceLocation getLocation() {
-		return location;
-	}
-
+    public ResourceLocation getLocation() {
+        return location;
+    }
 }

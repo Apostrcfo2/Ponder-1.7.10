@@ -1,121 +1,85 @@
 package net.createmod.ponder1710.enums;
 
-import net.createmod.catnip.gui.TextureSheetSegment;
-import net.createmod.catnip.gui.UIRenderHelper;
-import net.createmod.catnip.gui.element.DelegatedStencilElement;
-import net.createmod.catnip.gui.element.ScreenElement;
-import net.createmod.catnip.render.ColoredRenderable;
-import net.createmod.catnip.theme.Color;
+// import net.createmod.catnip.gui.TextureSheetSegment; // TODO: catnip not available
+// import net.createmod.catnip.gui.UIRenderHelper; // TODO: catnip not available
+// import net.createmod.catnip.gui.element.DelegatedStencilElement; // TODO: catnip not available
+// import net.createmod.catnip.gui.element.ScreenElement; // TODO: catnip not available
+// import net.createmod.catnip.render.ColoredRenderable; // TODO: catnip not available
+// import net.createmod.catnip.theme.Color; // TODO: catnip not available
+// import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
+// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
+
 import net.createmod.ponder1710.Ponder;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
 
-public enum PonderGuiTextures implements TextureSheetSegment, ScreenElement, ColoredRenderable {
+import org.lwjgl.opengl.GL11;
 
-	//logo
-	LOGO("logo", 0, 0, 32, 32, 32, 32),
+public enum PonderGuiTextures {
 
-	//widgets
-	SPEECH_TOOLTIP_BACKGROUND("widgets", 0, 24, 8, 8),
-	SPEECH_TOOLTIP_COLOR("widgets", 8, 24, 8, 8),
+    LOGO("logo", 0, 0, 32, 32, 32, 32),
 
-	//icons
-	ICON_PONDER_LEFT("widgets", 0, 2),
-	ICON_PONDER_CLOSE("widgets", 1, 2),
-	ICON_PONDER_RIGHT("widgets", 2, 2),
-	ICON_PONDER_IDENTIFY("widgets", 3, 2),
-	ICON_PONDER_REPLAY("widgets", 4, 2),
-	ICON_PONDER_USER_MODE("widgets", 5, 2),
-	ICON_PONDER_SLOW_MODE("widgets", 6, 2),
+    SPEECH_TOOLTIP_BACKGROUND("widgets", 0, 24, 8, 8),
+    SPEECH_TOOLTIP_COLOR("widgets", 8, 24, 8, 8),
 
-	ICON_CONFIG_UNLOCKED("widgets", 0, 3),
-	ICON_CONFIG_LOCKED("widgets", 1, 3),
-	ICON_CONFIG_DISCARD("widgets", 2, 3),
-	ICON_CONFIG_SAVE("widgets", 3, 3),
-	ICON_CONFIG_RESET("widgets", 4, 3),
-	ICON_CONFIG_BACK("widgets", 5, 3),
-	ICON_CONFIG_PREV("widgets", 6, 3),
-	ICON_CONFIG_NEXT("widgets", 7, 3),
-	ICON_DISABLE("widgets", 8, 3),
-	ICON_CONFIG_OPEN("widgets", 9, 3),
-	ICON_CONFIRM("widgets", 10, 3),
+    ICON_PONDER_LEFT("widgets", 0, 2),
+    ICON_PONDER_CLOSE("widgets", 1, 2),
+    ICON_PONDER_RIGHT("widgets", 2, 2),
+    ICON_PONDER_IDENTIFY("widgets", 3, 2),
+    ICON_PONDER_REPLAY("widgets", 4, 2),
+    ICON_PONDER_USER_MODE("widgets", 5, 2),
+    ICON_PONDER_SLOW_MODE("widgets", 6, 2),
 
-	ICON_LMB("widgets", 0, 4),
-	ICON_SCROLL("widgets", 1, 4),
-	ICON_RMB("widgets", 2, 4),
+    PLACEMENT_INDICATOR_SHEET("placement_indicator", 0, 0, 16, 256),
 
-	// PlacementIndicator
-	PLACEMENT_INDICATOR_SHEET("placement_indicator", 0, 0, 16, 256),
+    ;
 
-	;
+    public final ResourceLocation location;
+    private final int width;
+    private final int height;
+    private final int startX;
+    private final int startY;
+    private final int sheetWidth;
+    private final int sheetHeight;
 
-	public final ResourceLocation location;
-	private final int width;
-	private final int height;
-	private final int startX;
-	private final int startY;
-	private final int sheetWidth;
-	private final int sheetHeight;
+    PonderGuiTextures(String location, int iconColumn, int iconRow) {
+        this(location, iconColumn * 16, iconRow * 16, 16, 16);
+    }
 
-	PonderGuiTextures(String location, int iconColumn, int iconRow) {
-		this(location, iconColumn * 16, iconRow * 16, 16, 16);
-	}
+    PonderGuiTextures(String location, int startX, int startY, int width, int height) {
+        this(Ponder.MOD_ID, location, startX, startY, width, height, 256, 256);
+    }
 
-	PonderGuiTextures(String location, int startX, int startY, int width, int height) {
-		this(Ponder.MOD_ID, location, startX, startY, width, height, 256, 256);
-	}
+    PonderGuiTextures(String location, int startX, int startY, int width, int height, int sheetWidth, int sheetHeight) {
+        this(Ponder.MOD_ID, location, startX, startY, width, height, sheetWidth, sheetHeight);
+    }
 
-	PonderGuiTextures(String location, int startX, int startY, int width, int height, int sheetWidth, int sheetHeight) {
-		this(Ponder.MOD_ID, location, startX, startY, width, height, sheetWidth, sheetHeight);
-	}
+    PonderGuiTextures(String namespace, String location, int startX, int startY, int width, int height, int sheetWidth, int sheetHeight) {
+        // ResourceLocation.fromNamespaceAndPath not available in 1.7.10
+        this.location = new ResourceLocation(namespace, "textures/gui/" + location + ".png");
+        this.width = width;
+        this.height = height;
+        this.startX = startX;
+        this.startY = startY;
+        this.sheetWidth = sheetWidth;
+        this.sheetHeight = sheetHeight;
+    }
 
-	PonderGuiTextures(String namespace, String location, int startX, int startY, int width, int height, int sheetWidth, int sheetHeight) {
-		this.location = ResourceLocation.fromNamespaceAndPath(namespace, "textures/gui/" + location + ".png");
-		this.width = width;
-		this.height = height;
-		this.startX = startX;
-		this.startY = startY;
-		this.sheetWidth = sheetWidth;
-		this.sheetHeight = sheetHeight;
-	}
+    public void bind() {
+        Minecraft.getMinecraft().getTextureManager().bindTexture(location);
+    }
 
-	@Override
-	public void render(GuiGraphics graphics, int x, int y) {
-		graphics.blit(getLocation(), x, y, 0, startX, startY, width, height, sheetWidth, sheetHeight);
-	}
+    // TODO: render(GuiGraphics, int, int) - GuiGraphics not available in 1.7.10
+    // Use GL11 directly instead
+    public void render(int x, int y) {
+        bind();
+        GL11.glColor4f(1f, 1f, 1f, 1f);
+        // TODO: drawTexturedModalRect equivalent
+    }
 
-	@Override
-	public void render(GuiGraphics graphics, int x, int y, Color c) {
-		bind();
-		UIRenderHelper.drawColoredTexture(graphics, c, x, y, startX, startY, width, height);
-	}
-
-	@Override
-	public ResourceLocation getLocation() {
-		return location;
-	}
-
-	@Override
-	public int getStartX() {
-		return startX;
-	}
-
-	@Override
-	public int getStartY() {
-		return startY;
-	}
-
-	@Override
-	public int getWidth() {
-		return width;
-	}
-
-	@Override
-	public int getHeight() {
-		return height;
-	}
-
-	public DelegatedStencilElement asStencil() {
-		return new DelegatedStencilElement().withStencilRenderer((ms, w, h, alpha) -> this.render(ms, 0, 0)).withBounds(16, 16);
-	}
+    public ResourceLocation getLocation() { return location; }
+    public int getStartX() { return startX; }
+    public int getStartY() { return startY; }
+    public int getWidth() { return width; }
+    public int getHeight() { return height; }
 }

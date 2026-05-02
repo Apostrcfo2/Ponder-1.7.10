@@ -1,38 +1,40 @@
 package net.createmod.ponder1710.enums;
 
-import java.util.function.Consumer;
+// import org.lwjgl.glfw.GLFW; // GLFW not available in 1.7.10 - uses LWJGL 2
+// import net.createmod.catnip.client.ConflictSafeKeyMapping; // TODO: catnip not available
+// import net.createmod.catnip.platform.CatnipClientServices; // TODO: catnip not available
+// import net.minecraft.client.KeyMapping; // KeyBinding in 1.7.10
+// import net.minecraft.network.chat.Component; // not available in 1.7.10
 
-import org.lwjgl.glfw.GLFW;
+import org.lwjgl.input.Keyboard;
 
-import net.createmod.catnip.client.ConflictSafeKeyMapping;
-import net.createmod.catnip.platform.CatnipClientServices;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.settings.KeyBinding;
+import cpw.mods.fml.client.registry.ClientRegistry;
 
 public enum PonderKeybinds {
 
-	PONDER("ponder", GLFW.GLFW_KEY_W);
+    PONDER("ponder", Keyboard.KEY_W);
 
-	public static final String CATEGORY = "key.categories.ponder";
+    public static final String CATEGORY = "key.categories.ponder";
 
-	private final KeyMapping mapping;
+    private final KeyBinding mapping;
 
-	PonderKeybinds(String description, int defaultKey) {
-		this.mapping = new ConflictSafeKeyMapping("key.ponder." + description, defaultKey, CATEGORY);
-	}
+    PonderKeybinds(String description, int defaultKey) {
+        // KeyBinding in 1.7.10
+        this.mapping = new KeyBinding("key.ponder." + description, defaultKey, CATEGORY);
+    }
 
-	public static void register(Consumer<KeyMapping> registrationCallback) {
-		for (PonderKeybinds key : values()) {
-			registrationCallback.accept(key.mapping);
-		}
-	}
+    public static void register() {
+        for (PonderKeybinds key : values()) {
+            ClientRegistry.registerKeyBinding(key.mapping);
+        }
+    }
 
-	public boolean isDown() {
-		return !this.mapping.isUnbound() && CatnipClientServices.CLIENT_HOOKS.isKeyPressed(this.mapping);
-	}
+    public boolean isDown() {
+        return mapping.getIsKeyPressed();
+    }
 
-	public Component message() {
-		return this.mapping.getTranslatedKeyMessage();
-	}
-
+    public KeyBinding getMapping() {
+        return mapping;
+    }
 }
