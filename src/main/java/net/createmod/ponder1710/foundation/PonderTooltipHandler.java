@@ -2,196 +2,85 @@ package net.createmod.ponder1710.foundation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.google.common.base.Strings;
-import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.gui.NavigatableSimiScreen;
-import net.createmod.catnip.gui.ScreenOpener;
-import net.createmod.catnip.registry.RegisteredObjectsHelper;
-import net.createmod.catnip.theme.Color;
+// import com.mojang.blaze3d.systems.RenderSystem; // not available in 1.7.10
+// import net.createmod.catnip.animation.AnimationTickHolder; // TODO: catnip not available
+// import net.createmod.catnip.animation.LerpedFloat; // TODO: catnip not available
+// import net.createmod.catnip.data.Couple; // TODO: catnip not available
+// import net.createmod.catnip.gui.NavigatableSimiScreen; // TODO: catnip not available
+// import net.createmod.catnip.gui.ScreenOpener; // TODO: catnip not available
+// import net.createmod.catnip.registry.RegisteredObjectsHelper; // TODO: catnip not available
+// import net.createmod.catnip.theme.Color; // TODO: catnip not available
+// import net.minecraft.ChatFormatting; // different in 1.7.10
+// import net.minecraft.client.gui.Font; // FontRenderer in 1.7.10
+// import net.minecraft.client.gui.screens.Screen; // GuiScreen in 1.7.10
+// import net.minecraft.network.chat.Component; // not available in 1.7.10
+// import net.minecraft.network.chat.MutableComponent; // not available in 1.7.10
+// import net.minecraft.world.item.ItemStack; // different package in 1.7.10
+
 import net.createmod.ponder1710.Ponder;
 import net.createmod.ponder1710.enums.PonderKeybinds;
 import net.createmod.ponder1710.foundation.registration.PonderLocalization;
 import net.createmod.ponder1710.foundation.ui.PonderUI;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 
 public class PonderTooltipHandler {
 
-	private static final Color borderA = new Color(0x5000ff, false).setImmutable();
-	private static final Color borderB = new Color(0x5555ff, false).setImmutable();
-	private static final Color borderC = new Color(0xffffff, false).setImmutable();
+    public static boolean enable = true;
 
-	public static boolean enable = true;
+    // TODO: LerpedFloat from catnip not available - replaced with simple float
+    static float holdKeyProgress = 0;
+    static ItemStack hoveredStack = null;
+    static ItemStack trackingStack = null;
+    static boolean subject = false;
+    static boolean deferTick = false;
 
-	static LerpedFloat holdKeyProgress = LerpedFloat.linear().startWithValue(0);
-	static ItemStack hoveredStack = ItemStack.EMPTY;
-	static ItemStack trackingStack = ItemStack.EMPTY;
-	static boolean subject = false;
-	static boolean deferTick = false;
+    static final List<Consumer<ItemStack>> hoveredStackCallbacks = new ArrayList<>();
 
-	static final List<Consumer<ItemStack>> hoveredStackCallbacks = new ArrayList<>();
+    public static final String HOLD_TO_PONDER = PonderLocalization.UI_PREFIX + "hold_to_ponder";
+    public static final String SUBJECT = PonderLocalization.UI_PREFIX + "subject";
 
-	public static final String HOLD_TO_PONDER = PonderLocalization.UI_PREFIX + "hold_to_ponder";
-	public static final String SUBJECT = PonderLocalization.UI_PREFIX + "subject";
+    public static void tick() {
+        deferTick = true;
+    }
 
-	public static void tick() {
-		deferTick = true;
-	}
+    public static void deferredTick() {
+        deferTick = false;
+        Minecraft mc = Minecraft.getMinecraft();
 
-	public static void deferredTick() {
-		deferTick = false;
-		Minecraft instance = Minecraft.getInstance();
-		Screen currentScreen = instance.screen;
+        if (hoveredStack == null || trackingStack == null) {
+            trackingStack = null;
+            holdKeyProgress = 0;
+            return;
+        }
 
-		if (hoveredStack.isEmpty() || trackingStack.isEmpty()) {
-			trackingStack = ItemStack.EMPTY;
-			holdKeyProgress.startWithValue(0);
-			return;
-		}
+        if (!subject && PonderKeybinds.PONDER.isDown() && mc.currentScreen != null) {
+            if (holdKeyProgress >= 1) {
+                mc.displayGuiScreen(PonderUI.of(trackingStack));
+                holdKeyProgress = 0;
+                return;
+            }
+            holdKeyProgress = Math.min(1, holdKeyProgress + Math.max(.25f, holdKeyProgress) * .25f);
+        } else {
+            holdKeyProgress = Math.max(0, holdKeyProgress - .05f);
+        }
 
-		float value = holdKeyProgress.getValue();
+        hoveredStack = null;
+    }
 
-		if (RenderSystem.isOnRenderThread() && !subject && PonderKeybinds.PONDER.isDown() && currentScreen != null) {
-			if (value >= 1) {
-				if (currentScreen instanceof NavigatableSimiScreen)
-					((NavigatableSimiScreen) currentScreen).centerScalingOnMouse();
-				ScreenOpener.transitionTo(PonderUI.of(trackingStack));
-				holdKeyProgress.startWithValue(0);
-				return;
-			}
-			holdKeyProgress.setValue(Math.min(1, value + Math.max(.25f, value) * .25f));
-		} else
-			holdKeyProgress.setValue(Math.max(0, value - .05f));
+    // TODO: addToTooltip - tooltip system different in 1.7.10
+    // In 1.7.10, tooltips are added via getItemStackDisplayName and getItemInformation
 
-		hoveredStack = ItemStack.EMPTY;
-	}
+    public synchronized static void registerHoveredPonderStackCallback(Consumer<ItemStack> consumer) {
+        hoveredStackCallbacks.add(consumer);
+    }
 
-	public static void addToTooltip(List<Component> toolTip, ItemStack stack) {
-		if (!enable)
-			return;
-
-		if (NavigatableSimiScreen.isCurrentlyRenderingPreviousScreen())
-			return;
-
-		updateHovered(stack);
-
-		if (deferTick)
-			deferredTick();
-
-		if (trackingStack != stack)
-			return;
-
-		// TODO - Checkover
-		float renderPartialTicks = AnimationTickHolder.getPartialTicksUI();
-		Component component = subject ? Ponder.lang().translate(SUBJECT).component()
-			.withStyle(ChatFormatting.GREEN)
-			: makeProgressBar(Math.min(1, holdKeyProgress.getValue(renderPartialTicks) * 8 / 7f));
-		if (toolTip.size() < 2)
-			toolTip.add(component);
-		else
-			toolTip.add(1, component);
-	}
-
-	protected static void updateHovered(ItemStack stack) {
-		Minecraft instance = Minecraft.getInstance();
-		Screen currentScreen = instance.screen;
-		boolean inPonderUI = currentScreen instanceof PonderUI;
-
-		ItemStack prevStack = trackingStack;
-		hoveredStack = ItemStack.EMPTY;
-		subject = false;
-
-		if (inPonderUI) {
-			PonderUI ponderUI = (PonderUI) currentScreen;
-			ItemStack uiSubject = ponderUI.getSubject();
-			if (!uiSubject.isEmpty() && stack.is(uiSubject.getItem()))
-				subject = true;
-		}
-
-		if (stack.isEmpty())
-			return;
-		if (!PonderIndex.getSceneAccess().doScenesExistForId(RegisteredObjectsHelper.getKeyOrThrow(stack.getItem())))
-			return;
-
-		if (prevStack.isEmpty() || !prevStack.is(stack.getItem()))
-			holdKeyProgress.startWithValue(0);
-
-		hoveredStack = stack;
-		trackingStack = stack;
-
-		for (Consumer<ItemStack> hoveredStackCallback : hoveredStackCallbacks)
-			hoveredStackCallback.accept(hoveredStack.copy());
-	}
-
-	public static Optional<Couple<Color>> handleTooltipColor(ItemStack stack) {
-		if (trackingStack != stack)
-			return Optional.empty();
-
-		if (holdKeyProgress.getValue() == 0)
-			return Optional.empty();
-
-		// TODO - Checkover
-		float renderPartialTicks = AnimationTickHolder.getPartialTicksUI();
-
-		Color startC;
-		Color endC;
-		float progress = Math.min(1, holdKeyProgress.getValue(renderPartialTicks) * 8 / 7f);
-
-		startC = getSmoothColorForProgress(progress);
-		endC = getSmoothColorForProgress(progress);
-
-		return Optional.of(Couple.create(startC, endC));
-
-	}
-
-	private static Color getSmoothColorForProgress(float progress) {
-		if (progress < 0.5)
-			return borderA.mixWith(borderB, progress * 2);
-		return borderB.mixWith(borderC, (progress - .5f) * 2);
-	}
-
-	private static Component makeProgressBar(float progress) {
-		MutableComponent holdW = Ponder.lang()
-			.translate(HOLD_TO_PONDER,
-				PonderKeybinds.PONDER.message().copy().withStyle(ChatFormatting.GRAY))
-			.style(ChatFormatting.DARK_GRAY)
-			.component();
-
-		Font fontRenderer = Minecraft.getInstance().font;
-		float charWidth = fontRenderer.width("|");
-		float tipWidth = fontRenderer.width(holdW);
-
-		int total = (int) (tipWidth / charWidth);
-		int current = (int) (progress * total);
-
-		if (progress > 0) {
-			String bars = "";
-			bars += ChatFormatting.GRAY + Strings.repeat("|", current);
-			if (progress < 1)
-				bars += ChatFormatting.DARK_GRAY + Strings.repeat("|", total - current);
-			return Component.literal(bars);
-		}
-
-		return holdW;
-	}
-
-	public synchronized static void registerHoveredPonderStackCallback(Consumer<ItemStack> consumer) {
-		hoveredStackCallbacks.add(consumer);
-	}
-
-	public synchronized static void removeHoveredPonderStackCallback(Consumer<ItemStack> consumer) {
-		hoveredStackCallbacks.remove(consumer);
-	}
+    public synchronized static void removeHoveredPonderStackCallback(Consumer<ItemStack> consumer) {
+        hoveredStackCallbacks.remove(consumer);
+    }
 }
