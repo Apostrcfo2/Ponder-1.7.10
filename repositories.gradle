@@ -1,2 +1,41 @@
 repositories {
+    // GTNH public repo; main mod repo for 1.7.10 modded ecosystem
+    maven {
+        url "https://raw.githubusercontent.com/GTNewHorizons/GT-New-Horizons-1.7.10-Repo/master/"
+    }
+    
+    // Forge Maven; includes Forge and some MCP files
+    maven {
+        url "https://files.minecraftforge.net/maven"
+    }
+
+    // Maven Central; standard Java libraries (e.g. JOML)
+    mavenCentral()
+
+    // Maven Local; for testing local artifacts
+    mavenLocal()
+
+    // JitPack; for dependencies which are only on GitHub releases  
+    maven {
+        url "https://jitpack.io"
+    }
+
+    // CurseMaven (CurseForge); for dependencies released primarily on CurseForge
+    maven {
+        url "https://cursemaven.com"
+        content {
+            // Use only for Curse mods, not everything!
+            includeGroup "curse.maven"
+        }
+    }
+
+    // IC2/Player Maven; some tech mods use this as distribution
+    maven {
+        url "https://maven.ic2.player.to"
+    }
+
+    // Sonatype Snapshots; some libraries publish snapshot versions here
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
 }
