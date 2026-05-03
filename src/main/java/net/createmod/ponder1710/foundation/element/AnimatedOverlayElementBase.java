@@ -1,25 +1,24 @@
 package net.createmod.ponder1710.foundation.element;
 
-import net.createmod.catnip.animation.LerpedFloat;
+// import net.createmod.catnip.animation.LerpedFloat; // TODO: catnip not available - replaced with float
+
 import net.createmod.ponder1710.api.element.AnimatedOverlayElement;
+import net.minecraft.util.MathHelper;
 
 public abstract class AnimatedOverlayElementBase extends PonderElementBase implements AnimatedOverlayElement {
 
-	protected LerpedFloat fade;
+    // TODO: LerpedFloat from catnip not available - replaced with plain float
+    protected float fadeValue = 0;
+    protected float prevFadeValue = 0;
 
-	public AnimatedOverlayElementBase() {
-		fade = LerpedFloat.linear()
-			.startWithValue(0);
-	}
+    @Override
+    public void setFade(float fade) {
+        this.prevFadeValue = this.fadeValue;
+        this.fadeValue = fade;
+    }
 
-	@Override
-	public void setFade(float fade) {
-		this.fade.setValue(fade);
-	}
-
-	@Override
-	public float getFade(float partialTicks) {
-		return this.fade.getValue(partialTicks);
-	}
-
+    @Override
+    public float getFade(float partialTicks) {
+        return MathHelper.lerp(partialTicks, prevFadeValue, fadeValue);
+    }
 }
