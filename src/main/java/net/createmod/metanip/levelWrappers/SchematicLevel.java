@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 
 import net.createmod.metanip.components.ComponentProcessors;
 import net.createmod.metanip.math.BBHelper;
-import net.createmod.ponder.Ponder;
+import net.createmod.ponder1710.Ponder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;

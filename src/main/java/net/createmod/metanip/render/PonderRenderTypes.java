@@ -5,9 +5,9 @@ import java.util.function.BiFunction;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
-import net.createmod.ponder.Ponder;
-import net.createmod.ponder.enums.PonderSpecialTextures;
-import net.createmod.ponder.mixin.client.accessor.RenderTypeAccessor;
+import net.createmod.ponder1710.Ponder;
+import net.createmod.ponder1710.enums.PonderSpecialTextures;
+import net.createmod.ponder1710.mixin.client.accessor.RenderTypeAccessor;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;

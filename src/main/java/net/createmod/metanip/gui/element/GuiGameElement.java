@@ -17,7 +17,7 @@ import net.createmod.metanip.gui.UIRenderHelper;
 import net.createmod.metanip.impl.client.render.ColoringVertexConsumer;
 import net.createmod.metanip.math.VecHelper;
 import net.createmod.metanip.platform.CatnipClientServices;
-import net.createmod.ponder.mixin.client.accessor.ItemRendererAccessor;
+import net.createmod.ponder1710.mixin.client.accessor.ItemRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;

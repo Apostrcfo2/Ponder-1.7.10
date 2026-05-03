@@ -20,7 +20,7 @@ import net.createmod.metanip.gui.element.BoxElement;
 import net.createmod.metanip.gui.widget.BoxWidget;
 import net.createmod.metanip.lang.Lang;
 import net.createmod.metanip.theme.Color;
-import net.createmod.ponder.enums.PonderGuiTextures;
+import net.createmod.ponder1710.enums.PonderGuiTextures;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;

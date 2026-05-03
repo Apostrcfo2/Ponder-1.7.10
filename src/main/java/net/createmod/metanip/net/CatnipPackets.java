@@ -7,7 +7,7 @@ import net.createmod.metanip.net.base.CatnipPacketRegistry;
 import net.createmod.metanip.net.packets.ClientboundConfigPacket;
 import net.createmod.metanip.net.packets.ClientboundSimpleActionPacket;
 import net.createmod.metanip.net.packets.ServerboundConfigPacket;
-import net.createmod.ponder.Ponder;
+import net.createmod.ponder1710.Ponder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

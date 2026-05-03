@@ -5,9 +5,9 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import net.createmod.ponder.mixin.accessor.BiomeManagerAccessor;
-import net.createmod.ponder.mixin.accessor.EntityAccessor;
-import net.createmod.ponder.mixin.accessor.MinecraftServerAccessor;
+import net.createmod.ponder1710.mixin.accessor.BiomeManagerAccessor;
+import net.createmod.ponder1710.mixin.accessor.EntityAccessor;
+import net.createmod.ponder1710.mixin.accessor.MinecraftServerAccessor;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;

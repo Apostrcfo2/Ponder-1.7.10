@@ -16,7 +16,7 @@ import net.createmod.metanip.gui.widget.BoxWidget;
 import net.createmod.metanip.lang.FontHelper;
 import net.createmod.metanip.lang.FontHelper.Palette;
 import net.createmod.metanip.platform.CatnipServices;
-import net.createmod.ponder.enums.PonderGuiTextures;
+import net.createmod.ponder1710.enums.PonderGuiTextures;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;

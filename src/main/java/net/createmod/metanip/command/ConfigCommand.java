@@ -9,7 +9,7 @@ import net.createmod.metanip.net.ConfigPathArgument;
 import net.createmod.metanip.net.packets.ClientboundConfigPacket;
 import net.createmod.metanip.net.packets.ClientboundSimpleActionPacket;
 import net.createmod.metanip.platform.CatnipServices;
-import net.createmod.ponder.Ponder;
+import net.createmod.ponder1710.Ponder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;

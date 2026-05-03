@@ -1,7 +1,7 @@
 package net.createmod.metanip.event;
 
 import net.createmod.metanip.lang.LangNumberFormat;
-import net.createmod.ponder.PonderClient;
+import net.createmod.ponder1710.PonderClient;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 

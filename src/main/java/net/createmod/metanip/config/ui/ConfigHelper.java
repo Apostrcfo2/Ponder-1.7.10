@@ -22,7 +22,7 @@ import com.google.common.cache.LoadingCache;
 
 import net.createmod.metanip.data.Pair;
 import net.createmod.metanip.net.packets.ServerboundConfigPacket;
-import net.createmod.ponder.Ponder;
+import net.createmod.ponder1710.Ponder;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.config.ModConfigs;
 import net.neoforged.neoforge.common.ModConfigSpec;

@@ -4,7 +4,7 @@ import net.createmod.metanip.gui.UIRenderHelper;
 import net.createmod.metanip.gui.element.RenderElement;
 import net.createmod.metanip.gui.widget.AbstractSimiWidget;
 import net.createmod.metanip.gui.widget.BoxWidget;
-import net.createmod.ponder.enums.PonderGuiTextures;
+import net.createmod.ponder1710.enums.PonderGuiTextures;
 import net.minecraft.client.gui.GuiGraphics;
 import net.neoforged.neoforge.common.ModConfigSpec;
 

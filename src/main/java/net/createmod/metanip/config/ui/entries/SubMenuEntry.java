@@ -7,7 +7,7 @@ import net.createmod.metanip.config.ui.SubMenuConfigScreen;
 import net.createmod.metanip.gui.ScreenOpener;
 import net.createmod.metanip.gui.element.DelegatedStencilElement;
 import net.createmod.metanip.gui.widget.BoxWidget;
-import net.createmod.ponder.enums.PonderGuiTextures;
+import net.createmod.ponder1710.enums.PonderGuiTextures;
 import net.minecraft.client.gui.GuiGraphics;
 import net.neoforged.neoforge.common.ModConfigSpec;
 

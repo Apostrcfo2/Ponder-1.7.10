@@ -8,7 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.createmod.metanip.animation.AnimationTickHolder;
 import net.createmod.metanip.gui.widget.AbstractSimiWidget;
 import net.createmod.metanip.theme.Color;
-import net.createmod.ponder.mixin.client.accessor.ScreenAccessor;
+import net.createmod.ponder1710.mixin.client.accessor.ScreenAccessor;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;

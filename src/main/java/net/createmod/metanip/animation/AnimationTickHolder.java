@@ -1,9 +1,9 @@
 package net.createmod.metanip.animation;
 
 import net.createmod.metanip.levelWrappers.WrappedClientLevel;
-import net.createmod.ponder.api.level.PonderLevel;
-import net.createmod.ponder.foundation.ui.PonderUI;
-import net.createmod.ponder.mixin.accessor.TimerAccessor;
+import net.createmod.ponder1710.api.level.PonderLevel;
+import net.createmod.ponder1710.foundation.ui.PonderUI;
+import net.createmod.ponder1710.mixin.accessor.TimerAccessor;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.LevelAccessor;

@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.createmod.metanip.config.ui.ConfigHelper;
 import net.createmod.metanip.net.CatnipPackets;
 import net.createmod.metanip.net.base.ServerboundPacketPayload;
-import net.createmod.ponder.Ponder;
+import net.createmod.ponder1710.Ponder;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;

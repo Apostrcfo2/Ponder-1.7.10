@@ -22,7 +22,7 @@ import net.createmod.metanip.gui.element.DelegatedStencilElement;
 import net.createmod.metanip.gui.widget.BoxWidget;
 import net.createmod.metanip.lang.FontHelper;
 import net.createmod.metanip.lang.FontHelper.Palette;
-import net.createmod.ponder.enums.PonderGuiTextures;
+import net.createmod.ponder1710.enums.PonderGuiTextures;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

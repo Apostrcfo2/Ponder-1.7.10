@@ -40,7 +40,7 @@ import net.createmod.metanip.lang.FontHelper.Palette;
 import net.createmod.metanip.net.packets.ServerboundConfigPacket;
 import net.createmod.metanip.platform.CatnipServices;
 import net.createmod.metanip.theme.Color;
-import net.createmod.ponder.enums.PonderGuiTextures;
+import net.createmod.ponder1710.enums.PonderGuiTextures;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

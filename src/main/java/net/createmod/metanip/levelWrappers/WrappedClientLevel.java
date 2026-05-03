@@ -4,8 +4,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import net.createmod.ponder.mixin.accessor.BiomeManagerAccessor;
-import net.createmod.ponder.mixin.client.accessor.ClientPacketListenerAccessor;
+import net.createmod.ponder1710.mixin.accessor.BiomeManagerAccessor;
+import net.createmod.ponder1710.mixin.client.accessor.ClientPacketListenerAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;

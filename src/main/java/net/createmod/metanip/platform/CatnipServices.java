@@ -7,7 +7,7 @@ import net.createmod.metanip.platform.services.ModHooksHelper;
 import net.createmod.metanip.platform.services.NetworkHelper;
 import net.createmod.metanip.platform.services.PlatformHelper;
 import net.createmod.metanip.render.FluidRenderHelper;
-import net.createmod.ponder.Ponder;
+import net.createmod.ponder1710.Ponder;
 
 public class CatnipServices {
 
