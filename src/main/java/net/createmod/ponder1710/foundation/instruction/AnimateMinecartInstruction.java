@@ -5,12 +5,13 @@ import java.util.function.Function;
 
 import net.createmod.ponder1710.api.element.ElementLink;
 import net.createmod.ponder1710.api.element.MinecartElement;
-import net.minecraft.world.phys.Vec3;
+// import net.minecraft.world.phys.Vec3; // 1.7.10 uses different package
+import net.minecraft.util.Vec3;
 
 public class AnimateMinecartInstruction extends AnimateElementInstruction<MinecartElement> {
 
 	public static AnimateMinecartInstruction rotate(ElementLink<MinecartElement> link, float rotation, int ticks) {
-		return new AnimateMinecartInstruction(link, new Vec3(0, rotation, 0), ticks,
+		return new AnimateMinecartInstruction(link, Vec3.createVectorHelper(0, rotation, 0), ticks,
 			(wse, v) -> wse.setRotation((float) v.y, ticks == 0), MinecartElement::getRotation);
 	}
 

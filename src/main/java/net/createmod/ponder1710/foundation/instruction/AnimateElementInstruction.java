@@ -6,7 +6,8 @@ import java.util.function.Function;
 import net.createmod.ponder1710.api.element.ElementLink;
 import net.createmod.ponder1710.api.element.PonderSceneElement;
 import net.createmod.ponder1710.foundation.PonderScene;
-import net.minecraft.world.phys.Vec3;
+// import net.minecraft.world.phys.Vec3; // 1.7.10 uses different package
+import net.minecraft.util.Vec3;
 
 public class AnimateElementInstruction<T extends PonderSceneElement> extends TickingInstruction {
 
