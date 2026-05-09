@@ -42,7 +42,7 @@ dependencies {
 
     api "com.github.Gordon-Frohman:MetaWorlds-Mixins:1.6.1a"
 
-    api "org.joml:joml:1.10.5"
+    api "org.joml:joml:1.10.8"
     
     // Development Annotations
     compileOnly "org.jetbrains:annotations:24.0.1"
