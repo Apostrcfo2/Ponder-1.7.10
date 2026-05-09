@@ -34,7 +34,20 @@
  */
 
 dependencies {
-    implementation files('libs/metaworlds-1.6.1.jar')
-  
-    shadowImplementation group: 'org.joml', name: 'joml', version: '1.10.8'
+    // Minecraft Forge 1.7.10
+    compileOnly "net.minecraftforge:forge:1.7.10-10.13.4.1614-1.7.10"
+
+    // Using 'api' so consumers of Ponder also get Mixin support.
+    api "com.github.LegacyModdingMC:UniMixins:0.1.14:dev"
+
+    api "com.github.Gordon-Frohman:MetaWorlds-Mixins:1.6.1a"
+
+    api "org.joml:joml:1.10.5"
+    
+    // Development Annotations
+    compileOnly "org.jetbrains:annotations:24.0.1"
+}
+
+configurations {
+    api.extendsFrom implementation
 }
