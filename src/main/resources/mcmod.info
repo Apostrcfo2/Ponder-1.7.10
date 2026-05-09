@@ -2,7 +2,7 @@
 {
   "modid": "ponder1710",
   "name": "Ponder 1.7.10",
-  "description": "A Ponder-inspired in-game documentation system for Minecraft 1.7.10",
+  "description": "A Ponder in-game documentation system for Minecraft 1.7.10",
   "version": "0.1.0",
   "mcversion": "1.7.10",
   "url": "https://github.com/Apostrcfo2/Ponder-1.7.10",
