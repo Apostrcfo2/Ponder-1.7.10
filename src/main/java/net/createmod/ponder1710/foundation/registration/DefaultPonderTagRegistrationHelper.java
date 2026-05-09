@@ -7,7 +7,8 @@ import net.createmod.ponder1710.api.registration.MultiTagBuilder;
 import net.createmod.ponder1710.api.registration.PonderTagRegistrationHelper;
 import net.createmod.ponder1710.api.registration.TagBuilder;
 import net.createmod.ponder1710.foundation.PonderTag;
-import net.minecraft.resources.ResourceLocation;
+// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
+import net.minecraft.util.ResourceLocation;
 
 public class DefaultPonderTagRegistrationHelper implements PonderTagRegistrationHelper<ResourceLocation> {
 
@@ -33,7 +34,7 @@ public class DefaultPonderTagRegistrationHelper implements PonderTagRegistration
 
 	@Override
 	public TagBuilder registerTag(String id) {
-		return new PonderTagBuilder(ResourceLocation.fromNamespaceAndPath(namespace, id), this::finishTagRegister);
+		return new PonderTagBuilder(new ResourceLocation(namespace, id), this::finishTagRegister);
 	}
 
 	private void finishTagRegister(PonderTagBuilder builder) {

@@ -9,7 +9,8 @@ import net.createmod.ponder1710.api.registration.StoryBoardEntry;
 import net.createmod.ponder1710.api.scene.PonderStoryBoard;
 import net.createmod.ponder1710.foundation.PonderStoryBoardEntry;
 
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
+// // import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
+import net.minecraft.util.ResourceLocation; // different package in 1.7.10
 import net.minecraft.util.ResourceLocation;
 
 public class DefaultPonderSceneRegistrationHelper implements PonderSceneRegistrationHelper<ResourceLocation> {
