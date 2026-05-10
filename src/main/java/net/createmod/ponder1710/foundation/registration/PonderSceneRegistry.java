@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 
 import javax.annotation.Nullable;
@@ -24,135 +23,93 @@ import net.createmod.ponder1710.api.registration.StoryBoardEntry;
 import net.createmod.ponder1710.api.scene.SceneBuilder;
 import net.createmod.ponder1710.foundation.PonderIndex;
 import net.createmod.ponder1710.foundation.PonderScene;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtAccounter;
-import net.minecraft.nbt.NbtIo;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+
+// import net.minecraft.client.Minecraft; // different in 1.7.10
+// import net.minecraft.core.BlockPos; // 1.7.10 uses x,y,z
+// import net.minecraft.core.registries.BuiltInRegistries; // not available in 1.7.10
+// import net.minecraft.nbt.CompoundTag; // NBTTagCompound in 1.7.10
+// import net.minecraft.nbt.NbtAccounter; // not available in 1.7.10
+// import net.minecraft.nbt.NbtIo; // not available in 1.7.10
+// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
+// import net.minecraft.server.packs.resources.Resource; // not available in 1.7.10
+// import net.minecraft.server.packs.resources.ResourceManager; // different in 1.7.10
+// import net.minecraft.world.level.block.Block; // different package in 1.7.10
+// import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings; // not available
+// import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate; // not available
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 
 public class PonderSceneRegistry implements SceneRegistryAccess {
 
-	private final PonderLocalization localization;
-	private final Multimap<ResourceLocation, StoryBoardEntry> scenes;
+    private final PonderLocalization localization;
+    private final Multimap<ResourceLocation, StoryBoardEntry> scenes;
+    private boolean allowRegistration = true;
 
-	private boolean allowRegistration = true;
+    public PonderSceneRegistry(PonderLocalization localization) {
+        this.localization = localization;
+        scenes = LinkedHashMultimap.create();
+    }
 
-	public PonderSceneRegistry(PonderLocalization localization) {
-		this.localization = localization;
-		scenes = LinkedHashMultimap.create();
-	}
+    public void clearRegistry() {
+        scenes.clear();
+        allowRegistration = true;
+    }
 
-	public void clearRegistry() {
-		scenes.clear();
-		allowRegistration = true;
-	}
+    public void addStoryBoard(StoryBoardEntry entry) {
+        if (!allowRegistration)
+            throw new IllegalStateException("Registration Phase has already ended!");
+        scenes.put(entry.getComponent(), entry);
+    }
 
-	//
+    @Override
+    public Collection<Map.Entry<ResourceLocation, StoryBoardEntry>> getRegisteredEntries() {
+        return scenes.entries();
+    }
 
-	public void addStoryBoard(StoryBoardEntry entry) {
-		if (!allowRegistration)
-			throw new IllegalStateException("Registration Phase has already ended!");
+    @Override
+    public boolean doScenesExistForId(ResourceLocation id) {
+        return scenes.containsKey(id);
+    }
 
-		scenes.put(entry.getComponent(), entry);
-	}
+    @Override
+    public List<PonderScene> compile(ResourceLocation id) {
+        if (PonderIndex.editingModeActive())
+            PonderIndex.reload();
+        Collection<StoryBoardEntry> entries = scenes.get(id);
+        if (entries.isEmpty())
+            return Collections.emptyList();
+        return compile(entries);
+    }
 
-	//
+    @Override
+    public List<PonderScene> compile(Collection<StoryBoardEntry> entries) {
+        if (PonderIndex.editingModeActive()) {
+            localization.clearShared();
+            PonderIndex.gatherSharedText();
+        }
 
-	@Override
-	public Collection<Map.Entry<ResourceLocation, StoryBoardEntry>> getRegisteredEntries() {
-		return scenes.entries();
-	}
+        List<PonderScene> scenes = new ArrayList<>();
+        for (StoryBoardEntry storyBoard : entries) {
+            // TODO: loadSchematic - StructureTemplate not available in 1.7.10
+            // Will need to implement using 1.7.10 NBT schematic system
+            PonderLevel level = new PonderLevel(null);
+            PonderScene scene = compileScene(localization, storyBoard, level);
+            scene.begin();
+            scenes.add(scene);
+        }
+        return scenes;
+    }
 
-	@Override
-	public boolean doScenesExistForId(ResourceLocation id) {
-		return scenes.containsKey(id);
-	}
+    public static PonderScene compileScene(PonderLocalization localization, StoryBoardEntry sb, @Nullable PonderLevel level) {
+        PonderScene scene = new PonderScene(level, localization, sb.getNamespace(), sb.getComponent(),
+            sb.getTags(), sb.getOrderingEntries());
+        SceneBuilder builder = scene.builder();
+        sb.getBoard().program(builder, scene.getSceneBuildingUtil());
+        return scene;
+    }
 
-	//
-
-	@Override
-	public List<PonderScene> compile(ResourceLocation id) {
-		if (PonderIndex.editingModeActive())
-			PonderIndex.reload();
-
-		Collection<StoryBoardEntry> entries = scenes.get(id);
-
-		if (entries.isEmpty()) return Collections.emptyList();
-
-		return compile(entries);
-
-	}
-
-	@Override
-	public List<PonderScene> compile(Collection<StoryBoardEntry> entries) {
-		if (PonderIndex.editingModeActive()) {
-			localization.clearShared();
-			PonderIndex.gatherSharedText();
-		}
-
-		List<PonderScene> scenes = new ArrayList<>();
-
-		for (StoryBoardEntry storyBoard : entries) {
-			StructureTemplate activeTemplate = loadSchematic(storyBoard.getSchematicLocation());
-			PonderLevel level = new PonderLevel(BlockPos.ZERO, Minecraft.getInstance().level);
-			activeTemplate.placeInWorld(level, BlockPos.ZERO, BlockPos.ZERO, new StructurePlaceSettings(), level.random,
-				Block.UPDATE_CLIENTS);
-			level.createBackup();
-			PonderScene scene = compileScene(localization, storyBoard, level);
-			scene.begin();
-			scenes.add(scene);
-		}
-
-		return scenes;
-	}
-
-	public static PonderScene compileScene(PonderLocalization localization, StoryBoardEntry sb, @Nullable PonderLevel level) {
-		PonderScene scene = new PonderScene(level, localization, sb.getNamespace(), sb.getComponent(), sb.getTags(),
-			sb.getOrderingEntries());
-		SceneBuilder builder = scene.builder();
-		sb.getBoard().program(builder, scene.getSceneBuildingUtil());
-		return scene;
-	}
-
-	public static StructureTemplate loadSchematic(ResourceLocation location) {
-		return loadSchematic(Minecraft.getInstance().getResourceManager(), location);
-	}
-
-	public static StructureTemplate loadSchematic(ResourceManager resourceManager, ResourceLocation location) {
-		String namespace = location.getNamespace();
-		String path = "ponder/" + location.getPath() + ".nbt";
-		ResourceLocation location1 = ResourceLocation.fromNamespaceAndPath(namespace, path);
-
-		Optional<Resource> optionalResource = resourceManager.getResource(location1);
-		if (optionalResource.isEmpty()) {
-			Ponder.LOGGER.error("Ponder schematic missing: " + location1);
-
-			return new StructureTemplate();
-		}
-
-		Resource resource = optionalResource.get();
-		try (InputStream inputStream = resource.open()) {
-			return loadSchematic(inputStream);
-		} catch (IOException e) {
-			Ponder.LOGGER.error("Failed to read ponder schematic: " + location1, e);
-		}
-
-		return new StructureTemplate();
-	}
-
-	public static StructureTemplate loadSchematic(InputStream resourceStream) throws IOException {
-		StructureTemplate t = new StructureTemplate();
-		DataInputStream stream = new DataInputStream(new BufferedInputStream(new GZIPInputStream(resourceStream)));
-		CompoundTag nbt = NbtIo.read(stream, NbtAccounter.create(0x20000000L));
-		//t.load(Minecraft.getInstance().level.holderLookup(Registries.BLOCK), nbt);
-		t.load(BuiltInRegistries.BLOCK.asLookup(), nbt);
-		return t;
-	}
+    // TODO: loadSchematic - StructureTemplate/ResourceManager not available in 1.7.10
+    // Will need to reimplement using 1.7.10 resource system and NBT schematic format
+    // public static void loadSchematic(ResourceLocation location) { ... }
 }
