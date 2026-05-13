@@ -2,42 +2,30 @@ package net.createmod.ponder1710.foundation.ui;
 
 import java.util.function.BiConsumer;
 
-import net.createmod.catnip.gui.UIRenderHelper;
-import net.createmod.catnip.gui.widget.AbstractSimiWidget;
+// import net.createmod.catnip.gui.UIRenderHelper; // TODO: catnip not available
+// import net.createmod.catnip.gui.widget.AbstractSimiWidget; // TODO: catnip not available
+// import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
+
 import net.createmod.ponder1710.foundation.PonderChapter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiButton;
 
-public class ChapterLabel extends AbstractSimiWidget {
+import org.lwjgl.opengl.GL11;
 
-	private final PonderChapter chapter;
-	private final PonderButton button;
+public class ChapterLabel extends GuiButton {
 
-	public ChapterLabel(PonderChapter chapter, int x, int y, BiConsumer<Integer, Integer> onClick) {
-		super(x, y, 175, 38);
+    private final PonderChapter chapter;
+    private final PonderButton button;
 
-		this.button = new PonderButton(x + 4, y + 4, 30, 30)
-			.showing(chapter)
-			.withCallback(onClick);
+    public ChapterLabel(PonderChapter chapter, int x, int y, BiConsumer<Integer, Integer> onClick) {
+        super(0, x, y, 175, 38, "");
+        this.button = new PonderButton(x + 4, y + 4, 30, 30);
+        this.chapter = chapter;
+    }
 
-		this.chapter = chapter;
-	}
-
-	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		UIRenderHelper.streak(graphics, 0, getX(), getY() + height / 2, height - 2, width);
-		graphics.drawString(Minecraft.getInstance().font, chapter.getTitle(), getX() + 50,
-			getY() + 20, UIRenderHelper.COLOR_TEXT_ACCENT.getFirst().getRGB());
-
-		button.doRender(graphics, mouseX, mouseY, partialTicks);
-		super.render(graphics, mouseX, mouseY, partialTicks);
-	}
-
-	@Override
-	public void onClick(double x, double y) {
-		if (!button.isMouseOver(x, y))
-			return;
-
-		button.runCallback(x, y);
-	}
+    // TODO: render - GuiGraphics/UIRenderHelper not available in 1.7.10
+    public void render(int mouseX, int mouseY, float partialTicks) {
+        // TODO: UIRenderHelper.streak not available
+        Minecraft.getMinecraft().fontRenderer.drawString(chapter.getTitle(), xPosition + 50, yPosition + 20, 0xFFFFFF);
+    }
 }

@@ -1,166 +1,81 @@
 package net.createmod.ponder1710.foundation.ui;
 
-import java.util.Locale;
-
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+// import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
+// import net.createmod.catnip.animation.AnimationTickHolder; // TODO: catnip not available
+// import net.createmod.catnip.animation.LerpedFloat; // TODO: catnip not available
+// import net.createmod.catnip.data.Couple; // TODO: catnip not available
+// import net.createmod.catnip.gui.UIRenderHelper; // TODO: catnip not available
+// import net.createmod.catnip.gui.element.GuiGameElement; // TODO: catnip not available
+// import net.createmod.catnip.gui.widget.BoxWidget; // TODO: catnip not available
+// import net.createmod.catnip.theme.Color; // TODO: catnip not available
+// import net.minecraft.client.KeyMapping; // KeyBinding in 1.7.10
+// import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
+// import net.minecraft.util.Mth; // MathHelper in 1.7.10
+// import net.minecraft.world.item.ItemStack; // different package in 1.7.10
 
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.gui.UIRenderHelper;
-import net.createmod.catnip.gui.element.GuiGameElement;
-import net.createmod.catnip.gui.widget.BoxWidget;
-import net.createmod.catnip.theme.Color;
 import net.createmod.ponder1710.foundation.PonderTag;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.item.ItemStack;
 
-public class PonderButton extends BoxWidget {
+public class PonderButton extends GuiButton {
 
-	public static final Couple<Color> COLOR_IDLE = Couple.create(
-		new Color(0x60_c0c0ff, true),
-		new Color(0x30_c0c0ff, true)
-	).map(Color::setImmutable);
-	public static final Couple<Color> COLOR_HOVER = Couple.create(
-		new Color(0xf0_c0c0ff, true),
-		new Color(0xa0_c0c0ff, true)
-	).map(Color::setImmutable);
-	public static final Couple<Color> COLOR_CLICK = Couple.create(
-		new Color(0xff_ffffff, true),
-		new Color(0xdd_ffffff, true)
-	).map(Color::setImmutable);
-	public static final Couple<Color> COLOR_DISABLED = Couple.create(
-		new Color(0x80_909090, true),
-		new Color(0x20_909090, true)
-	).map(Color::setImmutable);
+    // TODO: Color/Couple from catnip not available - using int colors
+    public static final int COLOR_IDLE = 0x60c0c0ff;
+    public static final int COLOR_HOVER = 0xf0c0c0ff;
+    public static final int COLOR_CLICK = 0xffffffff;
+    public static final int COLOR_DISABLED = 0x80909090;
 
-	@Nullable
-	protected ItemStack item;
-	@Nullable
-	protected PonderTag tag;
-	@Nullable
-	protected KeyMapping shortcut;
-	protected LerpedFloat flash = LerpedFloat.linear().startWithValue(0).chase(0, 0.1f, LerpedFloat.Chaser.EXP);
+    @Nullable
+    protected ItemStack item;
+    @Nullable
+    protected PonderTag tag;
+    @Nullable
+    protected KeyBinding shortcut;
 
-	public PonderButton(int x, int y) {
-		this(x, y, 20, 20);
-	}
+    // TODO: LerpedFloat from catnip not available
+    protected float flashValue = 0;
 
-	public PonderButton(int x, int y, int width, int height) {
-		super(x, y, width, height);
-		z = 420;
-		paddingX = 2;
-		paddingY = 2;
-		colorIdle = COLOR_IDLE;
-		colorHover = COLOR_HOVER;
-		colorClick = COLOR_CLICK;
-		colorDisabled = COLOR_DISABLED;
-		updateGradientFromState();
-	}
+    public PonderButton(int x, int y) {
+        this(x, y, 20, 20);
+    }
 
-	public <T extends PonderButton> T withShortcut(KeyMapping key) {
-		this.shortcut = key;
-		//noinspection unchecked
-		return (T) this;
-	}
+    public PonderButton(int x, int y, int width, int height) {
+        super(0, x, y, width, height, "");
+    }
 
-	public <T extends PonderButton> T showingTag(PonderTag tag) {
-		return showing(this.tag = tag);
-	}
+    public PonderButton withShortcut(KeyBinding key) {
+        this.shortcut = key;
+        return this;
+    }
 
-	public <T extends PonderButton> T showing(ItemStack item) {
-		this.item = item;
-		return super.showingElement(GuiGameElement.of(item)
-			.scale(1.5f)
-			.at(-4, -4));
-	}
+    public PonderButton showingTag(PonderTag tag) {
+        this.tag = tag;
+        return this;
+    }
 
-	public void flash() {
-		flash.updateChaseTarget(1);
-	}
+    public PonderButton showing(ItemStack item) {
+        this.item = item;
+        return this;
+    }
 
-	public void dim() {
-		flash.updateChaseTarget(0);
-	}
+    public void flash() {
+        flashValue = 1;
+    }
 
-	@Override
-	public void tick() {
-		super.tick();
-		flash.tickChaser();
-	}
+    public void dim() {
+        flashValue = 0;
+    }
 
-	@Override
-	protected void beforeRender(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		super.beforeRender(graphics, mouseX, mouseY, partialTicks);
+    @Nullable
+    public ItemStack getItem() {
+        return item;
+    }
 
-		float flashValue = flash.getValue(partialTicks);
-		if (flashValue > .1f) {
-			float sin = 0.5f + 0.5f * Mth.sin((AnimationTickHolder.getTicks(true) + partialTicks) / 10f);
-			sin *= flashValue;
-			Color nc1 = new Color(255, 255, 255, Mth.clamp(gradientColor.getFirst().getAlpha() + 150, 0, 255));
-			Color nc2 = new Color(155, 155, 155, Mth.clamp(gradientColor.getSecond().getAlpha() + 150, 0, 255));
-			Couple<Color> newColors = Couple.create(nc1, nc2);
-			float finalSin = sin;
-			gradientColor = gradientColor.mapWithParams((color, other) -> color.mixWith(other, finalSin), newColors);
-		}
-	}
-
-	@Override
-	public void doRender(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		super.doRender(graphics, mouseX, mouseY, partialTicks);
-
-		if (!isVisible())
-			return;
-
-		if (shortcut != null) {
-			PoseStack poseStack = graphics.pose();
-			poseStack.pushPose();
-			poseStack.translate(0, 0, z + 10);
-			graphics.drawCenteredString(Minecraft.getInstance().font, shortcut.getTranslatedKeyMessage().getString().toLowerCase(
-				Locale.ROOT), getX() + width / 2 + 8, getY() + height - 6, UIRenderHelper.COLOR_TEXT_DARKER.getFirst().scaleAlpha(fade.getValue()).getRGB());
-			poseStack.popPose();
-		}
-	}
-
-	@Override
-	public boolean isFocused() {
-		return false;
-	}
-
-	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		if (shortcut != null && shortcut.matches(keyCode, scanCode)) {
-			gradientColor = getColorClick();
-			startGradientAnimation(getColorForState(), 0.15);
-
-			runCallback(width / 2f, height / 2f);
-			return true;
-		}
-
-		return super.keyPressed(keyCode, scanCode, modifiers);
-	}
-
-	@Override
-	protected boolean isValidClickButton(int i) {
-		return isVisible();
-	}
-
-	@Nullable
-	public ItemStack getItem() {
-		return item;
-	}
-
-	@Nullable
-	public PonderTag getTag() {
-		return tag;
-	}
-
-	public boolean isVisible() {
-		return !(fade.getValue() < .1f);
-	}
+    @Nullable
+    public PonderTag getTag() {
+        return tag;
+    }
 }
