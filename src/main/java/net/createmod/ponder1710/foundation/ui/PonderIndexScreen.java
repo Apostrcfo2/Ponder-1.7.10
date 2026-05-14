@@ -8,241 +8,101 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.vertex.PoseStack;
+// import com.mojang.blaze3d.platform.Window; // not available in 1.7.10
+// import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
+// import net.createmod.catnip.gui.NavigatableSimiScreen; // TODO: catnip not available
+// import net.createmod.catnip.gui.ScreenOpener; // TODO: catnip not available
+// import net.createmod.catnip.gui.UIRenderHelper; // TODO: catnip not available
+// import net.createmod.catnip.gui.widget.BoxWidget; // TODO: catnip not available
+// import net.createmod.catnip.layout.LayoutHelper; // TODO: catnip not available
+// import net.createmod.catnip.layout.PaginationState; // TODO: catnip not available
+// import net.createmod.catnip.registry.RegisteredObjectsHelper; // TODO: catnip not available
+// import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
+// import net.minecraft.client.gui.components.events.GuiEventListener; // not available in 1.7.10
+// import net.minecraft.client.renderer.Rect2i; // not available in 1.7.10
+// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
+// import net.minecraft.util.Mth; // MathHelper in 1.7.10
+// import net.minecraft.world.item.ItemStack; // different package in 1.7.10
+// import net.minecraft.world.level.ItemLike; // not available in 1.7.10
 
-import net.createmod.catnip.gui.NavigatableSimiScreen;
-import net.createmod.catnip.gui.ScreenOpener;
-import net.createmod.catnip.gui.UIRenderHelper;
-import net.createmod.catnip.gui.widget.BoxWidget;
-import net.createmod.catnip.layout.LayoutHelper;
-import net.createmod.catnip.layout.PaginationState;
-import net.createmod.catnip.registry.RegisteredObjectsHelper;
-import net.createmod.ponder1710.enums.PonderGuiTextures;
 import net.createmod.ponder1710.foundation.PonderIndex;
 import net.createmod.ponder1710.foundation.registration.PonderIndexExclusionHelper;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
 
 public class PonderIndexScreen extends AbstractPonderScreen {
 
-	protected final List<ItemEntry> items;
-	protected List<PonderButton> paginatedWidgets = new ArrayList<>();
-	protected PaginationState paginationState = new PaginationState();
-	protected Rect2i maxScreenArea = new Rect2i(0, 0, 0, 0);
-	protected Rect2i usedArea = new Rect2i(0, 0, 0, 0);
-	protected int maxItemRows;
-	protected int maxItemsPerRow;
-	protected int maxItemsPerPage;
+    protected final List<ItemEntry> items;
+    protected List<PonderButton> paginatedWidgets = new ArrayList<>();
+    protected int maxItemRows;
+    protected int maxItemsPerRow;
+    protected int maxItemsPerPage;
+    protected int currentPage = 0;
 
-	@Nullable
-	protected PonderButton nextPage;
-	@Nullable
-	protected PonderButton prevPage;
+    @Nullable
+    protected PonderButton nextPage;
+    @Nullable
+    protected PonderButton prevPage;
 
-	private ItemStack hoveredItem = ItemStack.EMPTY;
+    @Nullable
+    private ItemStack hoveredItem = null;
 
-	private final List<Predicate<ItemLike>> exclusions;
+    // TODO: Predicate<ItemLike> -> Predicate<Item> in 1.7.10
+    private final List<Predicate<Item>> exclusions;
 
-	public PonderIndexScreen() {
-		items = new ArrayList<>();
-		// collect exclusions once at screen creation instead of every time they are needed
-		exclusions = PonderIndex.streamPlugins()
-			.flatMap(PonderIndexExclusionHelper::pluginToExclusions)
-			.toList();
-	}
+    public PonderIndexScreen() {
+        items = new ArrayList<>();
+        exclusions = PonderIndex.streamPlugins()
+            .flatMap(PonderIndexExclusionHelper::pluginToExclusions)
+            .collect(java.util.stream.Collectors.toList());
+    }
 
-	@Override
-	protected void init() {
-		super.init();
+    @Override
+    public void initGui() {
+        super.initGui();
+        items.clear();
 
-		items.clear();
-		PonderIndex.getSceneAccess()
-			.getRegisteredEntries()
-			.stream()
-			.map(Map.Entry::getKey)
-			.distinct()
-			.map(key -> new ItemEntry(RegisteredObjectsHelper.getItemOrBlock(key), key))
-			.filter(entry -> entry.item != null)
-			.filter(this::isItemIncluded)
-			.forEach(items::add);
+        // TODO: RegisteredObjectsHelper from catnip not available
+        // TODO: PaginationState from catnip not available
+        // TODO: LayoutHelper from catnip not available
+        // Full init to be reimplemented using 1.7.10 item registry
 
-		items.sort(Comparator.comparing(ItemEntry::key));
+        int targetWidth = MathHelper.clamp_int(width - 180, 250, 400);
+        int targetHeight = MathHelper.clamp_int(height - 140, 150, 300);
+        maxItemRows = (targetHeight + 8) / 36;
+        maxItemsPerRow = (targetWidth + 8) / 36;
+        maxItemsPerPage = maxItemRows * maxItemsPerRow;
+    }
 
-		int centerX = width / 2;
-		int centerY = height / 2;
-		int targetWidth = Mth.clamp(width - 180, 250, 400);
-		int targetHeight = Mth.clamp(height - 140, 150, 300);
+    @Override
+    public void updateScreen() {
+        super.updateScreen();
+        PonderUI.ponderTicks++;
+    }
 
-		maxScreenArea = new Rect2i(centerX - targetWidth / 2, centerY - targetHeight / 2, targetWidth, targetHeight);
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        // TODO: Full rendering to be reimplemented using GL11
+        super.drawScreen(mouseX, mouseY, partialTicks);
+    }
 
-		// height/width = 28 per item + 8 spacing between
-		maxItemRows = (maxScreenArea.getHeight() + 8) / 36;
-		maxItemsPerRow = (maxScreenArea.getWidth() + 8) / 36;
-		maxItemsPerPage = maxItemRows * maxItemsPerRow;
+    @Override
+    public boolean doesGuiPauseGame() {
+        return true;
+    }
 
-		paginationState = new PaginationState(items.size() > maxItemsPerPage, maxItemsPerPage, items.size());
+    // TODO: record not available in Java 8
+    // public record ItemEntry(@Nullable ItemLike item, ResourceLocation key) {}
+    public static class ItemEntry {
+        @Nullable
+        public final Item item;
+        public final ResourceLocation key;
 
-		setupItemsForPage();
-
-		if (!paginationState.usesPagination())
-			return;
-
-		addRenderableWidget(prevPage = new PonderButton(centerX - 100, maxScreenArea.getY() + maxScreenArea.getHeight() + 10)
-			.showing(PonderGuiTextures.ICON_PONDER_LEFT)
-			.withCallback(() -> {
-				paginationState.previousPage();
-				updateAfterPaginationChange();
-			})
-			.setActive(false)
-		);
-
-		addRenderableWidget(nextPage = new PonderButton(centerX + 80, maxScreenArea.getY() + maxScreenArea.getHeight() + 10)
-			.showing(PonderGuiTextures.ICON_PONDER_RIGHT)
-			.withCallback(() -> {
-				paginationState.nextPage();
-				updateAfterPaginationChange();
-			})
-			.setActive(true)
-		);
-
-		prevPage.updateGradientFromState();
-		nextPage.updateGradientFromState();
-	}
-
-	protected void setupItemsForPage() {
-		removeWidgets(paginatedWidgets);
-
-		int itemCount = paginationState.getCurrentPageElementCount();
-		int actualItemRows = Mth.clamp((int) Math.ceil((double) itemCount / maxItemsPerRow), 1, maxItemRows);
-		LayoutHelper layoutHelper = LayoutHelper.centeredHorizontal(itemCount, actualItemRows, 28, 28, 8);
-		usedArea = layoutHelper.getArea();
-
-		int centerX = width / 2;
-		int centerY = height / 2;
-
-		paginationState.iterateForCurrentPage((iPage, iOverall) -> {
-			ItemEntry entry = items.get(iOverall);
-			PonderButton b = new PonderButton(centerX + layoutHelper.getX() + 4, centerY + layoutHelper.getY() + 4)
-				.showing(new ItemStack(entry.item))
-				.withCallback((x, y) -> {
-					if (!PonderIndex.getSceneAccess().doScenesExistForId(entry.key))
-						return;
-
-					centerScalingOn(x, y);
-					ScreenOpener.transitionTo(PonderUI.of(new ItemStack(entry.item)));
-				});
-			paginatedWidgets.add(b);
-			addRenderableWidget(b);
-			layoutHelper.next();
-
-		});
-
-	}
-
-	protected void updateAfterPaginationChange() {
-		setupItemsForPage();
-
-		prevPage.<PonderButton>setActive(paginationState.hasPreviousPage()).animateGradientFromState();
-		nextPage.<PonderButton>setActive(paginationState.hasNextPage()).animateGradientFromState();
-	}
-
-	@Override
-	protected void initBackTrackIcon(BoxWidget backTrack) {
-		backTrack.showing(PonderGuiTextures.ICON_PONDER_IDENTIFY);
-	}
-
-	private boolean isItemIncluded(ItemEntry entry) {
-		return exclusions
-			.stream()
-			.noneMatch(predicate -> predicate.test(entry.item));
-	}
-
-	@Override
-	public void tick() {
-		super.tick();
-		PonderUI.ponderTicks++;
-
-		hoveredItem = ItemStack.EMPTY;
-		Window w = minecraft.getWindow();
-		double mouseX = minecraft.mouseHandler.xpos() * w.getGuiScaledWidth() / w.getScreenWidth();
-		double mouseY = minecraft.mouseHandler.ypos() * w.getGuiScaledHeight() / w.getScreenHeight();
-		for (GuiEventListener child : children()) {
-			if (child instanceof PonderButton button) {
-				if (button.isMouseOver(mouseX, mouseY)) {
-					hoveredItem = button.getItem() != null ? button.getItem() : ItemStack.EMPTY;
-				}
-			}
-		}
-	}
-
-	@Override
-	protected void renderWindow(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		super.renderWindow(graphics, mouseX, mouseY, partialTicks);
-		int centerX = width / 2;
-		int centerY = height / 2;
-
-		PoseStack poseStack = graphics.pose();
-
-		poseStack.pushPose();
-		poseStack.translate(centerX, centerY, 0);
-
-		UIRenderHelper.streak(graphics, 0, usedArea.getX() - 10, usedArea.getY() - 20, 20, 220);
-		graphics.drawString(font, "Items to inspect", usedArea.getX() - 5, usedArea.getY() - 25, UIRenderHelper.COLOR_TEXT.getFirst().getRGB(), false);
-
-		poseStack.popPose();
-
-		if (!paginationState.usesPagination())
-			return;
-
-		poseStack.pushPose();
-		poseStack.translate(centerX, maxScreenArea.getY() + maxScreenArea.getHeight() + 14, 0);
-		poseStack.scale(1.5f, 1.5f, 1);
-
-		String pageString = "Page " + (paginationState.getPageIndex() + 1) + "/" + paginationState.getMaxPages();
-		int stringWidth = font.width(pageString);
-
-		UIRenderHelper.streak(graphics, 0, 0, 4, 14, 85);
-		UIRenderHelper.streak(graphics, 180, 0, 4, 14, 85);
-		graphics.drawString(font, pageString, (int) (-stringWidth / 2f), 0, UIRenderHelper.COLOR_TEXT.getFirst().getRGB(), false);
-
-		poseStack.popPose();
-	}
-
-	@Override
-	protected void renderWindowForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		if (hoveredItem.isEmpty())
-			return;
-
-		PoseStack poseStack = graphics.pose();
-		poseStack.pushPose();
-		poseStack.translate(0, 0, 200);
-
-		graphics.renderTooltip(font, hoveredItem, mouseX, mouseY);
-
-		poseStack.popPose();
-	}
-
-	@Override
-	public boolean isEquivalentTo(NavigatableSimiScreen other) {
-		return other instanceof PonderIndexScreen;
-	}
-
-	public ItemStack getHoveredTooltipItem() {
-		return hoveredItem;
-	}
-
-	@Override
-	public boolean isPauseScreen() {
-		return true;
-	}
-
-	public record ItemEntry(@Nullable ItemLike item, ResourceLocation key) {
-	}
-
+        public ItemEntry(@Nullable Item item, ResourceLocation key) {
+            this.item = item;
+            this.key = key;
+        }
+    }
 }
