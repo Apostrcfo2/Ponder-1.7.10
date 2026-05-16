@@ -1,78 +1,67 @@
 package net.createmod.metanip.animation;
 
-import net.createmod.metanip.levelWrappers.WrappedClientLevel;
+// import net.createmod.metanip.levelWrappers.WrappedClientLevel; // TODO: port later
+// import net.minecraft.client.DeltaTracker; // not available in 1.7.10
+// import net.minecraft.world.level.LevelAccessor; // not available in 1.7.10
+// import net.createmod.ponder1710.mixin.accessor.TimerAccessor; // not available
+
 import net.createmod.ponder1710.api.level.PonderLevel;
 import net.createmod.ponder1710.foundation.ui.PonderUI;
-import net.createmod.ponder1710.mixin.accessor.TimerAccessor;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.level.LevelAccessor;
 
 public class AnimationTickHolder {
 
-	private static int ticks;
-	private static int pausedTicks;
+    private static int ticks;
+    private static int pausedTicks;
 
-	public static void reset() {
-		ticks = 0;
-		pausedTicks = 0;
-	}
+    public static void reset() {
+        ticks = 0;
+        pausedTicks = 0;
+    }
 
-	public static void tick() {
-		if (!Minecraft.getInstance()
-			.isPaused()) {
-			ticks = (ticks + 1) % 1_728_000; // wrap around every 24 hours so we maintain enough floating point precision
-		} else {
-			pausedTicks = (pausedTicks + 1) % 1_728_000;
-		}
-	}
+    public static void tick() {
+        if (!Minecraft.getMinecraft().isGamePaused()) {
+            ticks = (ticks + 1) % 1_728_000;
+        } else {
+            pausedTicks = (pausedTicks + 1) % 1_728_000;
+        }
+    }
 
-	public static int getTicks() {
-		return getTicks(false);
-	}
+    public static int getTicks() {
+        return getTicks(false);
+    }
 
-	public static int getTicks(boolean includePaused) {
-		return includePaused ? ticks + pausedTicks : ticks;
-	}
+    public static int getTicks(boolean includePaused) {
+        return includePaused ? ticks + pausedTicks : ticks;
+    }
 
-	public static int getTicks(LevelAccessor level) {
-		if (level instanceof WrappedClientLevel)
-			return getTicks(((WrappedClientLevel) level).getWrappedLevel());
-		return level instanceof PonderLevel ? PonderUI.ponderTicks : getTicks();
-	}
+    public static int getTicks(Object level) {
+        if (level instanceof PonderLevel)
+            return PonderUI.ponderTicks;
+        return getTicks();
+    }
 
-	public static float getPartialTicks(LevelAccessor level) {
-		return level instanceof PonderLevel ? PonderUI.getPartialTicks() : getPartialTicks();
-	}
+    public static float getPartialTicks(Object level) {
+        if (level instanceof PonderLevel)
+            return PonderUI.getPartialTicks();
+        return getPartialTicks();
+    }
 
-	public static float getRenderTime() {
-		return getTicks() + getPartialTicks();
-	}
+    public static float getRenderTime() {
+        return getTicks() + getPartialTicks();
+    }
 
-	public static float getRenderTime(LevelAccessor level) {
-		return getTicks(level) + getPartialTicks(level);
-	}
+    public static float getRenderTime(Object level) {
+        return getTicks(level) + getPartialTicks(level);
+    }
 
-	/**
-	 * @return the fraction between the current tick to the next tick, frozen during game pause [0-1]
-	 */
-	public static float getPartialTicks() {
-		Minecraft mc = Minecraft.getInstance();
-		return mc.getTimer().getGameTimeDeltaPartialTick(false);
-	}
+    // Partial ticks frozen during pause
+    public static float getPartialTicks() {
+        return Minecraft.getMinecraft().timer.renderPartialTicks;
+    }
 
-	/**
-	 * @return the fraction between the current tick to the next tick, not frozen during game pause [0-1]
-	 */
-	// TODO - Check if one of the getGameTimeDeltaPartialTick methods can be used here instead
-	public static float getPartialTicksUI() {
-		Minecraft mc = Minecraft.getInstance();
-		DeltaTracker timer = mc.getTimer();
-
-		if (timer instanceof TimerAccessor timerAccessor) {
-			return timerAccessor.catnip$getDeltaTickResidual();
-		} else {
-			return getPartialTicks();
-		}
-	}
+    // Partial ticks not frozen during pause
+    public static float getPartialTicksUI() {
+        return Minecraft.getMinecraft().timer.elapsedPartialTicks;
+    }
 }
