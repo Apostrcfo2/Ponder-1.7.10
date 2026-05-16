@@ -1,69 +1,59 @@
 package net.createmod.metanip.math;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+// import com.mojang.serialization.Codec; // not available in 1.7.10
+// import io.netty.buffer.ByteBuf; // not available in 1.7.10
+// import net.minecraft.core.BlockPos; // 1.7.10 uses x,y,z
+// import net.minecraft.core.Direction; // ForgeDirection in 1.7.10
+// import net.minecraft.nbt.CompoundTag; // NBTTagCompound in 1.7.10
+// import net.minecraft.nbt.NbtUtils; // not available in 1.7.10
+// import net.createmod.metanip.nbt.NBTHelper; // TODO: port later
 
-import io.netty.buffer.ByteBuf;
 import net.createmod.metanip.data.Pair;
-import net.createmod.metanip.nbt.NBTHelper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.util.ForgeDirection;
 
-public class BlockFace extends Pair<BlockPos, Direction> {
-	public static Codec<BlockFace> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-		BlockPos.CODEC.fieldOf("pos").forGetter(BlockFace::getPos),
-		Direction.CODEC.fieldOf("direction").forGetter(BlockFace::getFace)
-	).apply(instance, BlockFace::new));
+// BlockPos replaced with int[] {x, y, z}
+public class BlockFace extends Pair<int[], ForgeDirection> {
 
-	public static StreamCodec<ByteBuf, BlockFace> STREAM_CODEC = StreamCodec.composite(
-		BlockPos.STREAM_CODEC, BlockFace::getPos,
-		Direction.STREAM_CODEC, BlockFace::getFace,
-		BlockFace::new
-	);
+    public BlockFace(int[] pos, ForgeDirection face) {
+        super(pos, face);
+    }
 
-	public BlockFace(BlockPos first, Direction second) {
-		super(first, second);
-	}
+    public boolean isEquivalent(BlockFace other) {
+        if (equals(other)) return true;
+        int[] connected = getConnectedPos();
+        int[] otherConnected = other.getConnectedPos();
+        return java.util.Arrays.equals(connected, other.getPos())
+            && java.util.Arrays.equals(getPos(), otherConnected);
+    }
 
-	public boolean isEquivalent(BlockFace other) {
-		if (equals(other))
-			return true;
-		return getConnectedPos().equals(other.getPos()) && getPos().equals(other.getConnectedPos());
-	}
+    public int[] getPos() { return getFirst(); }
 
-	public BlockPos getPos() {
-		return getFirst();
-	}
+    public ForgeDirection getFace() { return getSecond(); }
 
-	public Direction getFace() {
-		return getSecond();
-	}
+    public ForgeDirection getOppositeFace() { return getSecond().getOpposite(); }
 
-	public Direction getOppositeFace() {
-		return getSecond().getOpposite();
-	}
+    public BlockFace getOpposite() { return new BlockFace(getConnectedPos(), getOppositeFace()); }
 
-	public BlockFace getOpposite() {
-		return new BlockFace(getConnectedPos(), getOppositeFace());
-	}
+    public int[] getConnectedPos() {
+        int[] pos = getPos();
+        ForgeDirection face = getFace();
+        return new int[]{pos[0] + face.offsetX, pos[1] + face.offsetY, pos[2] + face.offsetZ};
+    }
 
-	public BlockPos getConnectedPos() {
-		return getPos().relative(getFace());
-	}
+    public NBTTagCompound serializeNBT() {
+        NBTTagCompound nbt = new NBTTagCompound();
+        int[] pos = getPos();
+        nbt.setInteger("PosX", pos[0]);
+        nbt.setInteger("PosY", pos[1]);
+        nbt.setInteger("PosZ", pos[2]);
+        nbt.setInteger("Face", getFace().ordinal());
+        return nbt;
+    }
 
-	public CompoundTag serializeNBT() {
-		CompoundTag compoundNBT = new CompoundTag();
-		compoundNBT.put("Pos", NbtUtils.writeBlockPos(getPos()));
-		NBTHelper.writeEnum(compoundNBT, "Face", getFace());
-		return compoundNBT;
-	}
-
-	public static BlockFace fromNBT(CompoundTag compound) {
-		return new BlockFace(NBTHelper.readBlockPos(compound, "Pos"),
-			NBTHelper.readEnum(compound, "Face", Direction.class));
-	}
-
+    public static BlockFace fromNBT(NBTTagCompound nbt) {
+        int[] pos = {nbt.getInteger("PosX"), nbt.getInteger("PosY"), nbt.getInteger("PosZ")};
+        ForgeDirection face = ForgeDirection.values()[nbt.getInteger("Face")];
+        return new BlockFace(pos, face);
+    }
 }
