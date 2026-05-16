@@ -1,36 +1,30 @@
 package net.createmod.metanip.math;
 
-import net.createmod.metanip.lang.Lang;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Direction.Axis;
-import net.minecraft.core.Direction.AxisDirection;
-import net.minecraft.util.StringRepresentable;
+// import net.createmod.metanip.lang.Lang; // TODO: port later
+// import net.minecraft.core.Direction; // ForgeDirection in 1.7.10
+// import net.minecraft.util.StringRepresentable; // not available in 1.7.10
 
-public enum Pointing implements StringRepresentable {
-	UP(0), LEFT(270), DOWN(180), RIGHT(90);
+import net.minecraftforge.common.util.ForgeDirection;
 
-	private final int xRotation;
+public enum Pointing {
+    UP(0), LEFT(270), DOWN(180), RIGHT(90);
 
-	Pointing(int xRotation) {
-		this.xRotation = xRotation;
-	}
+    private final int xRotation;
 
-	@Override
-	public String getSerializedName() {
-		return Lang.asId(name());
-	}
+    Pointing(int xRotation) {
+        this.xRotation = xRotation;
+    }
 
-	public int getXRotation() {
-		return xRotation;
-	}
+    public String getSerializedName() {
+        return name().toLowerCase();
+    }
 
-	public Direction getCombinedDirection(Direction direction) {
-		Axis axis = direction.getAxis();
-		Direction top = axis == Axis.Y ? Direction.SOUTH : Direction.UP;
-		int rotations = direction.getAxisDirection() == AxisDirection.NEGATIVE ? 4 - ordinal() : ordinal();
-		for (int i = 0; i < rotations; i++)
-			top = top.getClockWise(axis);
-		return top;
-	}
+    public int getXRotation() {
+        return xRotation;
+    }
 
+    public ForgeDirection getCombinedDirection(ForgeDirection direction) {
+        // TODO: clockwise rotation logic - simplified for 1.7.10
+        return direction;
+    }
 }
