@@ -1,179 +1,72 @@
 package net.createmod.metanip.gui;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+// import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
+// import net.createmod.ponder1710.mixin.client.accessor.ScreenAccessor; // not available
+// import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
+// import net.minecraft.client.gui.components.*; // not available in 1.7.10
+// import net.minecraft.network.chat.*; // not available in 1.7.10
 
 import net.createmod.metanip.animation.AnimationTickHolder;
-import net.createmod.metanip.gui.widget.AbstractSimiWidget;
 import net.createmod.metanip.theme.Color;
-import net.createmod.ponder1710.mixin.client.accessor.ScreenAccessor;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 
-public abstract class AbstractSimiScreen extends Screen {
+import org.lwjgl.opengl.GL11;
 
-	protected static final Color BACKGROUND_COLOR = new Color(0x50_101010, true);
+public abstract class AbstractSimiScreen extends GuiScreen {
 
-	protected int windowWidth, windowHeight;
-	protected int windowXOffset, windowYOffset;
-	protected int guiLeft, guiTop;
+    protected static final Color BACKGROUND_COLOR = new Color(0x50_101010, true);
 
-	protected AbstractSimiScreen(Component title) {
-		super(title);
-	}
+    protected int windowWidth, windowHeight;
+    protected int windowXOffset, windowYOffset;
+    protected int guiLeft, guiTop;
 
-	protected AbstractSimiScreen() {
-		this(CommonComponents.EMPTY);
-	}
+    protected void setWindowSize(int width, int height) {
+        windowWidth = width;
+        windowHeight = height;
+    }
 
-	/**
-	 * This method must be called before {@code super.init()}!
-	 */
-	protected void setWindowSize(int width, int height) {
-		windowWidth = width;
-		windowHeight = height;
-	}
+    protected void setWindowOffset(int xOffset, int yOffset) {
+        windowXOffset = xOffset;
+        windowYOffset = yOffset;
+    }
 
-	/**
-	 * This method must be called before {@code super.init()}!
-	 */
-	protected void setWindowOffset(int xOffset, int yOffset) {
-		windowXOffset = xOffset;
-		windowYOffset = yOffset;
-	}
+    @Override
+    public void initGui() {
+        guiLeft = (width - windowWidth) / 2 + windowXOffset;
+        guiTop = (height - windowHeight) / 2 + windowYOffset;
+    }
 
-	@Override
-	protected void init() {
-		guiLeft = (width - windowWidth) / 2;
-		guiTop = (height - windowHeight) / 2;
-		guiLeft += windowXOffset;
-		guiTop += windowYOffset;
-	}
+    @Override
+    public void updateScreen() {
+        // tick widgets
+    }
 
-	@Override
-	public void tick() {
-		for (GuiEventListener listener : children()) {
-			if (listener instanceof TickableGuiEventListener tickable) {
-				tickable.tick();
-			}
-		}
-	}
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        float pt = NavigatableSimiScreen.currentlyRenderingPreviousScreen ? 0 : AnimationTickHolder.getPartialTicksUI();
 
-	@Override
-	public boolean isPauseScreen() {
-		return false;
-	}
+        GL11.glPushMatrix();
+        renderWindowBackground(mouseX, mouseY, pt);
+        renderWindow(mouseX, mouseY, pt);
+        super.drawScreen(mouseX, mouseY, pt);
+        renderWindowForeground(mouseX, mouseY, pt);
+        GL11.glPopMatrix();
+    }
 
-	@SuppressWarnings("unchecked")
-	protected <W extends GuiEventListener & Renderable & NarratableEntry> void addRenderableWidgets(W... widgets) {
-		for (W widget : widgets) {
-			addRenderableWidget(widget);
-		}
-	}
+    protected void renderWindowBackground(int mouseX, int mouseY, float partialTicks) {
+        drawDefaultBackground();
+    }
 
-	protected <W extends GuiEventListener & Renderable & NarratableEntry> void addRenderableWidgets(Collection<W> widgets) {
-		for (W widget : widgets) {
-			addRenderableWidget(widget);
-		}
-	}
+    protected abstract void renderWindow(int mouseX, int mouseY, float partialTicks);
 
-	protected void removeWidgets(GuiEventListener... widgets) {
-		for (GuiEventListener widget : widgets) {
-			removeWidget(widget);
-		}
-	}
+    protected void renderWindowForeground(int mouseX, int mouseY, float partialTicks) {}
 
-	protected void removeWidgets(Collection<? extends GuiEventListener> widgets) {
-		for (GuiEventListener widget : widgets) {
-			removeWidget(widget);
-		}
-	}
-
-	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		partialTicks = NavigatableSimiScreen.currentlyRenderingPreviousScreen ? 0 : AnimationTickHolder.getPartialTicksUI();
-		PoseStack poseStack = graphics.pose();
-
-		poseStack.pushPose();
-
-		prepareFrame();
-
-		renderMenuBackground(graphics);
-		renderWindowBackground(graphics, mouseX, mouseY, partialTicks);
-		renderWindow(graphics, mouseX, mouseY, partialTicks);
-
-		for (Renderable renderable : getRenderables())
-			renderable.render(graphics, mouseX, mouseY, partialTicks);
-
-		renderWindowForeground(graphics, mouseX, mouseY, partialTicks);
-
-		endFrame();
-
-		poseStack.popPose();
-	}
-
-	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		boolean keyPressed = super.keyPressed(keyCode, scanCode, modifiers);
-		if (keyPressed || getFocused() != null)
-			return keyPressed;
-
-		if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
-			this.onClose();
-			return true;
-		}
-
-		boolean consumed = false;
-
-		for (GuiEventListener widget : children()) {
-			if (widget instanceof AbstractSimiWidget simiWidget) {
-				if (simiWidget.keyPressed(keyCode, scanCode, modifiers))
-					consumed = true;
-			}
-		}
-
-		return consumed;
-	}
-
-	protected void prepareFrame() {
-	}
-
-	protected void renderWindowBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		renderBackground(graphics, mouseX, mouseY, partialTicks);
-	}
-
-	protected abstract void renderWindow(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks);
-
-	protected void renderWindowForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-	}
-
-	protected void endFrame() {
-	}
-
-	@Deprecated
-	protected void debugWindowArea(GuiGraphics graphics) {
-		graphics.fill(guiLeft + windowWidth, guiTop + windowHeight, guiLeft, guiTop, 0xD3D3D3D3);
-	}
-
-	protected List<Renderable> getRenderables() {
-		return ((ScreenAccessor) this).catnip$getRenderables();
-	}
-
-	@Override
-	public GuiEventListener getFocused() {
-		GuiEventListener focused = super.getFocused();
-		if (focused instanceof AbstractWidget && !focused.isFocused())
-			focused = null;
-		setFocused(focused);
-		return focused;
-	}
-
+    @Override
+    public boolean doesGuiPauseGame() { return false; }
 }
