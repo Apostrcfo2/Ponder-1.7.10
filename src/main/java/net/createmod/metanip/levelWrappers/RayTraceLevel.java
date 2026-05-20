@@ -2,46 +2,48 @@ package net.createmod.metanip.levelWrappers;
 
 import java.util.function.BiFunction;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
+// import net.minecraft.core.BlockPos; // 1.7.10 uses x,y,z
+// import net.minecraft.world.level.BlockGetter; // not available in 1.7.10
+// import net.minecraft.world.level.LevelAccessor; // not available in 1.7.10
+// import net.minecraft.world.level.block.entity.BlockEntity; // TileEntity in 1.7.10
+// import net.minecraft.world.level.block.state.BlockState; // Block+meta in 1.7.10
+// import net.minecraft.world.level.material.FluidState; // not available in 1.7.10
 
-public class RayTraceLevel implements BlockGetter {
+import net.minecraft.block.Block;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
-	private final LevelAccessor template;
-	private final BiFunction<BlockPos, BlockState, BlockState> stateGetter;
+// In 1.7.10: Block+meta replaces BlockState, TileEntity replaces BlockEntity
+// BiFunction<int[], Block, Block> replaces BiFunction<BlockPos, BlockState, BlockState>
+public class RayTraceLevel {
 
-	public RayTraceLevel(LevelAccessor template, BiFunction<BlockPos, BlockState, BlockState> stateGetter) {
-		this.template = template;
-		this.stateGetter = stateGetter;
-	}
+    private final SchematicLevel template;
+    // stateGetter: given pos {x,y,z} and original Block, returns replacement Block
+    private final BiFunction<int[], Block, Block> blockGetter;
 
-	@Override
-	public BlockEntity getBlockEntity(BlockPos pos) {
-		return template.getBlockEntity(pos);
-	}
+    public RayTraceLevel(SchematicLevel template, BiFunction<int[], Block, Block> blockGetter) {
+        this.template = template;
+        this.blockGetter = blockGetter;
+    }
 
-	@Override
-	public BlockState getBlockState(BlockPos pos) {
-		return stateGetter.apply(pos, template.getBlockState(pos));
-	}
+    public TileEntity getTileEntity(int x, int y, int z) {
+        return template.getTileEntity(x, y, z);
+    }
 
-	@Override
-	public FluidState getFluidState(BlockPos pos) {
-		return template.getFluidState(pos);
-	}
+    public Block getBlock(int x, int y, int z) {
+        Block original = template.getBlock(x, y, z);
+        return blockGetter.apply(new int[]{x, y, z}, original);
+    }
 
-	@Override
-	public int getHeight() {
-		return template.getHeight();
-	}
+    public int getBlockMeta(int x, int y, int z) {
+        return template.getBlockMeta(x, y, z);
+    }
 
-	@Override
-	public int getMinBuildHeight() {
-		return template.getMinBuildHeight();
-	}
+    public int getHeight() {
+        return 256; // standard 1.7.10 world height
+    }
 
+    public int getMinBuildHeight() {
+        return 0; // 1.7.10 starts at 0
+    }
 }
