@@ -8,254 +8,175 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import net.createmod.metanip.components.ComponentProcessors;
 import net.createmod.metanip.math.BBHelper;
 import net.createmod.ponder1710.Ponder;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.decoration.ItemFrame;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.level.block.AbstractFurnaceBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.ticks.BlackholeTickAccess;
-import net.minecraft.world.ticks.LevelTickAccess;
 
-public class SchematicLevel extends WrappedLevel implements ServerLevelAccessor, SchematicLevelAccessor {
-	protected Map<BlockPos, BlockState> blocks;
-	protected Map<BlockPos, BlockEntity> blockEntities;
-	protected List<BlockEntity> renderedBlockEntities;
-	protected List<Entity> entities;
-	protected BoundingBox bounds;
+// Modern imports replaced with 1.7.10 equivalents:
+// BlockPos -> int[] {x,y,z}
+// BlockState -> Block + metadata
+// BlockEntity -> TileEntity
+// Level -> World
+// BoundingBox -> int[] {minX,minY,minZ,maxX,maxY,maxZ}
+// ServerLevelAccessor -> not needed
+// Entity -> net.minecraft.entity.Entity
 
-	public BlockPos anchor;
-	public boolean renderMode;
+// MetaWorld Mixins: SubWorldClient is our virtual world backend
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
-	public SchematicLevel(Level original) {
-		this(BlockPos.ZERO, original);
-	}
+// SubWorldClient from MetaWorld Mixins - our schematic world backend
+// import gordonfromblocks.metaworldmixins.api.SubWorldClient;
 
-	public SchematicLevel(BlockPos anchor, Level original) {
-		super(original);
-		setChunkSource(new SchematicChunkSource(this));
-		this.blocks = new HashMap<>();
-		this.blockEntities = new HashMap<>();
-		this.bounds = new BoundingBox(BlockPos.ZERO);
-		this.anchor = anchor;
-		this.entities = new ArrayList<>();
-		this.renderedBlockEntities = new ArrayList<>();
-	}
+public class SchematicLevel {
 
-	@Override
-	public Set<BlockPos> getAllPositions() {
-		return blocks.keySet();
-	}
+    // Block storage: encoded position -> {block, metadata}
+    protected final Map<Long, Object[]> blocks = new HashMap<>();
+    protected final Map<Long, TileEntity> tileEntities = new HashMap<>();
+    protected final List<TileEntity> renderedTileEntities = new ArrayList<>();
+    protected final List<Entity> entities = new ArrayList<>();
 
-	@Override
-	public boolean addFreshEntity(Entity entityIn) {
-		if (entityIn instanceof ItemFrame itemFrame)
-			itemFrame.setItem(ComponentProcessors.withUnsafeComponentsDiscarded(itemFrame.getItem()));
-		if (entityIn instanceof ArmorStand armorStand)
-			for (EquipmentSlot equipmentSlot : EquipmentSlot.values())
-				armorStand.setItemSlot(equipmentSlot,
-					ComponentProcessors.withUnsafeComponentsDiscarded(armorStand.getItemBySlot(equipmentSlot)));
+    // Bounding box as int[] {minX,minY,minZ,maxX,maxY,maxZ}
+    protected int[] bounds = {0, 0, 0, 0, 0, 0};
 
-		return entities.add(entityIn);
-	}
+    // Anchor position int[] {x,y,z}
+    public int[] anchor;
+    public boolean renderMode;
 
-	@Override
-	public List<Entity> getEntityList() {
-		return entities;
-	}
+    // The real world for fallback
+    protected final World realWorld;
 
-	@Override
-	public BlockEntity getBlockEntity(BlockPos pos) {
-		if (isOutsideBuildHeight(pos))
-			return null;
-		if (blockEntities.containsKey(pos))
-			return blockEntities.get(pos);
-		if (!blocks.containsKey(pos.subtract(anchor)))
-			return null;
+    // TODO: integrate SubWorldClient from MetaWorld Mixins as backing world
+    // protected SubWorldClient subWorld;
 
-		BlockState blockState = getBlockState(pos);
-		if (blockState.hasBlockEntity()) {
-			try {
-				BlockEntity blockEntity = ((EntityBlock) blockState.getBlock()).newBlockEntity(pos, blockState);
-				if (blockEntity != null) {
-					onBEadded(blockEntity, pos);
-					blockEntities.put(pos, blockEntity);
-					renderedBlockEntities.add(blockEntity);
-				}
-				return blockEntity;
-			} catch (Exception e) {
-				Ponder.LOGGER.debug("Could not create BlockEntity of block " + blockState, e);
-			}
-		}
-		return null;
-	}
+    public SchematicLevel(World realWorld) {
+        this(new int[]{0, 0, 0}, realWorld);
+    }
 
-	protected void onBEadded(BlockEntity blockEntity, BlockPos pos) {
-		blockEntity.setLevel(this);
-	}
+    public SchematicLevel(int[] anchor, World realWorld) {
+        this.anchor = anchor.clone();
+        this.realWorld = realWorld;
+    }
 
-	@Override
-	public BlockState getBlockState(BlockPos globalPos) {
-		BlockPos pos = globalPos.subtract(anchor);
+    // Encode block position to long key
+    public static long encodePos(int x, int y, int z) {
+        return ((long)(x + 30000000)) | ((long)(y + 30000000) << 20) | ((long)(z + 30000000) << 40);
+    }
 
-		if (pos.getY() - bounds.minY() == -1 && !renderMode)
-			return Blocks.DIRT.defaultBlockState();
-		if (getBounds().isInside(pos) && blocks.containsKey(pos))
-			return processBlockStateForPrinting(blocks.get(pos));
-		return Blocks.AIR.defaultBlockState();
-	}
+    public static int[] decodePos(long key) {
+        return new int[]{
+            (int)((key & 0xFFFFF) - 30000000),
+            (int)(((key >> 20) & 0xFFFFF) - 30000000),
+            (int)(((key >> 40) & 0xFFFFF) - 30000000)
+        };
+    }
 
-	@Override
-	public Map<BlockPos, BlockState> getBlockMap() {
-		return blocks;
-	}
+    public Set<Long> getAllPositionKeys() {
+        return blocks.keySet();
+    }
 
-	@Override
-	public FluidState getFluidState(BlockPos pos) {
-		return getBlockState(pos).getFluidState();
-	}
+    public boolean addFreshEntity(Entity entity) {
+        return entities.add(entity);
+    }
 
-	@Override
-	public Holder<Biome> getBiome(BlockPos pos) {
-		return level.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS);
-		//return ForgeRegistries.BIOMES.getHolder(Biomes.PLAINS.location()).orElse(null);
-	}
+    public List<Entity> getEntityList() {
+        return entities;
+    }
 
-	@Override
-	public int getBrightness(LightLayer lightLayer, BlockPos pos) {
-		return 15;
-	}
+    public TileEntity getTileEntity(int x, int y, int z) {
+        long key = encodePos(x - anchor[0], y - anchor[1], z - anchor[2]);
+        if (tileEntities.containsKey(key))
+            return tileEntities.get(key);
+        if (!blocks.containsKey(key))
+            return null;
 
-	@Override
-	public float getShade(Direction face, boolean hasShade) {
-		return 1f;
-	}
+        Block block = getBlock(x, y, z);
+        if (block.hasTileEntity(getBlockMeta(x, y, z))) {
+            try {
+                TileEntity te = block.createTileEntity(realWorld, getBlockMeta(x, y, z));
+                if (te != null) {
+                    te.xCoord = x; te.yCoord = y; te.zCoord = z;
+                    tileEntities.put(key, te);
+                    renderedTileEntities.add(te);
+                }
+                return te;
+            } catch (Exception e) {
+                Ponder.LOGGER.debug("Could not create TileEntity of block " + block, e);
+            }
+        }
+        return null;
+    }
 
-	@Override
-	public LevelTickAccess<Block> getBlockTicks() {
-		return BlackholeTickAccess.emptyLevelList();
-	}
+    public Block getBlock(int x, int y, int z) {
+        int rx = x - anchor[0], ry = y - anchor[1], rz = z - anchor[2];
+        if (ry - bounds[1] == -1 && !renderMode)
+            return Blocks.dirt;
+        long key = encodePos(rx, ry, rz);
+        if (isInBounds(rx, ry, rz) && blocks.containsKey(key))
+            return (Block) blocks.get(key)[0];
+        return Blocks.air;
+    }
 
-	@Override
-	public LevelTickAccess<Fluid> getFluidTicks() {
-		return BlackholeTickAccess.emptyLevelList();
-	}
+    public int getBlockMeta(int x, int y, int z) {
+        int rx = x - anchor[0], ry = y - anchor[1], rz = z - anchor[2];
+        long key = encodePos(rx, ry, rz);
+        if (isInBounds(rx, ry, rz) && blocks.containsKey(key))
+            return (int) blocks.get(key)[1];
+        return 0;
+    }
 
-	@Override
-	public List<Entity> getEntities(Entity arg0, AABB arg1, Predicate<? super Entity> arg2) {
-		return Collections.emptyList();
-	}
+    public boolean setBlock(int x, int y, int z, Block block, int meta) {
+        int rx = x - anchor[0], ry = y - anchor[1], rz = z - anchor[2];
+        long key = encodePos(rx, ry, rz);
+        bounds = BBHelper.encapsulate(bounds, rx, ry, rz);
+        blocks.put(key, new Object[]{block, meta});
 
-	@Override
-	public <T extends Entity> List<T> getEntitiesOfClass(Class<T> arg0, AABB arg1, Predicate<? super T> arg2) {
-		return Collections.emptyList();
-	}
+        // Remove incompatible TileEntity
+        if (tileEntities.containsKey(key)) {
+            TileEntity te = tileEntities.get(key);
+            if (!block.hasTileEntity(meta)) {
+                tileEntities.remove(key);
+                renderedTileEntities.remove(te);
+            }
+        }
+        return true;
+    }
 
-	@Override
-	public List<? extends Player> players() {
-		return Collections.emptyList();
-	}
+    public boolean destroyBlock(int x, int y, int z) {
+        return setBlock(x, y, z, Blocks.air, 0);
+    }
 
-	@Override
-	public int getSkyDarken() {
-		return 0;
-	}
+    public boolean isInBounds(int rx, int ry, int rz) {
+        return rx >= bounds[0] && rx <= bounds[3]
+            && ry >= bounds[1] && ry <= bounds[4]
+            && rz >= bounds[2] && rz <= bounds[5];
+    }
 
-	@Override
-	public boolean isStateAtPosition(BlockPos pos, Predicate<BlockState> predicate) {
-		return predicate.test(getBlockState(pos));
-	}
+    public int[] getBounds() { return bounds; }
+    public void setBounds(int[] bounds) { this.bounds = bounds; }
 
-	@Override
-	public boolean destroyBlock(BlockPos arg0, boolean arg1) {
-		return setBlock(arg0, Blocks.AIR.defaultBlockState(), 3);
-	}
+    public Iterable<TileEntity> getTileEntities() {
+        return tileEntities.values();
+    }
 
-	@Override
-	public boolean removeBlock(BlockPos arg0, boolean arg1) {
-		return setBlock(arg0, Blocks.AIR.defaultBlockState(), 3);
-	}
+    public Iterable<TileEntity> getRenderedTileEntities() {
+        return renderedTileEntities;
+    }
 
-	@Override
-	public boolean setBlock(BlockPos pos, BlockState arg1, int arg2) {
-		pos = pos.immutable()
-			.subtract(anchor);
-		bounds = BBHelper.encapsulate(bounds, pos);
-		blocks.put(pos, arg1);
-		if (blockEntities.containsKey(pos)) {
-			BlockEntity blockEntity = blockEntities.get(pos);
-			if (!blockEntity.getType()
-				.isValid(arg1)) {
-				blockEntities.remove(pos);
-				renderedBlockEntities.remove(blockEntity);
-			}
-		}
+    public int getBrightness(int x, int y, int z) {
+        return 15; // full bright for schematic world
+    }
 
-		BlockEntity blockEntity = getBlockEntity(pos);
-		if (blockEntity != null)
-			blockEntities.put(pos, blockEntity);
+    public List<? extends EntityPlayer> getPlayers() {
+        return Collections.emptyList();
+    }
 
-		return true;
-	}
-
-	@Override
-	public void sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags) {
-	}
-
-	@Override
-	public BoundingBox getBounds() {
-		return bounds;
-	}
-
-	@Override
-	public void setBounds(BoundingBox bounds) {
-		this.bounds = bounds;
-	}
-
-	@Override
-	public Iterable<BlockEntity> getBlockEntities() {
-		return blockEntities.values();
-	}
-
-	@Override
-	public Iterable<BlockEntity> getRenderedBlockEntities() {
-		return renderedBlockEntities;
-	}
-
-	protected BlockState processBlockStateForPrinting(BlockState state) {
-		if (state.getBlock() instanceof AbstractFurnaceBlock && state.hasProperty(BlockStateProperties.LIT))
-			state = state.setValue(BlockStateProperties.LIT, false);
-		return state;
-	}
-
-	@Override
-	public ServerLevel getLevel() {
-		if (this.level instanceof ServerLevel) {
-			return (ServerLevel) this.level;
-		}
-		throw new IllegalStateException("Cannot use IServerWorld#getWorld in a client environment");
-	}
+    public World getRealWorld() {
+        return realWorld;
+    }
 }
