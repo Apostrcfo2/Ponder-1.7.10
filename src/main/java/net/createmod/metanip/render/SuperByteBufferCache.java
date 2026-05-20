@@ -2,64 +2,36 @@ package net.createmod.metanip.render;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+// Simplified cache for SuperByteBuffer instances in 1.7.10.
+// In modern MC this caches vertex buffer data by render layer.
+// In 1.7.10 we cache display lists or just re-render each frame.
 
 public class SuperByteBufferCache {
 
-	private static final SuperByteBufferCache INSTANCE = new SuperByteBufferCache();
+    private final Map<Object, Integer> displayLists = new HashMap<>();
 
-	public static SuperByteBufferCache getInstance() {
-		return INSTANCE;
-	}
+    public void invalidate(Object key) {
+        Integer list = displayLists.remove(key);
+        if (list != null) {
+            // GL11.glDeleteLists(list, 1); // call from GL thread
+        }
+    }
 
-	protected final Map<Compartment<?>, Cache<Object, SuperByteBuffer>> caches = new HashMap<>();
+    public void invalidateAll() {
+        displayLists.clear();
+    }
 
-	public synchronized void registerCompartment(Compartment<?> compartment) {
-		caches.put(compartment, CacheBuilder.newBuilder()
-			.<Object, SuperByteBuffer>removalListener(n -> n.getValue().delete())
-			.build());
-	}
+    public boolean has(Object key) {
+        return displayLists.containsKey(key);
+    }
 
-	public synchronized void registerCompartment(Compartment<?> compartment, long ticksUntilExpired) {
-		caches.put(compartment, CacheBuilder.newBuilder()
-			.expireAfterAccess(ticksUntilExpired * 50, TimeUnit.MILLISECONDS)
-			.<Object, SuperByteBuffer>removalListener(n -> n.getValue().delete())
-			.build());
-	}
+    public void put(Object key, int displayList) {
+        displayLists.put(key, displayList);
+    }
 
-	public <T> SuperByteBuffer get(Compartment<T> compartment, T key, Callable<SuperByteBuffer> callable) {
-		Cache<Object, SuperByteBuffer> cache = caches.get(compartment);
-
-		if (cache == null)
-			throw new IllegalArgumentException("Trying to access Buffer Cache for not registered Compartment: " + compartment + " <" + key.getClass().getSimpleName() + ">");
-
-
-		try {
-			return cache.get(key, callable);
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Unable to populate Buffer Cache for key: " + key + " <" + key.getClass().getSimpleName() + ">");
-		}
-	}
-
-	public <T> void invalidate(Compartment<T> compartment, T key) {
-		caches.get(compartment).invalidate(key);
-	}
-
-	public void invalidate(Compartment<?> compartment) {
-		caches.get(compartment).invalidateAll();
-	}
-
-	public void invalidate() {
-		caches.forEach((compartment, cache) -> cache.invalidateAll());
-	}
-
-	public static class Compartment<T> {
-	}
-
+    public int get(Object key) {
+        return displayLists.getOrDefault(key, -1);
+    }
 }
