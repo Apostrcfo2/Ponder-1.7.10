@@ -31,7 +31,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 // SubWorldClient from MetaWorld Mixins - our schematic world backend
-// import gordonfromblocks.metaworldmixins.api.SubWorldClient;
+// import su.sergiusonesimus.metaworlds.api.SubWorldTypeManager; // MetaWorld Mixins API
 
 public class SchematicLevel {
 

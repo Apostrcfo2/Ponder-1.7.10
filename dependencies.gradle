@@ -1,49 +1,17 @@
-/*
- * Add your dependencies here. Supported configurations:
- *  - api("group:name:version:classifier"): if you use the types from this dependency in the public API of this mod
- *       Available at runtime and compiletime for mods depending on this mod
- *  - implementation("g:n:v:c"): if you need this for internal implementation details of the mod, but none of it is visible via the public API
- *       Available at runtime but e.g. for optional mods
- *       Not available at all for mods depending on this mod, only visible at compiletime for this mod
- *  - compileOnlyApi("g:n:v:c"): like compileOnly, but also visible at compiletime for mods depending on this mod
- *       Available at compiletime but not runtime for mods depending on this mod
- *  - runtimeOnlyNonPublishable("g:n:v:c"): if you want to include a mod in this mod's runClient/runServer runs, but not publish it as a dependency
- *       Not available at all for mods depending on this mod, only visible at runtime for this mod
- *  - devOnlyNonPublishable("g:n:v:c"): a combination of runtimeOnlyNonPublishable and compileOnly for dependencies present at both compiletime and runtime,
- *       but not published as Maven dependencies - useful for RFG-deobfuscated dependencies or local testing
- *  - runtimeOnly("g:n:v:c"): if you don't need this at compile time, but want it to be present at runtime
- *       Available at runtime for mods depending on this mod
- *  - annotationProcessor("g:n:v:c"): mostly for java compiler plugins, if you know you need this, use it, otherwise don't worry
- *  - testCONFIG("g:n:v:c") - replace CONFIG by one of the above (except api), same as above but for the test sources instead of main
- *
- *  - shadowImplementation("g:n:v:c"): effectively the same as API, but the dependency is included in your jar under a renamed package name
- *       Requires you to enable usesShadowedDependencies in gradle.properties
- *
- *  - compile("g:n:v:c"): deprecated, replace with "api" (works like the old "compile") or "implementation" (can be more efficient)
- *
- * You can exclude transitive dependencies (dependencies of the chosen dependency) by appending { transitive = false } if needed,
- * but use this sparingly as it can break using your mod as another mod's dependency if you're not careful.
- *
- * To depend on obfuscated jars you can use `devOnlyNonPublishable(rfg.deobf("dep:spec:1.2.3"))` to fetch an obfuscated jar from maven,
- * or `devOnlyNonPublishable(rfg.deobf(project.files("libs/my-mod-jar.jar")))` to use a file.
- *
- * Gradle names for some of the configuration can be misleading, compileOnlyApi and runtimeOnly both get published as dependencies in Maven, but compileOnly does not.
- * The buildscript adds runtimeOnlyNonPublishable to also have a runtime dependency that's not published.
- *
- * For more details, see https://docs.gradle.org/8.0.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
- */
-
 dependencies {
     // Minecraft Forge 1.7.10
     compileOnly "net.minecraftforge:forge:1.7.10-10.13.4.1614-1.7.10"
 
-    // Using 'api' so consumers of Ponder also get Mixin support.
+    // Mixin support for 1.7.10
     api "com.github.LegacyModdingMC:UniMixins:0.1.14:dev"
 
-    api "com.github.Gordon-Frohman:MetaWorlds-Mixins:1.6.1a"
+    // MetaWorld Mixins - SubWorldClient API (su.sergiusonesimus.metaworlds)
+    // :dev classifier gives us the deobf sources to compile against
+    api "com.github.Gordon-Frohman:MetaWorlds-Mixins:1.6.1a:dev"
 
+    // JOML - Matrix math (replaces com.mojang.math in 1.7.10)
     api "org.joml:joml:1.10.8"
-    
+
     // Development Annotations
     compileOnly "org.jetbrains:annotations:24.0.1"
 }

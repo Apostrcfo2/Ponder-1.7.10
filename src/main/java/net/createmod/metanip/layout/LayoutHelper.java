@@ -1,118 +1,87 @@
 package net.createmod.metanip.layout;
 
-import net.minecraft.client.renderer.Rect2i;
+// import net.minecraft.client.renderer.Rect2i; // not available in 1.7.10
+// Using int[] {x, y, width, height} as Rect2i replacement
 
 public interface LayoutHelper {
 
-	static LayoutHelper centeredHorizontal(int itemCount, int rows, int width, int height, int spacing) {
-		return new CenteredHorizontalLayoutHelper(itemCount, rows, width, height, spacing);
-	}
+    static LayoutHelper centeredHorizontal(int itemCount, int rows, int width, int height, int spacing) {
+        return new CenteredHorizontalLayoutHelper(itemCount, rows, width, height, spacing);
+    }
 
-	int getX();
+    int getX();
+    int getY();
+    void next();
+    int getTotalWidth();
+    int getTotalHeight();
 
-	int getY();
+    // int[] {x, y, width, height} replaces Rect2i
+    default int[] getArea() {
+        int lWidth = getTotalWidth();
+        int lHeight = getTotalHeight();
+        return new int[]{-lWidth / 2, -lHeight / 2, lWidth, lHeight};
+    }
 
-	void next();
+    class CenteredHorizontalLayoutHelper implements LayoutHelper {
 
-	int getTotalWidth();
+        int itemCount, rows, width, height, spacing;
+        int currentColumn = 0, currentRow = 0;
+        int[] rowCounts;
+        int x = 0, y = 0;
 
-	int getTotalHeight();
+        CenteredHorizontalLayoutHelper(int itemCount, int rows, int width, int height, int spacing) {
+            this.itemCount = itemCount;
+            this.rows = rows;
+            this.width = width;
+            this.height = height;
+            this.spacing = spacing;
 
-	default Rect2i getArea() {
-		int lWidth = getTotalWidth();
-		int lHeight = getTotalHeight();
-		return new Rect2i(-lWidth / 2, -lHeight / 2, lWidth, lHeight);
-	}
+            rowCounts = new int[rows];
+            int itemsPerRow = itemCount / rows;
+            int itemDiff = itemCount - itemsPerRow * rows;
+            for (int i = 0; i < rows; i++) {
+                rowCounts[i] = itemsPerRow;
+                if (itemDiff > 0) { rowCounts[i]++; itemDiff--; }
+            }
+            init();
+        }
 
-	class CenteredHorizontalLayoutHelper implements LayoutHelper {
+        @Override public int getX() { return x; }
+        @Override public int getY() { return y; }
 
-		int itemCount;
-		int rows;
-		int width;
-		int height;
-		int spacing;
+        @Override
+        public void next() {
+            currentColumn++;
+            if (currentColumn >= rowCounts[currentRow]) {
+                if (++currentRow >= rows) { x = 0; y = 0; return; }
+                currentColumn = 0;
+                prepareX();
+                y += height + spacing;
+                return;
+            }
+            x += width + spacing;
+        }
 
-		int currentColumn = 0;
-		int currentRow = 0;
-		int[] rowCounts;
-		int x = 0, y = 0;
+        private void init() { prepareX(); prepareY(); }
 
-		CenteredHorizontalLayoutHelper(int itemCount, int rows, int width, int height, int spacing) {
-			this.itemCount = itemCount;
-			this.rows = rows;
-			this.width = width;
-			this.height = height;
-			this.spacing = spacing;
+        private void prepareX() {
+            int rowWidth = rowCounts[currentRow] * width + (rowCounts[currentRow] - 1) * spacing;
+            x = -(rowWidth / 2);
+        }
 
-			rowCounts = new int[rows];
-			int itemsPerRow = itemCount / rows;
-			int itemDiff = itemCount - itemsPerRow * rows;
-			for (int i = 0; i < rows; i++) {
-				rowCounts[i] = itemsPerRow;
-				if (itemDiff > 0) {
-					rowCounts[i]++;
-					itemDiff--;
-				}
-			}
+        private void prepareY() {
+            int totalHeight = rows * height + (rows > 1 ? (rows - 1) * spacing : 0);
+            y = -(totalHeight / 2);
+        }
 
-			init();
-		}
+        @Override
+        public int getTotalWidth() {
+            return rowCounts[0] * width + (rowCounts[0] - 1) * spacing;
+        }
 
-		@Override
-		public int getX() {
-			return x;
-		}
-
-		@Override
-		public int getY() {
-			return y;
-		}
-
-		@Override
-		public void next() {
-			currentColumn++;
-			if (currentColumn >= rowCounts[currentRow]) {
-				// nextRow
-				if (++currentRow >= rows) {
-					x = 0;
-					y = 0;
-					return;
-				}
-
-				currentColumn = 0;
-				prepareX();
-				y += height + spacing;
-				return;
-			}
-
-			x += width + spacing;
-		}
-
-		private void init() {
-			prepareX();
-			prepareY();
-		}
-
-		private void prepareX() {
-			int rowWidth = rowCounts[currentRow] * width + (rowCounts[currentRow] - 1) * spacing;
-			x = -(rowWidth / 2);
-		}
-
-		private void prepareY() {
-			int totalHeight = rows * height + (rows > 1 ? ((rows - 1) * spacing) : 0);
-			y = -(totalHeight / 2);
-		}
-
-		@Override
-		public int getTotalWidth() {
-			return rowCounts[0] * width + (rowCounts[0] - 1) * spacing;
-		}
-
-		@Override
-		public int getTotalHeight() {
-			return rows * height + (rows > 1 ? ((rows - 1) * spacing) : 0);
-		}
-
-	}
-
+        @Override
+        public int getTotalHeight() {
+            return rows * height + (rows > 1 ? (rows - 1) * spacing : 0);
+        }
+    }
 }
