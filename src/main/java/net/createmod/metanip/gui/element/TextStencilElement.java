@@ -1,83 +1,66 @@
 package net.createmod.metanip.gui.element;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import net.createmod.metanip.theme.Color;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.client.gui.FontRenderer;
+
+import org.lwjgl.opengl.GL11;
+
+// MutableComponent/Component not available in 1.7.10 - use plain String
+// Font -> FontRenderer in 1.7.10
+// GuiGraphics/PoseStack -> GL11
 
 public class TextStencilElement extends DelegatedStencilElement {
 
-	protected Font font;
-	protected MutableComponent component = Component.empty();
-	protected boolean centerVertically = false;
-	protected boolean centerHorizontally = false;
+    protected FontRenderer font;
+    protected String text = "";
+    protected boolean centerVertically = false;
+    protected boolean centerHorizontally = false;
 
-	public TextStencilElement(Font font) {
-		super();
-		this.font = font;
-		height = 10;
-	}
+    public TextStencilElement(FontRenderer font) {
+        super();
+        this.font = font;
+        height = 10;
+    }
 
-	public TextStencilElement(Font font, String text) {
-		this(font);
-		component = Component.literal(text);
-	}
+    public TextStencilElement(FontRenderer font, String text) {
+        this(font);
+        this.text = text;
+    }
 
-	public TextStencilElement(Font font, MutableComponent component) {
-		this(font);
-		this.component = component;
-	}
+    public TextStencilElement withText(String text) {
+        this.text = text;
+        return this;
+    }
 
-	public TextStencilElement withText(String text) {
-		component = Component.literal(text);
-		return this;
-	}
+    public TextStencilElement centered(boolean vertical, boolean horizontal) {
+        this.centerVertically = vertical;
+        this.centerHorizontally = horizontal;
+        return this;
+    }
 
-	public TextStencilElement withText(MutableComponent component) {
-		this.component = component;
-		return this;
-	}
+    @Override
+    public void renderStencil() {
+        float px = 0, py = 0;
+        if (centerHorizontally) px = width / 2f - font.getStringWidth(text) / 2f;
+        if (centerVertically)   py = height / 2f - (font.FONT_HEIGHT - 1) / 2f;
 
-	public TextStencilElement centered(boolean vertical, boolean horizontal) {
-		this.centerVertically = vertical;
-		this.centerHorizontally = horizontal;
-		return this;
-	}
+        GL11.glPushMatrix();
+        GL11.glTranslatef(px, py, 0);
+        font.drawString(text, 0, 0, Color.BLACK.getRGB());
+        GL11.glPopMatrix();
+    }
 
-	@Override
-	public void renderStencil(GuiGraphics graphics) {
+    @Override
+    public void renderElement() {
+        float px = 0, py = 0;
+        if (centerHorizontally) px = width / 2f - font.getStringWidth(text) / 2f;
+        if (centerVertically)   py = height / 2f - (font.FONT_HEIGHT - 1) / 2f;
 
-		float x = 0, y = 0;
-		if (centerHorizontally)
-			x = width / 2f - font.width(component) / 2f;
+        GL11.glPushMatrix();
+        GL11.glTranslatef(px, py, 0);
+        element.render(font.getStringWidth(text), font.FONT_HEIGHT + 2, alpha);
+        GL11.glPopMatrix();
+    }
 
-		if (centerVertically)
-			y = height / 2f - (font.lineHeight - 1) / 2f;
-
-		graphics.drawString(font, component, Math.round(x), Math.round(y), Color.BLACK.getRGB(), false);
-		graphics.flush();
-	}
-
-	@Override
-	public void renderElement(GuiGraphics graphics) {
-		float x = 0, y = 0;
-		if (centerHorizontally)
-			x = width / 2f - font.width(component) / 2f;
-
-		if (centerVertically)
-			y = height / 2f - (font.lineHeight - 1) / 2f;
-
-		PoseStack poseStack = graphics.pose();
-		poseStack.pushPose();
-		poseStack.translate(x, y, 0);
-		element.render(graphics, font.width(component), font.lineHeight + 2, alpha);
-		poseStack.popPose();
-	}
-
-	public MutableComponent getComponent() {
-		return component;
-	}
+    public String getText() { return text; }
 }
