@@ -1,15 +1,15 @@
 package net.createmod.metanip.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
 
-import net.minecraft.resources.ResourceLocation;
+import org.lwjgl.opengl.GL11;
 
 public interface BindableTexture {
 
-	default void bind() {
-		RenderSystem.setShaderTexture(0, getLocation());
-	}
+    default void bind() {
+        Minecraft.getMinecraft().getTextureManager().bindTexture(getLocation());
+    }
 
-	ResourceLocation getLocation();
-
+    ResourceLocation getLocation();
 }
