@@ -80,7 +80,10 @@ public abstract class NavigatableSimiScreen extends AbstractSimiScreen {
     @Override
     protected void renderWindow(int mouseX, int mouseY, float partialTicks) {
         if (backTrack == null) return;
-        // TODO: breadcrumb arrows - UIRenderHelper not ported yet
+        if (backTrack == null) return;
+        int x = (int)(arrowAnimation.getValue(0) * 30);
+        UIRenderHelper.breadcrumbArrow(x, height - 51, 0, 30, 20, 5, NavigatableSimiScreen.COLOR_NAV_ARROW);
+        UIRenderHelper.breadcrumbArrow(x - 30, height - 51, 0, 30, 20, 5, NavigatableSimiScreen.COLOR_NAV_ARROW);
     }
 
     public void centerScalingOn(int x, int y) {

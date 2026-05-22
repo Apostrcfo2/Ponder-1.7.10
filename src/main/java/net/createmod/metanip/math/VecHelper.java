@@ -168,3 +168,117 @@ public class VecHelper {
     // TODO: slerp - uses Mth.sin with float
     // TODO: alignedDistanceToFace - uses Direction.Axis
 }
+
+    // Previously TODO - now implemented for 1.7.10
+
+    // slerp - spherical lerp using JOML-style math
+    public static Vec3 slerp(float p, Vec3 from, Vec3 to) {
+        double dot = from.xCoord*to.xCoord + from.yCoord*to.yCoord + from.zCoord*to.zCoord;
+        dot = Math.max(-1, Math.min(1, dot));
+        double theta = Math.acos(dot) * p;
+        double sin1 = Math.sin(theta);
+        double sin2 = Math.sin(Math.acos(dot));
+        if (Math.abs(sin2) < 1e-6) return lerp(p, from, to);
+        double s1 = Math.cos(theta) - dot * sin1 / sin2;
+        double s2 = sin1 / sin2;
+        return Vec3.createVectorHelper(
+            s1*from.xCoord + s2*to.xCoord,
+            s1*from.yCoord + s2*to.yCoord,
+            s1*from.zCoord + s2*to.zCoord
+        );
+    }
+
+    // mirror - replaces Mirror enum with int (0=NONE, 1=LEFT_RIGHT, 2=FRONT_BACK)
+    public static Vec3 mirror(Vec3 vec, int mirror) {
+        if (mirror == 0) return vec; // NONE
+        if (mirror == 1) return Vec3.createVectorHelper(vec.xCoord, vec.yCoord, -vec.zCoord); // LEFT_RIGHT
+        if (mirror == 2) return Vec3.createVectorHelper(-vec.xCoord, vec.yCoord, vec.zCoord); // FRONT_BACK
+        return vec;
+    }
+
+    public static Vec3 mirrorCentered(Vec3 vec, int mirror) {
+        Vec3 shift = getCenterOf(0, 0, 0);
+        return VecHelper.mirror(
+            Vec3.createVectorHelper(vec.xCoord - shift.xCoord, vec.yCoord - shift.yCoord, vec.zCoord - shift.zCoord),
+            mirror
+        ).addVector(shift.xCoord, shift.yCoord, shift.zCoord);
+    }
+
+    // intersect - axis as int (0=X, 1=Y, 2=Z)
+    public static double[] intersect(Vec3 p1, Vec3 p2, Vec3 r, Vec3 s, int plane) {
+        double p1x = p1.xCoord, p1y = p1.yCoord, p1z = p1.zCoord;
+        double p2x = p2.xCoord, p2y = p2.yCoord, p2z = p2.zCoord;
+        double rx = r.xCoord, ry = r.yCoord, rz = r.zCoord;
+        double sx = s.xCoord, sy = s.yCoord, sz = s.zCoord;
+
+        if (plane == 0) { // X axis - use Y,Z plane
+            p1x = p1y; p1y = 0; p1z = p1z;
+            p2x = p2y; p2y = 0; p2z = p2z;
+            rx = ry; ry = 0; rz = rz;
+            sx = sy; sy = 0; sz = sz;
+        } else if (plane == 2) { // Z axis - use X,Y plane
+            p1z = p1y; p1y = 0;
+            p2z = p2y; p2y = 0;
+            rz = ry; ry = 0;
+            sz = sy; sy = 0;
+        }
+
+        double qx = p2x - p1x, qz = p2z - p1z;
+        double rcs = rx * sz - rz * sx;
+        if (Math.abs(rcs) < 1e-10) return null;
+
+        double t = (qx * sz - qz * sx) / rcs;
+        double u = (qx * rz - qz * rx) / rcs;
+        return new double[]{t, u};
+    }
+
+    public static double[] intersectRanged(Vec3 p1, Vec3 q1, Vec3 p2, Vec3 q2, int plane) {
+        Vec3 pDiff = Vec3.createVectorHelper(q1.xCoord-p1.xCoord, q1.yCoord-p1.yCoord, q1.zCoord-p1.zCoord);
+        Vec3 qDiff = Vec3.createVectorHelper(q2.xCoord-p2.xCoord, q2.yCoord-p2.yCoord, q2.zCoord-p2.zCoord);
+        double pLen = Math.sqrt(pDiff.xCoord*pDiff.xCoord + pDiff.yCoord*pDiff.yCoord + pDiff.zCoord*pDiff.zCoord);
+        double qLen = Math.sqrt(qDiff.xCoord*qDiff.xCoord + qDiff.yCoord*qDiff.yCoord + qDiff.zCoord*qDiff.zCoord);
+        Vec3 pNorm = pLen > 0 ? Vec3.createVectorHelper(pDiff.xCoord/pLen, pDiff.yCoord/pLen, pDiff.zCoord/pLen) : pDiff;
+        Vec3 qNorm = qLen > 0 ? Vec3.createVectorHelper(qDiff.xCoord/qLen, qDiff.yCoord/qLen, qDiff.zCoord/qLen) : qDiff;
+        double[] intersect = intersect(p1, p2, pNorm, qNorm, plane);
+        if (intersect == null) return null;
+        if (intersect[0] < 0 || intersect[1] < 0) return null;
+        if (intersect[0]*intersect[0] > pLen*pLen || intersect[1]*intersect[1] > qLen*qLen) return null;
+        return intersect;
+    }
+
+    // alignedDistanceToFace - uses ForgeDirection instead of Direction.Axis
+    public static double alignedDistanceToFace(Vec3 pos, int bx, int by, int bz, ForgeDirection face) {
+        double coord, blockCoord;
+        int positive = (face.offsetX > 0 || face.offsetY > 0 || face.offsetZ > 0) ? 1 : 0;
+        if (face.offsetX != 0) { coord = pos.xCoord; blockCoord = bx + positive; }
+        else if (face.offsetY != 0) { coord = pos.yCoord; blockCoord = by + positive; }
+        else { coord = pos.zCoord; blockCoord = bz + positive; }
+        return Math.abs(coord - blockCoord);
+    }
+
+    // projectToPlayerView - approximation without Camera class
+    public static Vec3 projectToPlayerView(Vec3 target, float partialTicks) {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
+        net.minecraft.entity.Entity viewer = mc.renderViewEntity;
+        double cx = viewer.prevPosX + (viewer.posX - viewer.prevPosX) * partialTicks;
+        double cy = viewer.prevPosY + (viewer.posY - viewer.prevPosY) * partialTicks + viewer.getEyeHeight();
+        double cz = viewer.prevPosZ + (viewer.posZ - viewer.prevPosZ) * partialTicks;
+
+        float yaw = (float) Math.toRadians(viewer.prevRotationYaw + (viewer.rotationYaw - viewer.prevRotationYaw) * partialTicks);
+        float pitch = (float) Math.toRadians(viewer.prevRotationPitch + (viewer.rotationPitch - viewer.prevRotationPitch) * partialTicks);
+
+        double dx = target.xCoord - cx, dy = target.yCoord - cy, dz = target.zCoord - cz;
+
+        double sinY = Math.sin(yaw), cosY = Math.cos(yaw);
+        double sinP = Math.sin(pitch), cosP = Math.cos(pitch);
+
+        double rx = dx * cosY - dz * sinY;
+        double ry = dy * cosP + (dx * sinY + dz * cosY) * sinP;
+        double rz = -dy * sinP + (dx * sinY + dz * cosY) * cosP;
+
+        float fov = mc.gameSettings.fovSetting;
+        float halfH = mc.displayHeight / 2f;
+        float scale = halfH / (float)(rz * Math.tan(Math.toRadians(fov / 2)));
+
+        return Vec3.createVectorHelper(-(float)rx * scale, (float)ry * scale, rz);
+    }

@@ -6,7 +6,7 @@ package net.createmod.metanip.math;
 // import net.minecraft.core.Direction; // ForgeDirection in 1.7.10
 // import net.minecraft.nbt.CompoundTag; // NBTTagCompound in 1.7.10
 // import net.minecraft.nbt.NbtUtils; // not available in 1.7.10
-// import net.createmod.metanip.nbt.NBTHelper; // TODO: port later
+import net.createmod.metanip.nbt.NBTHelper;
 
 import net.createmod.metanip.data.Pair;
 import net.minecraft.nbt.NBTTagCompound;
