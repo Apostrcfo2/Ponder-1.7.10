@@ -5,62 +5,53 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
 
 import net.createmod.metanip.math.BBHelper;
 import net.createmod.ponder1710.Ponder;
-
-// Modern imports replaced with 1.7.10 equivalents:
-// BlockPos -> int[] {x,y,z}
-// BlockState -> Block + metadata
-// BlockEntity -> TileEntity
-// Level -> World
-// BoundingBox -> int[] {minX,minY,minZ,maxX,maxY,maxZ}
-// ServerLevelAccessor -> not needed
-// Entity -> net.minecraft.entity.Entity
-
-// MetaWorld Mixins: SubWorldClient is our virtual world backend
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.WorldSettings;
 
-// SubWorldClient from MetaWorld Mixins - our schematic world backend
-// import su.sergiusonesimus.metaworlds.api.SubWorldTypeManager; // MetaWorld Mixins API
-
-public class SchematicLevel {
+// SchematicLevel extends WorldClient - a client-side virtual world for Ponder scenes.
+// No physics, no networking, no SubWorldClient needed.
+// Blocks are stored in a flat HashMap and rendered directly.
+public class SchematicLevel extends WorldClient {
 
     // Block storage: encoded position -> {block, metadata}
     protected final Map<Long, Object[]> blocks = new HashMap<>();
     protected final Map<Long, TileEntity> tileEntities = new HashMap<>();
     protected final List<TileEntity> renderedTileEntities = new ArrayList<>();
-    protected final List<Entity> entities = new ArrayList<>();
+    protected final List<Entity> entityList2 = new ArrayList<>();
 
     // Bounding box as int[] {minX,minY,minZ,maxX,maxY,maxZ}
     protected int[] bounds = {0, 0, 0, 0, 0, 0};
 
     // Anchor position int[] {x,y,z}
-    public int[] anchor;
+    public int[] anchor = {0, 0, 0};
     public boolean renderMode;
 
-    // The real world for fallback
-    protected final World realWorld;
-
-    // TODO: integrate SubWorldClient from MetaWorld Mixins as backing world
-    // protected SubWorldClient subWorld;
-
-    public SchematicLevel(World realWorld) {
-        this(new int[]{0, 0, 0}, realWorld);
+    public SchematicLevel() {
+        this(new int[]{0, 0, 0});
     }
 
-    public SchematicLevel(int[] anchor, World realWorld) {
+    public SchematicLevel(int[] anchor) {
+        // Use the real world's net handler and settings
+        super(
+            Minecraft.getMinecraft().getNetHandler(),
+            new WorldSettings(0L, Minecraft.getMinecraft().theWorld.getWorldInfo().getGameType(), false, false,
+                Minecraft.getMinecraft().theWorld.getWorldInfo().getTerrainType()),
+            0, // dimension - use overworld
+            Minecraft.getMinecraft().theWorld.difficultySetting,
+            Minecraft.getMinecraft().mcProfiler
+        );
         this.anchor = anchor.clone();
-        this.realWorld = realWorld;
     }
 
     // Encode block position to long key
@@ -76,31 +67,43 @@ public class SchematicLevel {
         };
     }
 
-    public Set<Long> getAllPositionKeys() {
-        return blocks.keySet();
+    // Override WorldClient block access
+    @Override
+    public Block getBlock(int x, int y, int z) {
+        int rx = x - anchor[0], ry = y - anchor[1], rz = z - anchor[2];
+        if (ry - bounds[1] == -1 && !renderMode)
+            return Blocks.dirt;
+        long key = encodePos(rx, ry, rz);
+        if (isInBounds(rx, ry, rz) && blocks.containsKey(key))
+            return (Block) blocks.get(key)[0];
+        return Blocks.air;
     }
 
-    public boolean addFreshEntity(Entity entity) {
-        return entities.add(entity);
+    @Override
+    public int getBlockMetadata(int x, int y, int z) {
+        int rx = x - anchor[0], ry = y - anchor[1], rz = z - anchor[2];
+        long key = encodePos(rx, ry, rz);
+        if (isInBounds(rx, ry, rz) && blocks.containsKey(key))
+            return (int) blocks.get(key)[1];
+        return 0;
     }
 
-    public List<Entity> getEntityList() {
-        return entities;
-    }
-
+    @Override
     public TileEntity getTileEntity(int x, int y, int z) {
-        long key = encodePos(x - anchor[0], y - anchor[1], z - anchor[2]);
+        int rx = x - anchor[0], ry = y - anchor[1], rz = z - anchor[2];
+        long key = encodePos(rx, ry, rz);
         if (tileEntities.containsKey(key))
             return tileEntities.get(key);
-        if (!blocks.containsKey(key))
-            return null;
+        if (!blocks.containsKey(key)) return null;
 
         Block block = getBlock(x, y, z);
-        if (block.hasTileEntity(getBlockMeta(x, y, z))) {
+        int meta = getBlockMetadata(x, y, z);
+        if (block.hasTileEntity(meta)) {
             try {
-                TileEntity te = block.createTileEntity(realWorld, getBlockMeta(x, y, z));
+                TileEntity te = block.createTileEntity(this, meta);
                 if (te != null) {
                     te.xCoord = x; te.yCoord = y; te.zCoord = z;
+                    te.setWorldObj(this);
                     tileEntities.put(key, te);
                     renderedTileEntities.add(te);
                 }
@@ -112,25 +115,8 @@ public class SchematicLevel {
         return null;
     }
 
-    public Block getBlock(int x, int y, int z) {
-        int rx = x - anchor[0], ry = y - anchor[1], rz = z - anchor[2];
-        if (ry - bounds[1] == -1 && !renderMode)
-            return Blocks.dirt;
-        long key = encodePos(rx, ry, rz);
-        if (isInBounds(rx, ry, rz) && blocks.containsKey(key))
-            return (Block) blocks.get(key)[0];
-        return Blocks.air;
-    }
-
-    public int getBlockMeta(int x, int y, int z) {
-        int rx = x - anchor[0], ry = y - anchor[1], rz = z - anchor[2];
-        long key = encodePos(rx, ry, rz);
-        if (isInBounds(rx, ry, rz) && blocks.containsKey(key))
-            return (int) blocks.get(key)[1];
-        return 0;
-    }
-
-    public boolean setBlock(int x, int y, int z, Block block, int meta) {
+    @Override
+    public boolean setBlock(int x, int y, int z, Block block, int meta, int flags) {
         int rx = x - anchor[0], ry = y - anchor[1], rz = z - anchor[2];
         long key = encodePos(rx, ry, rz);
         bounds = BBHelper.encapsulate(bounds, rx, ry, rz);
@@ -147,8 +133,25 @@ public class SchematicLevel {
         return true;
     }
 
-    public boolean destroyBlock(int x, int y, int z) {
-        return setBlock(x, y, z, Blocks.air, 0);
+    @Override
+    public boolean func_147480_a(int x, int y, int z, boolean drop) {
+        return setBlock(x, y, z, Blocks.air, 0, 3);
+    }
+
+    // Full bright - schematic world has no light engine
+    @Override
+    public int getLightBrightnessForSkyBlocks(int x, int y, int z, int min) {
+        return 0xF000F0; // full bright
+    }
+
+    @Override
+    public int getSkyBlockTypeBrightness(int p_72801_1_, int x, int y, int z) {
+        return 15;
+    }
+
+    @Override
+    public boolean addEntity(Entity entity) {
+        return entityList2.add(entity);
     }
 
     public boolean isInBounds(int rx, int ry, int rz) {
@@ -157,10 +160,15 @@ public class SchematicLevel {
             && rz >= bounds[2] && rz <= bounds[5];
     }
 
+    // Restore blocks from backup NBT
+    public void restore() {
+        // TODO: implement backup/restore
+    }
+
     public int[] getBounds() { return bounds; }
     public void setBounds(int[] bounds) { this.bounds = bounds; }
 
-    public Iterable<TileEntity> getTileEntities() {
+    public Iterable<TileEntity> getTileEntitiesIterable() {
         return tileEntities.values();
     }
 
@@ -168,15 +176,17 @@ public class SchematicLevel {
         return renderedTileEntities;
     }
 
-    public int getBrightness(int x, int y, int z) {
-        return 15; // full bright for schematic world
+    @Override
+    public List getLoadedEntityList() {
+        return entityList2;
     }
 
-    public List<? extends EntityPlayer> getPlayers() {
+    // No players in schematic world
+    @Override
+    public EntityPlayer getPlayerEntityByName(String name) { return null; }
+
+    @Override
+    public List getPlayers(Class c, com.google.common.base.Predicate p) {
         return Collections.emptyList();
-    }
-
-    public World getRealWorld() {
-        return realWorld;
     }
 }
