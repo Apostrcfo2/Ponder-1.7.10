@@ -1,20 +1,4 @@
 package net.createmod.metanip.net.base;
-
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-
-public sealed interface BasePacketPayload extends CustomPacketPayload permits ClientboundPacketPayload, ServerboundPacketPayload {
-	PacketTypeProvider getTypeProvider();
-
-	@Override
-	@ApiStatus.NonExtendable
-	default @NotNull Type<? extends CustomPacketPayload> type() {
-		return this.getTypeProvider().getType();
-	}
-
-	interface PacketTypeProvider {
-		<T extends CustomPacketPayload> Type<T> getType();
-	}
-}
+// NOT USED BY PONDER - stub for 1.7.10 compilation
+// Original class depends on APIs not available in 1.7.10 (DataFixers, NeoForge networking, Flywheel, etc.)
+public class BasePacketPayload {}

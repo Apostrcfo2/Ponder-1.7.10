@@ -1,9 +1,4 @@
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
-@FieldsAreNonnullByDefault
 package net.createmod.metanip.placement;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
+// NOT USED BY PONDER - stub for 1.7.10 compilation
+// Original class depends on APIs not available in 1.7.10 (DataFixers, NeoForge networking, Flywheel, etc.)
+public class package-info {}

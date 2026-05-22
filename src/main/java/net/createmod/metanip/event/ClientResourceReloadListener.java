@@ -1,14 +1,4 @@
 package net.createmod.metanip.event;
-
-import net.createmod.metanip.lang.LangNumberFormat;
-import net.createmod.ponder1710.PonderClient;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-
-public class ClientResourceReloadListener implements ResourceManagerReloadListener {
-	@Override
-	public void onResourceManagerReload(ResourceManager resourceManager) {
-		LangNumberFormat.numberFormat.update();
-		PonderClient.invalidateRenderers();
-	}
-}
+// Not used by Ponder - resource reload system different in 1.7.10
+// In 1.7.10 use cpw.mods.fml.common.event.FMLLoadCompleteEvent instead
+public interface ClientResourceReloadListener {}

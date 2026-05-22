@@ -1,4 +1,5 @@
 package net.createmod.metanip.animation;
+// Pure Java - no changes needed for 1.7.10
 
 public interface Force {
 

@@ -1,23 +1,3 @@
 package net.createmod.metanip.render;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import net.createmod.metanip.platform.CatnipServices;
-import net.minecraft.resources.ResourceLocation;
-
-public class SpriteShifter {
-
-	private static final Map<String, SpriteShiftEntry> ENTRY_CACHE = new HashMap<>();
-
-	public static SpriteShiftEntry get(ResourceLocation originalLocation, ResourceLocation targetLocation) {
-		String key = originalLocation + "->" + targetLocation;
-		if (ENTRY_CACHE.containsKey(key))
-			return ENTRY_CACHE.get(key);
-
-		SpriteShiftEntry entry = new SpriteShiftEntry();
-		CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> entry.set(originalLocation, targetLocation));
-		ENTRY_CACHE.put(key, entry);
-		return entry;
-	}
-}
+// Not used by Ponder - Flywheel/VertexConsumer system not available in 1.7.10
+public class SpriteShifter {}

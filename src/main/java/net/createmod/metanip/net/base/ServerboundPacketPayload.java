@@ -1,10 +1,4 @@
 package net.createmod.metanip.net.base;
-
-import net.minecraft.server.level.ServerPlayer;
-
-public non-sealed interface ServerboundPacketPayload extends BasePacketPayload {
-	/**
-	 * Called on the main client thread.
-	 */
-	void handle(ServerPlayer player);
-}
+// NOT USED BY PONDER - stub for 1.7.10 compilation
+// Original class depends on APIs not available in 1.7.10 (DataFixers, NeoForge networking, Flywheel, etc.)
+public class ServerboundPacketPayload {}

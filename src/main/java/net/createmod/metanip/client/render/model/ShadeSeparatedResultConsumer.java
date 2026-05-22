@@ -1,9 +1,4 @@
 package net.createmod.metanip.client.render.model;
-
-import com.mojang.blaze3d.vertex.MeshData;
-
-import net.minecraft.client.renderer.RenderType;
-
-public interface ShadeSeparatedResultConsumer {
-	void accept(RenderType renderType, boolean shaded, MeshData data);
-}
+// NOT USED BY PONDER - stub for 1.7.10 compilation
+// Original class depends on APIs not available in 1.7.10 (DataFixers, NeoForge networking, Flywheel, etc.)
+public class ShadeSeparatedResultConsumer {}

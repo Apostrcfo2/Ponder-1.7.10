@@ -1,4 +1,5 @@
 package net.createmod.metanip.data;
+// Pure Java - no changes needed for 1.7.10
 
 public enum TriState {
     TRUE, DEFAULT, FALSE;

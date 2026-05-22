@@ -1,4 +1,5 @@
 package net.createmod.metanip.layout;
+// Pure Java - no changes needed for 1.7.10
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
