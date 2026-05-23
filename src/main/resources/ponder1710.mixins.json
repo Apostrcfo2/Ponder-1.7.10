@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.createmod.ponder1710.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "ponder1710.refmap.json",
+  "mixins": [],
+  "client": [
+    "accessor.TimerAccessor",
+    "accessor.EntityAccessor",
+    "client.GameRendererAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
