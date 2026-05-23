@@ -190,3 +190,48 @@ public class SchematicLevel extends WorldClient {
         return Collections.emptyList();
     }
 }
+
+    // Backup/restore system for Ponder scene reset
+    private Map<Long, Object[]> blocksBackup = null;
+    private Map<Long, net.minecraft.nbt.NBTTagCompound> tileEntityBackup = null;
+
+    public void createBackup() {
+        blocksBackup = new HashMap<>(blocks);
+        tileEntityBackup = new HashMap<>();
+        for (Map.Entry<Long, TileEntity> entry : tileEntities.entrySet()) {
+            net.minecraft.nbt.NBTTagCompound nbt = new net.minecraft.nbt.NBTTagCompound();
+            entry.getValue().writeToNBT(nbt);
+            tileEntityBackup.put(entry.getKey(), nbt);
+        }
+    }
+
+    public void restore() {
+        if (blocksBackup == null) return;
+        blocks.clear();
+        blocks.putAll(blocksBackup);
+        tileEntities.clear();
+        renderedTileEntities.clear();
+        if (tileEntityBackup != null) {
+            for (Map.Entry<Long, net.minecraft.nbt.NBTTagCompound> entry : tileEntityBackup.entrySet()) {
+                int[] pos = decodePos(entry.getKey());
+                Block block = getBlock(pos[0] + anchor[0], pos[1] + anchor[1], pos[2] + anchor[2]);
+                int meta = getBlockMetadata(pos[0] + anchor[0], pos[1] + anchor[1], pos[2] + anchor[2]);
+                if (block.hasTileEntity(meta)) {
+                    try {
+                        TileEntity te = block.createTileEntity(this, meta);
+                        if (te != null) {
+                            te.readFromNBT(entry.getValue());
+                            te.xCoord = pos[0] + anchor[0];
+                            te.yCoord = pos[1] + anchor[1];
+                            te.zCoord = pos[2] + anchor[2];
+                            te.setWorldObj(this);
+                            tileEntities.put(entry.getKey(), te);
+                            renderedTileEntities.add(te);
+                        }
+                    } catch (Exception e) {
+                        Ponder.LOGGER.debug("Could not restore TileEntity", e);
+                    }
+                }
+            }
+        }
+    }

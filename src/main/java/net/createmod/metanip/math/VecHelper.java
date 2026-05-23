@@ -162,11 +162,11 @@ public class VecHelper {
         return lerp(t, inner1, inner2);
     }
 
-    // TODO: projectToPlayerView - Camera/GameRendererAccessor not available in 1.7.10
-    // TODO: mirror - Mirror enum not available in 1.7.10
-    // TODO: intersect/intersectRanged - uses Axis enum not available in 1.7.10
-    // TODO: slerp - uses Mth.sin with float
-    // TODO: alignedDistanceToFace - uses Direction.Axis
+
+
+
+
+
 }
 
     // Previously TODO - now implemented for 1.7.10
