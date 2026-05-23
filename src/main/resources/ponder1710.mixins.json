@@ -8,7 +8,11 @@
   "client": [
     "accessor.TimerAccessor",
     "accessor.EntityAccessor",
-    "client.GameRendererAccessor"
+    "client.GameRendererAccessor",
+    "client.MinecraftMixin",
+    "client.EntityRendererMixin",
+    "client.GuiContainerMixin",
+    "client.ItemStackMixin"
   ],
   "injectors": {
     "defaultRequire": 1
