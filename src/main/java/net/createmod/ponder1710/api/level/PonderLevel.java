@@ -9,10 +9,10 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 // import com.mojang.blaze3d.vertex.PoseStack; // TODO: not available in 1.7.10 - use GL11
-// import net.createmod.catnip.levelWrappers.SchematicLevel; // TODO: catnip not available
-// import net.createmod.catnip.levelWrappers.WrappedClientLevel; // TODO: catnip not available
-// import net.createmod.catnip.platform.CatnipClientServices; // TODO: catnip not available
-// import net.createmod.catnip.render.SuperRenderTypeBuffer; // TODO: catnip not available
+// import net.createmod.metanip.levelWrappers.SchematicLevel; // TODO: catnip not available
+// import net.createmod.metanip.levelWrappers.WrappedClientLevel; // TODO: catnip not available
+// import net.createmod.metanip.platform.CatnipClientServices; // TODO: catnip not available
+// import net.createmod.metanip.render.SuperRenderTypeBuffer; // TODO: catnip not available
 
 import net.createmod.ponder1710.api.VirtualBlockEntity;
 import net.createmod.ponder1710.api.element.WorldSectionElement;

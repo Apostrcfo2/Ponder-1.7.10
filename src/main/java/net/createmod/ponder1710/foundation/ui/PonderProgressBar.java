@@ -1,12 +1,12 @@
 package net.createmod.ponder1710.foundation.ui;
 
 // import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
-// import net.createmod.catnip.animation.LerpedFloat; // TODO: catnip not available
-// import net.createmod.catnip.data.Couple; // TODO: catnip not available
-// import net.createmod.catnip.gui.UIRenderHelper; // TODO: catnip not available
-// import net.createmod.catnip.gui.element.BoxElement; // TODO: catnip not available
-// import net.createmod.catnip.gui.widget.AbstractSimiWidget; // TODO: catnip not available
-// import net.createmod.catnip.theme.Color; // TODO: catnip not available
+// import net.createmod.metanip.animation.LerpedFloat; // TODO: catnip not available
+// import net.createmod.metanip.data.Couple; // TODO: catnip not available
+// import net.createmod.metanip.gui.UIRenderHelper; // TODO: catnip not available
+// import net.createmod.metanip.gui.element.BoxElement; // TODO: catnip not available
+// import net.createmod.metanip.gui.widget.AbstractSimiWidget; // TODO: catnip not available
+// import net.createmod.metanip.theme.Color; // TODO: catnip not available
 // import net.minecraft.ChatFormatting; // EnumChatFormatting in 1.7.10
 // import net.minecraft.client.gui.Font; // FontRenderer in 1.7.10
 // import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10

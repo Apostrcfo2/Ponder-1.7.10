@@ -21,23 +21,23 @@ import javax.annotation.Nullable;
 // import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
 // import com.mojang.blaze3d.vertex.VertexSorting; // not available in 1.7.10
 // import com.mojang.math.Axis; // not available in 1.7.10
-// import net.createmod.catnip.animation.AnimationTickHolder; // TODO: catnip -> metanip
-// import net.createmod.catnip.animation.LerpedFloat; // TODO: catnip -> metanip
-// import net.createmod.catnip.data.Couple; // TODO: catnip -> metanip
-// import net.createmod.catnip.data.Iterate; // TODO: catnip -> metanip
-// import net.createmod.catnip.data.Pair; // TODO: catnip -> metanip
-// import net.createmod.catnip.gui.NavigatableSimiScreen; // TODO: catnip -> metanip
-// import net.createmod.catnip.gui.ScreenOpener; // TODO: catnip -> metanip
-// import net.createmod.catnip.gui.UIRenderHelper; // TODO: catnip -> metanip
-// import net.createmod.catnip.gui.element.BoxElement; // TODO: catnip -> metanip
-// import net.createmod.catnip.gui.element.GuiGameElement; // TODO: catnip -> metanip
-// import net.createmod.catnip.gui.widget.BoxWidget; // TODO: catnip -> metanip
-// import net.createmod.catnip.lang.ClientFontHelper; // TODO: catnip -> metanip
-// import net.createmod.catnip.math.Pointing; // TODO: catnip -> metanip
-// import net.createmod.catnip.registry.RegisteredObjectsHelper; // TODO: catnip -> metanip
-// import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer; // TODO: catnip -> metanip
-// import net.createmod.catnip.render.SuperRenderTypeBuffer; // TODO: catnip -> metanip
-// import net.createmod.catnip.theme.Color; // TODO: catnip -> metanip
+// import net.createmod.metanip.animation.AnimationTickHolder; // TODO: catnip -> metanip
+// import net.createmod.metanip.animation.LerpedFloat; // TODO: catnip -> metanip
+// import net.createmod.metanip.data.Couple; // TODO: catnip -> metanip
+// import net.createmod.metanip.data.Iterate; // TODO: catnip -> metanip
+// import net.createmod.metanip.data.Pair; // TODO: catnip -> metanip
+// import net.createmod.metanip.gui.NavigatableSimiScreen; // TODO: catnip -> metanip
+// import net.createmod.metanip.gui.ScreenOpener; // TODO: catnip -> metanip
+// import net.createmod.metanip.gui.UIRenderHelper; // TODO: catnip -> metanip
+// import net.createmod.metanip.gui.element.BoxElement; // TODO: catnip -> metanip
+// import net.createmod.metanip.gui.element.GuiGameElement; // TODO: catnip -> metanip
+// import net.createmod.metanip.gui.widget.BoxWidget; // TODO: catnip -> metanip
+// import net.createmod.metanip.lang.ClientFontHelper; // TODO: catnip -> metanip
+// import net.createmod.metanip.math.Pointing; // TODO: catnip -> metanip
+// import net.createmod.metanip.registry.RegisteredObjectsHelper; // TODO: catnip -> metanip
+// import net.createmod.metanip.render.DefaultSuperRenderTypeBuffer; // TODO: catnip -> metanip
+// import net.createmod.metanip.render.SuperRenderTypeBuffer; // TODO: catnip -> metanip
+// import net.createmod.metanip.theme.Color; // TODO: catnip -> metanip
 // import net.minecraft.ChatFormatting; // EnumChatFormatting in 1.7.10
 // import net.minecraft.client.Options; // GameSettings in 1.7.10
 // import net.minecraft.client.gui.Font; // FontRenderer in 1.7.10

@@ -2,8 +2,8 @@ package net.createmod.ponder1710.foundation.ui;
 
 import java.util.function.BiConsumer;
 
-// import net.createmod.catnip.gui.UIRenderHelper; // TODO: catnip not available
-// import net.createmod.catnip.gui.widget.AbstractSimiWidget; // TODO: catnip not available
+// import net.createmod.metanip.gui.UIRenderHelper; // TODO: catnip not available
+// import net.createmod.metanip.gui.widget.AbstractSimiWidget; // TODO: catnip not available
 // import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
 
 import net.createmod.ponder1710.foundation.PonderChapter;

@@ -1,7 +1,7 @@
 package net.createmod.ponder1710.foundation.element;
 
-// import net.createmod.catnip.outliner.Outline.OutlineParams; // TODO: catnip not available
-// import net.createmod.catnip.outliner.Outliner; // TODO: catnip not available
+// import net.createmod.metanip.outliner.Outline.OutlineParams; // TODO: catnip not available
+// import net.createmod.metanip.outliner.Outliner; // TODO: catnip not available
 // Outliner is a catnip utility for drawing outlines in the world
 // Will need to be reimplemented using 1.7.10 rendering system
 

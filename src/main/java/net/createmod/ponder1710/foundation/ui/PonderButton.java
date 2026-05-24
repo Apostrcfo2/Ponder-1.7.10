@@ -3,13 +3,13 @@ package net.createmod.ponder1710.foundation.ui;
 import javax.annotation.Nullable;
 
 // import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
-// import net.createmod.catnip.animation.AnimationTickHolder; // TODO: catnip not available
-// import net.createmod.catnip.animation.LerpedFloat; // TODO: catnip not available
-// import net.createmod.catnip.data.Couple; // TODO: catnip not available
-// import net.createmod.catnip.gui.UIRenderHelper; // TODO: catnip not available
-// import net.createmod.catnip.gui.element.GuiGameElement; // TODO: catnip not available
-// import net.createmod.catnip.gui.widget.BoxWidget; // TODO: catnip not available
-// import net.createmod.catnip.theme.Color; // TODO: catnip not available
+// import net.createmod.metanip.animation.AnimationTickHolder; // TODO: catnip not available
+// import net.createmod.metanip.animation.LerpedFloat; // TODO: catnip not available
+// import net.createmod.metanip.data.Couple; // TODO: catnip not available
+// import net.createmod.metanip.gui.UIRenderHelper; // TODO: catnip not available
+// import net.createmod.metanip.gui.element.GuiGameElement; // TODO: catnip not available
+// import net.createmod.metanip.gui.widget.BoxWidget; // TODO: catnip not available
+// import net.createmod.metanip.theme.Color; // TODO: catnip not available
 // import net.minecraft.client.KeyMapping; // KeyBinding in 1.7.10
 // import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
 // import net.minecraft.util.Mth; // MathHelper in 1.7.10

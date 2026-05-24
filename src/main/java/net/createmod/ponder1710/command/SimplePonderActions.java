@@ -1,6 +1,6 @@
 package net.createmod.ponder1710.command;
 
-// import net.createmod.catnip.gui.ScreenOpener; // TODO: catnip not available
+// import net.createmod.metanip.gui.ScreenOpener; // TODO: catnip not available
 // import net.minecraft.resources.ResourceLocation; // 1.7.10 uses different package
 import net.minecraft.util.ResourceLocation;
 

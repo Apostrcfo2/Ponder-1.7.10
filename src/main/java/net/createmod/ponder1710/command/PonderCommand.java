@@ -6,8 +6,8 @@ package net.createmod.ponder1710.command;
 
 // import com.mojang.brigadier.Command;
 // import com.mojang.brigadier.builder.ArgumentBuilder;
-// import net.createmod.catnip.net.packets.ClientboundSimpleActionPacket;
-// import net.createmod.catnip.platform.CatnipServices;
+// import net.createmod.metanip.net.packets.ClientboundSimpleActionPacket;
+// import net.createmod.metanip.platform.CatnipServices;
 // import net.minecraft.commands.CommandSourceStack;
 // import net.minecraft.commands.Commands;
 // import net.minecraft.commands.arguments.EntityArgument;

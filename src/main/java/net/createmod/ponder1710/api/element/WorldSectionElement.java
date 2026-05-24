@@ -1,6 +1,6 @@
 package net.createmod.ponder1710.api.element;
 
-// import net.createmod.catnip.data.Pair; // TODO: catnip not available - replaced with custom pair
+// import net.createmod.metanip.data.Pair; // TODO: catnip not available - replaced with custom pair
 import net.createmod.ponder1710.api.level.PonderLevel;
 import net.createmod.ponder1710.api.scene.Selection;
 

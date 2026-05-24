@@ -1,6 +1,6 @@
 package net.createmod.ponder1710.foundation;
 
-// import net.createmod.catnip.math.VecHelper; // TODO: catnip not available
+// import net.createmod.metanip.math.VecHelper; // TODO: catnip not available
 // import net.minecraft.core.BlockPos; // 1.7.10 uses x,y,z
 // import net.minecraft.core.Direction; // ForgeDirection in 1.7.10
 // import net.minecraft.core.Vec3i; // not available in 1.7.10

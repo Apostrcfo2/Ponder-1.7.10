@@ -5,7 +5,7 @@ import net.createmod.ponder1710.config.CClient;
 // TODO: NeoForge/Forge config system replaced with simple singleton in 1.7.10
 // import net.neoforged.fml.config.ModConfig;
 // import net.neoforged.neoforge.common.ModConfigSpec;
-// import net.createmod.catnip.config.ConfigBase;
+// import net.createmod.metanip.config.ConfigBase;
 
 public class PonderConfig {
 

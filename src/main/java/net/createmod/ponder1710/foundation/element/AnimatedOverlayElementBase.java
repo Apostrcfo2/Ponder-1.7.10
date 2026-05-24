@@ -1,6 +1,6 @@
 package net.createmod.ponder1710.foundation.element;
 
-// import net.createmod.catnip.animation.LerpedFloat; // TODO: catnip not available - replaced with float
+// import net.createmod.metanip.animation.LerpedFloat; // TODO: catnip not available - replaced with float
 
 import net.createmod.ponder1710.api.element.AnimatedOverlayElement;
 import net.minecraft.util.MathHelper;

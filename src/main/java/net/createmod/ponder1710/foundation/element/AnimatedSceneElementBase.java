@@ -1,7 +1,7 @@
 package net.createmod.ponder1710.foundation.element;
 
 // import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10 - use GL11
-// import net.createmod.catnip.animation.LerpedFloat; // TODO: catnip not available - replaced with float
+// import net.createmod.metanip.animation.LerpedFloat; // TODO: catnip not available - replaced with float
 // import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
 // import net.minecraft.client.renderer.LightTexture; // not available in 1.7.10
 // import net.minecraft.client.renderer.MultiBufferSource; // not available in 1.7.10

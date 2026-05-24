@@ -2,7 +2,7 @@ package net.createmod.ponder1710.foundation;
 
 // import com.mojang.blaze3d.systems.RenderSystem; // not available in 1.7.10
 // import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10 - use GL11
-// import net.createmod.catnip.gui.element.ScreenElement; // TODO: catnip not available
+// import net.createmod.metanip.gui.element.ScreenElement; // TODO: catnip not available
 // import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
 // import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
 

@@ -7,9 +7,9 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 // import org.joml.Vector3f; // not available in 1.7.10
-// import net.createmod.catnip.math.Pointing; // TODO: catnip not available
-// import net.createmod.catnip.math.VecHelper; // TODO: catnip not available
-// import net.createmod.catnip.theme.Color; // TODO: catnip not available
+// import net.createmod.metanip.math.Pointing; // TODO: catnip not available
+// import net.createmod.metanip.math.VecHelper; // TODO: catnip not available
+// import net.createmod.metanip.theme.Color; // TODO: catnip not available
 // import net.minecraft.core.BlockPos; // 1.7.10 uses x,y,z
 // import net.minecraft.core.Direction; // ForgeDirection in 1.7.10
 // import net.minecraft.core.Direction.Axis; // ForgeDirection in 1.7.10

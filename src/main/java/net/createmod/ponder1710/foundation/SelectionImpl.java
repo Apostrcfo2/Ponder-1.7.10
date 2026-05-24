@@ -9,8 +9,8 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-// import net.createmod.catnip.outliner.Outline.OutlineParams; // TODO: catnip not available
-// import net.createmod.catnip.outliner.Outliner; // TODO: catnip not available
+// import net.createmod.metanip.outliner.Outline.OutlineParams; // TODO: catnip not available
+// import net.createmod.metanip.outliner.Outliner; // TODO: catnip not available
 // import net.minecraft.core.BlockPos; // 1.7.10 uses x,y,z
 // import net.minecraft.world.level.levelgen.structure.BoundingBox; // not available in 1.7.10
 // import net.minecraft.world.phys.AABB; // AxisAlignedBB in 1.7.10

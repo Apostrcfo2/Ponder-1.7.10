@@ -2,8 +2,8 @@ package net.createmod.ponder1710.foundation.ui;
 
 import static net.createmod.ponder1710.foundation.registration.PonderLocalization.UI_PREFIX;
 
-// import net.createmod.catnip.gui.NavigatableSimiScreen; // TODO: catnip not available
-// import net.createmod.catnip.gui.ScreenOpener; // TODO: catnip not available
+// import net.createmod.metanip.gui.NavigatableSimiScreen; // TODO: catnip not available
+// import net.createmod.metanip.gui.ScreenOpener; // TODO: catnip not available
 // import net.minecraft.network.chat.Component; // not available in 1.7.10
 
 import net.minecraft.client.gui.GuiScreen;

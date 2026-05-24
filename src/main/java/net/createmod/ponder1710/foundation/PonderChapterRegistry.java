@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-// import net.createmod.catnip.data.Pair; // TODO: catnip not available - using simple array
+// import net.createmod.metanip.data.Pair; // TODO: catnip not available - using simple array
 import net.createmod.ponder1710.api.registration.StoryBoardEntry;
 
 // import net.minecraft.resources.ResourceLocation; // different package in 1.7.10

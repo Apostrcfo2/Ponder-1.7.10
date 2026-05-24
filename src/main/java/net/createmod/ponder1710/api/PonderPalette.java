@@ -1,6 +1,6 @@
 package net.createmod.ponder1710.api;
 
-// import net.createmod.catnip.theme.Color; // TODO: catnip not available in 1.7.10
+// import net.createmod.metanip.theme.Color; // TODO: catnip not available in 1.7.10
 // Replaced with plain int color values
 
 public enum PonderPalette {

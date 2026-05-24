@@ -19,14 +19,14 @@ import javax.annotation.Nullable;
 // import org.joml.Matrix4f; // Not available in 1.7.10
 // import org.joml.Vector4f; // Not available in 1.7.10
 // import com.mojang.blaze3d.vertex.PoseStack; // Not available in 1.7.10 - use GL11
-// import net.createmod.catnip.animation.AnimationTickHolder; // catnip not available
-// import net.createmod.catnip.animation.LerpedFloat; // catnip not available - replaced with float
-// import net.createmod.catnip.data.Pair; // catnip not available
-// import net.createmod.catnip.gui.UIRenderHelper; // catnip not available
-// import net.createmod.catnip.math.VecHelper; // catnip not available
-// import net.createmod.catnip.outliner.Outliner; // catnip not available - TODO: port or reimplement
-// import net.createmod.catnip.platform.CatnipServices; // catnip not available
-// import net.createmod.catnip.render.SuperRenderTypeBuffer; // catnip not available
+// import net.createmod.metanip.animation.AnimationTickHolder; // catnip not available
+// import net.createmod.metanip.animation.LerpedFloat; // catnip not available - replaced with float
+// import net.createmod.metanip.data.Pair; // catnip not available
+// import net.createmod.metanip.gui.UIRenderHelper; // catnip not available
+// import net.createmod.metanip.math.VecHelper; // catnip not available
+// import net.createmod.metanip.outliner.Outliner; // catnip not available - TODO: port or reimplement
+// import net.createmod.metanip.platform.CatnipServices; // catnip not available
+// import net.createmod.metanip.render.SuperRenderTypeBuffer; // catnip not available
 
 import net.createmod.ponder1710.api.element.ElementLink;
 import net.createmod.ponder1710.api.element.PonderElement;

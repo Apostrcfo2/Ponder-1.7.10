@@ -3,8 +3,8 @@ package net.createmod.ponder1710.foundation;
 import javax.annotation.Nullable;
 
 // import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
-// import net.createmod.catnip.gui.element.GuiGameElement; // TODO: catnip not available
-// import net.createmod.catnip.gui.element.ScreenElement; // TODO: catnip not available
+// import net.createmod.metanip.gui.element.GuiGameElement; // TODO: catnip not available
+// import net.createmod.metanip.gui.element.ScreenElement; // TODO: catnip not available
 // import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
 // import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
 // import net.minecraft.world.item.ItemStack; // different package in 1.7.10

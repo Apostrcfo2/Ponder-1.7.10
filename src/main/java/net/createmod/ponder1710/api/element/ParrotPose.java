@@ -5,7 +5,7 @@ package net.createmod.ponder1710.api.element;
 // Keeping the structure but commenting out Parrot-specific code
 
 // import com.mojang.blaze3d.platform.Window; // TODO: not available in 1.7.10
-// import net.createmod.catnip.math.AngleHelper; // TODO: catnip not available
+// import net.createmod.metanip.math.AngleHelper; // TODO: catnip not available
 // import net.minecraft.world.entity.EntityType; // 1.7.10 uses different registry
 // import net.minecraft.world.entity.animal.Parrot; // TODO: Parrot not in 1.7.10
 // import net.minecraft.core.BlockPos; // 1.7.10 uses ChunkCoordinates

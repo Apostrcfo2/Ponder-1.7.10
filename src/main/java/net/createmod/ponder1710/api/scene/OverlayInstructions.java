@@ -1,6 +1,6 @@
 package net.createmod.ponder1710.api.scene;
 
-// import net.createmod.catnip.math.Pointing; // TODO: catnip not available
+// import net.createmod.metanip.math.Pointing; // TODO: catnip not available
 import net.createmod.ponder1710.api.PonderPalette;
 import net.createmod.ponder1710.api.element.InputElementBuilder;
 import net.createmod.ponder1710.api.element.TextElementBuilder;

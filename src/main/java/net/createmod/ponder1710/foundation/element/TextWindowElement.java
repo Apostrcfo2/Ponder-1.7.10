@@ -5,9 +5,9 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 // import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
-// import net.createmod.catnip.data.Couple; // TODO: catnip not available
-// import net.createmod.catnip.gui.element.BoxElement; // TODO: catnip not available
-// import net.createmod.catnip.theme.Color; // TODO: catnip not available
+// import net.createmod.metanip.data.Couple; // TODO: catnip not available
+// import net.createmod.metanip.gui.element.BoxElement; // TODO: catnip not available
+// import net.createmod.metanip.theme.Color; // TODO: catnip not available
 // import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
 // import net.minecraft.network.chat.FormattedText; // not available in 1.7.10
 // import net.minecraft.network.chat.Style; // not available in 1.7.10

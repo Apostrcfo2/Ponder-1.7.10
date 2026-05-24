@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-// import net.createmod.catnip.data.Couple; // TODO: catnip not available - using Object[]
+// import net.createmod.metanip.data.Couple; // TODO: catnip not available - using Object[]
 // import net.minecraft.client.resources.language.I18n; // different in 1.7.10
 // import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
 

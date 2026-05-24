@@ -1,18 +1,18 @@
 package net.createmod.ponder1710;
 
 // import com.mojang.blaze3d.vertex.PoseStack; // TODO: not available in 1.7.10 - use GL11
-// import net.createmod.catnip.animation.AnimationTickHolder; // TODO: catnip not available
-// import net.createmod.catnip.event.ClientResourceReloadListener; // TODO: catnip not available
-// import net.createmod.catnip.ghostblock.GhostBlocks; // TODO: catnip not available
-// import net.createmod.catnip.gui.UIRenderHelper; // TODO: catnip not available
-// import net.createmod.catnip.net.packets.ClientboundSimpleActionPacket; // TODO: catnip not available
-// import net.createmod.catnip.outliner.Outliner; // TODO: catnip not available
-// import net.createmod.catnip.placement.PlacementClient; // TODO: catnip not available
-// import net.createmod.catnip.platform.CatnipServices; // TODO: catnip not available
-// import net.createmod.catnip.render.CachedBuffers; // TODO: catnip not available
-// import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer; // TODO: catnip not available
-// import net.createmod.catnip.render.SuperByteBufferCache; // TODO: catnip not available
-// import net.createmod.catnip.render.SuperRenderTypeBuffer; // TODO: catnip not available
+// import net.createmod.metanip.animation.AnimationTickHolder; // TODO: catnip not available
+// import net.createmod.metanip.event.ClientResourceReloadListener; // TODO: catnip not available
+// import net.createmod.metanip.ghostblock.GhostBlocks; // TODO: catnip not available
+// import net.createmod.metanip.gui.UIRenderHelper; // TODO: catnip not available
+// import net.createmod.metanip.net.packets.ClientboundSimpleActionPacket; // TODO: catnip not available
+// import net.createmod.metanip.outliner.Outliner; // TODO: catnip not available
+// import net.createmod.metanip.placement.PlacementClient; // TODO: catnip not available
+// import net.createmod.metanip.platform.CatnipServices; // TODO: catnip not available
+// import net.createmod.metanip.render.CachedBuffers; // TODO: catnip not available
+// import net.createmod.metanip.render.DefaultSuperRenderTypeBuffer; // TODO: catnip not available
+// import net.createmod.metanip.render.SuperByteBufferCache; // TODO: catnip not available
+// import net.createmod.metanip.render.SuperRenderTypeBuffer; // TODO: catnip not available
 
 import net.createmod.ponder1710.foundation.PonderIndex;
 import net.createmod.ponder1710.foundation.content.BasePonderPlugin;

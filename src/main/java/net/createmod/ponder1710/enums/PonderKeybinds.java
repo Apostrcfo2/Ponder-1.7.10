@@ -1,8 +1,8 @@
 package net.createmod.ponder1710.enums;
 
 // import org.lwjgl.glfw.GLFW; // GLFW not available in 1.7.10 - uses LWJGL 2
-// import net.createmod.catnip.client.ConflictSafeKeyMapping; // TODO: catnip not available
-// import net.createmod.catnip.platform.CatnipClientServices; // TODO: catnip not available
+// import net.createmod.metanip.client.ConflictSafeKeyMapping; // TODO: catnip not available
+// import net.createmod.metanip.platform.CatnipClientServices; // TODO: catnip not available
 // import net.minecraft.client.KeyMapping; // KeyBinding in 1.7.10
 // import net.minecraft.network.chat.Component; // not available in 1.7.10
 

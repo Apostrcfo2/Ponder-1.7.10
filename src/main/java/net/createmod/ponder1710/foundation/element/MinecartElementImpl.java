@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 
 // import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10 - use GL11
 // import com.mojang.math.Axis; // not available in 1.7.10
-// import net.createmod.catnip.animation.LerpedFloat; // TODO: catnip not available
+// import net.createmod.metanip.animation.LerpedFloat; // TODO: catnip not available
 // import net.minecraft.client.renderer.MultiBufferSource; // not available in 1.7.10
 // import net.minecraft.client.renderer.entity.EntityRenderDispatcher; // different in 1.7.10
 // import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10

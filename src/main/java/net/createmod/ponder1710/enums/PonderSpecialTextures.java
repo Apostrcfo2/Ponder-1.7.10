@@ -1,7 +1,7 @@
 package net.createmod.ponder1710.enums;
 
 // import com.mojang.blaze3d.systems.RenderSystem; // not available in 1.7.10
-// import net.createmod.catnip.render.BindableTexture; // TODO: catnip not available
+// import net.createmod.metanip.render.BindableTexture; // TODO: catnip not available
 // import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
 
 import net.createmod.ponder1710.Ponder;

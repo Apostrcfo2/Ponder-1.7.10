@@ -10,13 +10,13 @@ import javax.annotation.Nullable;
 
 // import com.mojang.blaze3d.platform.Window; // not available in 1.7.10
 // import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
-// import net.createmod.catnip.gui.NavigatableSimiScreen; // TODO: catnip not available
-// import net.createmod.catnip.gui.ScreenOpener; // TODO: catnip not available
-// import net.createmod.catnip.gui.UIRenderHelper; // TODO: catnip not available
-// import net.createmod.catnip.gui.widget.BoxWidget; // TODO: catnip not available
-// import net.createmod.catnip.layout.LayoutHelper; // TODO: catnip not available
-// import net.createmod.catnip.layout.PaginationState; // TODO: catnip not available
-// import net.createmod.catnip.registry.RegisteredObjectsHelper; // TODO: catnip not available
+// import net.createmod.metanip.gui.NavigatableSimiScreen; // TODO: catnip not available
+// import net.createmod.metanip.gui.ScreenOpener; // TODO: catnip not available
+// import net.createmod.metanip.gui.UIRenderHelper; // TODO: catnip not available
+// import net.createmod.metanip.gui.widget.BoxWidget; // TODO: catnip not available
+// import net.createmod.metanip.layout.LayoutHelper; // TODO: catnip not available
+// import net.createmod.metanip.layout.PaginationState; // TODO: catnip not available
+// import net.createmod.metanip.registry.RegisteredObjectsHelper; // TODO: catnip not available
 // import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
 // import net.minecraft.client.gui.components.events.GuiEventListener; // not available in 1.7.10
 // import net.minecraft.client.renderer.Rect2i; // not available in 1.7.10
