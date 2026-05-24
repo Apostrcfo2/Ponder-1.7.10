@@ -1,6 +1,5 @@
 package net.createmod.ponder1710.api.level;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -8,8 +7,6 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import net.createmod.metanip.levelWrappers.SchematicLevel;
-import net.createmod.ponder1710.api.VirtualBlockEntity;
 import net.createmod.ponder1710.api.element.WorldSectionElement;
 import net.createmod.ponder1710.api.scene.Selection;
 import net.createmod.ponder1710.foundation.PonderIndex;
@@ -18,24 +15,26 @@ import net.createmod.ponder1710.foundation.PonderWorldParticles;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3;
-import net.minecraft.world.World;
+import net.minecraft.profiler.Profiler;
+import net.minecraft.world.EnumDifficulty;
+import net.minecraft.world.WorldSettings;
 
-import org.lwjgl.opengl.GL11;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import su.sergiusonesimus.metaworlds.client.multiplayer.SubWorldClient;
 
-// PonderLevel extends SchematicLevel - a WorldClient-based virtual world for Ponder scenes
-public class PonderLevel extends SchematicLevel {
+// PonderLevel extends SubWorldClient - same pattern as ContraptionWorldClient in ReCreate
+// This gives us full block rendering, TileEntity animation, physics, lighting etc.
+@SideOnly(Side.CLIENT)
+public class PonderLevel extends SubWorldClient {
 
     @Nullable
     public PonderScene scene;
 
     protected Map<Long, Integer> blockBreakingProgressions = new HashMap<>();
-    protected List<Entity> entities2 = new ArrayList<>(); // separate from WorldClient's entityList
-
     protected PonderWorldParticles particles;
 
     int overrideLight = -1;
@@ -43,34 +42,23 @@ public class PonderLevel extends SchematicLevel {
     Selection mask;
     boolean currentlyTickingEntities;
 
-    public PonderLevel(World original) {
-        super(original);
-        particles = new PonderWorldParticles(this);
-    }
-
-    public PonderLevel(int[] anchor, World original) {
-        super(anchor, original);
-        particles = new PonderWorldParticles(this);
-    }
-
-    @Override
-    public void createBackup() {
-        super.createBackup();
-        // Also backup entities
-    }
-
-    @Override
-    public void restore() {
-        super.restore();
-        entities2.clear();
-        blockBreakingProgressions.clear();
-        particles.clearEffects();
-        PonderIndex.forEachPlugin(plugin -> plugin.onPonderLevelRestore(this));
-    }
-
-    private void redraw() {
-        if (scene != null)
-            scene.forEach(WorldSectionElement.class, WorldSectionElement::queueRedraw);
+    public PonderLevel(WorldClient parentWorld, int subWorldID) {
+        super(
+            parentWorld,
+            subWorldID,
+            Minecraft.getMinecraft().getNetHandler(),
+            new WorldSettings(
+                0L,
+                parentWorld.getWorldInfo().getGameType(),
+                false,
+                false,
+                parentWorld.getWorldInfo().getTerrainType()
+            ),
+            0, // dimension - overworld
+            parentWorld.difficultySetting,
+            parentWorld.theProfiler
+        );
+        this.particles = new PonderWorldParticles(this);
     }
 
     public void pushFakeLight(int light) {
@@ -89,9 +77,16 @@ public class PonderLevel extends SchematicLevel {
         this.mask = null;
     }
 
-    // Render entities using 1.7.10 RenderManager
+    // Full bright for Ponder scenes, unless overridden
+    @Override
+    public int getLightBrightnessForSkyBlocks(int x, int y, int z, int min) {
+        if (overrideLight != -1)
+            return overrideLight << 20 | overrideLight << 4;
+        return 0xF000F0;
+    }
+
     public void renderEntities(float pt) {
-        for (Entity entity : entities2) {
+        for (Entity entity : (List<Entity>) getLoadedEntityList()) {
             net.minecraft.client.renderer.entity.RenderManager.instance.renderEntityWithPosYaw(
                 entity,
                 entity.prevPosX + (entity.posX - entity.prevPosX) * pt,
@@ -103,58 +98,38 @@ public class PonderLevel extends SchematicLevel {
         }
     }
 
-    // Render particles using 1.7.10 system
     public void renderParticles(float pt) {
         particles.renderParticles(pt);
     }
 
     public void tick() {
+        super.tick();
         currentlyTickingEntities = true;
         particles.tick();
 
-        for (Iterator<Entity> iterator = entities2.iterator(); iterator.hasNext();) {
-            Entity entity = iterator.next();
+        for (Iterator<Entity> it = ((List<Entity>) getLoadedEntityList()).iterator(); it.hasNext();) {
+            Entity entity = it.next();
             entity.onUpdate();
             if (entity.posY <= -.5f) entity.setDead();
-            if (entity.isDead) iterator.remove();
+            if (entity.isDead) it.remove();
         }
 
         currentlyTickingEntities = false;
     }
 
     public void addBlockDestroyEffects(int x, int y, int z, Block block, int meta) {
-        // Use 1.7.10 effect renderer
-        Minecraft mc = Minecraft.getMinecraft();
-        mc.effectRenderer.addBlockDestroyEffects(x, y, z, block, meta);
+        Minecraft.getMinecraft().effectRenderer.addBlockDestroyEffects(x, y, z, block, meta);
     }
 
-    // Override getLightBrightnessForSkyBlocks to support fake light
-    @Override
-    public int getLightBrightnessForSkyBlocks(int x, int y, int z, int min) {
-        if (overrideLight != -1)
-            return overrideLight << 20 | overrideLight << 4;
-        return 0xF000F0; // full bright by default for Ponder
-    }
-
-    @Override
-    public boolean addEntity(Entity entity) {
-        return entities2.add(entity);
-    }
-
-    @Override
-    public List getLoadedEntityList() {
-        return entities2;
+    public void restoreBlocks(Selection selection) {
+        // TODO: implement block restore from backup using selection
     }
 
     public Map<Long, Integer> getBlockBreakingProgressions() {
         return blockBreakingProgressions;
     }
 
-    public List<Entity> getEntityList() {
-        return entities2;
-    }
-
-    // Helper to encode x,y,z into a long key
+    // Helper to encode x,y,z into long key
     public static long posToLong(int x, int y, int z) {
         return ((long)(x + 30000000)) | ((long)(y + 30000000) << 20) | ((long)(z + 30000000) << 40);
     }
