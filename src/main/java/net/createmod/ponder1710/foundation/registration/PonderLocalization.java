@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-// import net.createmod.metanip.data.Couple; // TODO: catnip not available - using Object[]
+
 // import net.minecraft.client.resources.language.I18n; // different in 1.7.10
 // import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
 
@@ -22,7 +22,7 @@ public class PonderLocalization implements LangRegistryAccess {
     public static final String UI_PREFIX = "ui.";
 
     public final Map<ResourceLocation, String> shared = new HashMap<>();
-    // TODO: Couple from catnip not available - using String[] {title, description}
+    
     public final Map<ResourceLocation, String[]> tag = new HashMap<>();
     public final Map<ResourceLocation, Map<String, String>> specific = new HashMap<>();
 

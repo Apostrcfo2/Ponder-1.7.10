@@ -16,17 +16,15 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-// import org.joml.Matrix4f; // Not available in 1.7.10
-// import org.joml.Vector4f; // Not available in 1.7.10
-// import com.mojang.blaze3d.vertex.PoseStack; // Not available in 1.7.10 - use GL11
-// import net.createmod.metanip.animation.AnimationTickHolder; // catnip not available
-// import net.createmod.metanip.animation.LerpedFloat; // catnip not available - replaced with float
-// import net.createmod.metanip.data.Pair; // catnip not available
-// import net.createmod.metanip.gui.UIRenderHelper; // catnip not available
-// import net.createmod.metanip.math.VecHelper; // catnip not available
-// import net.createmod.metanip.outliner.Outliner; // catnip not available - TODO: port or reimplement
-// import net.createmod.metanip.platform.CatnipServices; // catnip not available
-// import net.createmod.metanip.render.SuperRenderTypeBuffer; // catnip not available
+import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
+
+import net.createmod.metanip.animation.AnimationTickHolder;
+import net.createmod.metanip.animation.LerpedFloat;
+import net.createmod.metanip.data.Pair;
+import net.createmod.metanip.gui.UIRenderHelper;
+import net.createmod.metanip.math.VecHelper;
+import net.createmod.metanip.outliner.Outliner;
 
 import net.createmod.ponder1710.api.element.ElementLink;
 import net.createmod.ponder1710.api.element.PonderElement;
@@ -41,37 +39,16 @@ import net.createmod.ponder1710.foundation.instruction.HideAllInstruction;
 import net.createmod.ponder1710.foundation.instruction.PonderInstruction;
 import net.createmod.ponder1710.foundation.registration.PonderLocalization;
 import net.createmod.ponder1710.foundation.ui.PonderUI;
+import net.createmod.ponder1710.api.registration.StoryBoardEntry.SceneOrderingEntry;
 
-// 1.7.10 equivalents
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityArmorStand; // ArmorStand in 1.7.10
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 
-// Commented out - not available in 1.7.10:
-// import net.minecraft.client.Camera; // No Camera class in 1.7.10
-// import net.minecraft.client.gui.GuiGraphics; // Not available - use GL11
-// import net.minecraft.client.renderer.RenderType; // Not available in 1.7.10
-// import net.minecraft.core.BlockPos; // 1.7.10 uses ChunkCoordinates or x,y,z
-// import net.minecraft.core.Direction; // 1.7.10 uses ForgeDirection
-// import net.minecraft.core.Direction.Axis; // 1.7.10 uses ForgeDirection
-// import net.minecraft.core.Vec3i; // Not available in 1.7.10
-// import net.minecraft.world.entity.Entity; // Different package in 1.7.10
-// import net.minecraft.world.entity.decoration.ArmorStand; // Different in 1.7.10
-// import net.minecraft.world.item.ItemStack; // Different package in 1.7.10
-// import net.minecraft.world.level.block.state.BlockState; // Not available in 1.7.10
-// import net.minecraft.world.level.levelgen.structure.BoundingBox; // Not available in 1.7.10
-// import net.minecraft.world.phys.BlockHitResult; // Not available in 1.7.10
-// import net.minecraft.world.phys.Vec2; // Not available in 1.7.10
-// import net.minecraft.world.phys.Vec3; // Different package in 1.7.10
-
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-
-// TODO: StoryBoardEntry.SceneOrderingEntry needs to be checked
-import net.createmod.ponder1710.api.registration.StoryBoardEntry.SceneOrderingEntry;
 
 public class PonderScene {
 
@@ -95,12 +72,10 @@ public class PonderScene {
     private final PonderLevel world;
     private final String namespace;
     private final ResourceLocation location;
-    // private final SceneCamera camera; // TODO: Camera not available in 1.7.10
-    // private final Outliner outliner; // TODO: Outliner from catnip - needs port
+    private final Outliner outliner;
     private SceneTransform transform;
 
     private final WorldSectionElement baseWorldSection;
-    // private final Entity renderViewEntity; // TODO: ArmorStand entity needs checking
     private Vec3 pointOfInterest;
     @Nullable
     private Vec3 chasingPointOfInterest;
@@ -120,9 +95,8 @@ public class PonderScene {
     public PonderScene(@Nullable PonderLevel world, PonderLocalization localization, String namespace,
         ResourceLocation location, Collection<ResourceLocation> tags,
         Collection<SceneOrderingEntry> orderingEntries) {
-        if (world != null) {
+        if (world != null)
             world.scene = this;
-        }
         this.world = world;
         this.localization = localization;
 
@@ -134,24 +108,26 @@ public class PonderScene {
         this.location = location;
         this.sceneId = new ResourceLocation(namespace, "missing_title");
 
-        // outliner = new Outliner(); // TODO: port catnip Outliner
+        outliner = new Outliner();
         elements = new HashSet<>();
         linkedElements = new HashMap<>();
-        this.tags = new ArrayList<>(); // TODO: tag registry lookup
+        this.tags = new ArrayList<>();
         this.orderingEntries = new ArrayList<>(orderingEntries);
         schedule = new ArrayList<>();
         activeSchedule = new ArrayList<>();
         transform = new SceneTransform();
-        // basePlateSize = getBounds().getXSpan(); // TODO: BoundingBox not available
-        basePlateSize = 5; // default
-        // camera = new SceneCamera(); // TODO: Camera not available in 1.7.10
+        basePlateSize = world != null ? getBounds()[3] - getBounds()[0] + 1 : 5;
         baseWorldSection = new WorldSectionElementImpl();
         keyframeTimes = new IntArrayList(4);
         scaleFactor = 1;
         yOffset = 0;
 
-        // renderViewEntity = new ArmorStand(world, 0, 0, 0); // TODO: check ArmorStand in 1.7.10
         setPointOfInterest(Vec3.createVectorHelper(0, 4, 0));
+    }
+
+    // bounds as int[] {minX, minY, minZ, maxX, maxY, maxZ}
+    public int[] getBounds() {
+        return world != null ? world.getBounds() : new int[]{0, 0, 0, 4, 4, 4};
     }
 
     public void reset() {
@@ -163,29 +139,23 @@ public class PonderScene {
     public void begin() {
         reset();
         forEach(pe -> pe.reset(this));
-
         world.restore();
         elements.clear();
         linkedElements.clear();
         keyframeTimes.clear();
-
         transform = new SceneTransform();
         finished = false;
         setPointOfInterest(Vec3.createVectorHelper(0, 4, 0));
-
         baseWorldSection.setEmpty();
         baseWorldSection.forceApplyFade(1);
         elements.add(baseWorldSection);
-
         totalTime = 0;
         stoppedCounting = false;
         activeSchedule.addAll(schedule);
         activeSchedule.forEach(i -> i.onScheduled(this));
     }
 
-    public WorldSectionElement getBaseWorldSection() {
-        return baseWorldSection;
-    }
+    public WorldSectionElement getBaseWorldSection() { return baseWorldSection; }
 
     public float getSceneProgress() {
         return totalTime == 0 ? 0 : currentTime / (float) totalTime;
@@ -196,11 +166,49 @@ public class PonderScene {
         activeSchedule.add(new HideAllInstruction(10, null));
     }
 
-    // TODO: renderScene - needs GL11 port of PoseStack and SuperRenderTypeBuffer
-    // public void renderScene(SuperRenderTypeBuffer buffer, GuiGraphics graphics, float pt) { ... }
+    public void renderScene(float pt) {
+        GL11.glPushMatrix();
+        Minecraft mc = Minecraft.getMinecraft();
+        Entity prevRVE = mc.renderViewEntity;
 
-    // TODO: renderOverlay - needs GuiGraphics port
-    // public void renderOverlay(PonderUI screen, GuiGraphics graphics, float partialTicks) { ... }
+        // Set render view entity to scene center for proper rendering
+        if (world != null) {
+            Vec3 poi = getPointOfInterest();
+            mc.renderViewEntity.setPosition(poi.xCoord, poi.yCoord, poi.zCoord);
+        }
+
+        forEachVisible(PonderSceneElement.class, e -> e.renderFirst(world, pt));
+
+        // Render block layers
+        forEachVisible(PonderSceneElement.class, e -> e.renderLayer(world, pt));
+
+        forEachVisible(PonderSceneElement.class, e -> e.renderLast(world, pt));
+
+        // Camera angles from transform
+        // In 1.7.10 the camera is implicit via GL11 transforms applied in SceneTransform
+        world.renderEntities(pt);
+        world.renderParticles(pt);
+
+        outliner.renderOutlines(new Matrix4f(), Vec3.createVectorHelper(0, 0, 0), pt);
+
+        mc.renderViewEntity = prevRVE;
+        GL11.glPopMatrix();
+    }
+
+    public void renderOverlay(PonderUI screen, float partialTicks) {
+        GL11.glPushMatrix();
+        forEachVisible(PonderOverlayElement.class, e -> e.render(this, screen, partialTicks));
+        GL11.glPopMatrix();
+    }
+
+    public Pair<ItemStack, int[]> rayTraceScene(Vec3 from, Vec3 to) {
+        // TODO: implement ray tracing for identify mode
+        return Pair.of(null, null);
+    }
+
+    public void deselect() {
+        forEach(WorldSectionElement.class, WorldSectionElement::resetSelectedBlock);
+    }
 
     public void setPointOfInterest(Vec3 poi) {
         if (chasingPointOfInterest == null)
@@ -208,17 +216,13 @@ public class PonderScene {
         chasingPointOfInterest = poi;
     }
 
-    public Vec3 getPointOfInterest() {
-        return pointOfInterest;
-    }
+    public Vec3 getPointOfInterest() { return pointOfInterest; }
 
     public void tick() {
-        if (chasingPointOfInterest != null) {
-            // TODO: VecHelper.lerp not available - manual lerp
-            pointOfInterest = lerpVec(.25f, pointOfInterest, chasingPointOfInterest);
-        }
+        if (chasingPointOfInterest != null)
+            pointOfInterest = VecHelper.lerp(.25f, pointOfInterest, chasingPointOfInterest);
 
-        // outliner.tickOutlines(); // TODO: catnip Outliner
+        outliner.tickOutlines();
         world.tick();
         transform.tick();
         forEach(e -> e.tick(this));
@@ -231,44 +235,37 @@ public class PonderScene {
             instruction.tick(this);
             if (instruction.isComplete()) {
                 iterator.remove();
-                if (instruction.isBlocking())
-                    break;
+                if (instruction.isBlocking()) break;
                 continue;
             }
-            if (instruction.isBlocking())
-                break;
+            if (instruction.isBlocking()) break;
         }
 
         if (activeSchedule.isEmpty())
             finished = true;
     }
 
-    // Manual lerp since VecHelper not available
-    private Vec3 lerpVec(float t, Vec3 a, Vec3 b) {
-        return Vec3.createVectorHelper(
-            a.xCoord + (b.xCoord - a.xCoord) * t,
-            a.yCoord + (b.yCoord - a.yCoord) * t,
-            a.zCoord + (b.zCoord - a.zCoord) * t
-        );
+    public void seekToTime(int time) {
+        if (time < currentTime)
+            throw new IllegalStateException("Cannot seek backwards. Rewind first.");
+        while (currentTime < time && !finished) {
+            forEach(e -> e.whileSkipping(this));
+            tick();
+        }
+        forEach(WorldSectionElement.class, WorldSectionElement::queueRedraw);
     }
 
     public void addToSceneTime(int time) {
-        if (!stoppedCounting)
-            totalTime += time;
+        if (!stoppedCounting) totalTime += time;
     }
 
-    public void stopCounting() {
-        stoppedCounting = true;
-    }
+    public void stopCounting() { stoppedCounting = true; }
 
     public void markKeyframe(int offset) {
-        if (!stoppedCounting)
-            keyframeTimes.add(totalTime + offset);
+        if (!stoppedCounting) keyframeTimes.add(totalTime + offset);
     }
 
-    public void addElement(PonderElement e) {
-        elements.add(e);
-    }
+    public void addElement(PonderElement e) { elements.add(e); }
 
     public <E extends PonderElement> void linkElement(E e, ElementLink<E> link) {
         linkedElements.put(link.getId(), e);
@@ -292,20 +289,17 @@ public class PonderScene {
     }
 
     public void forEach(Consumer<? super PonderElement> function) {
-        for (PonderElement element : elements)
-            function.accept(element);
+        for (PonderElement element : elements) function.accept(element);
     }
 
     public <T extends PonderElement> void forEach(Class<T> type, Consumer<T> function) {
         for (PonderElement element : elements)
-            if (type.isInstance(element))
-                function.accept(type.cast(element));
+            if (type.isInstance(element)) function.accept(type.cast(element));
     }
 
     public <T extends PonderElement> void forEachVisible(Class<T> type, Consumer<T> function) {
         for (PonderElement element : elements)
-            if (type.isInstance(element) && element.isVisible())
-                function.accept(type.cast(element));
+            if (type.isInstance(element) && element.isVisible()) function.accept(type.cast(element));
     }
 
     public Supplier<String> registerText(String defaultText) {
@@ -316,128 +310,121 @@ public class PonderScene {
         return supplier;
     }
 
-    public SceneBuilder builder() {
-        return new PonderSceneBuilder(this);
-    }
+    public SceneBuilder builder() { return new PonderSceneBuilder(this); }
 
     public SceneBuildingUtil getSceneBuildingUtil() {
-        return new PonderSceneBuildingUtil(null); // TODO: getBounds()
+        int[] bounds = getBounds();
+        return new PonderSceneBuildingUtil(bounds);
     }
 
-    public String getTitle() {
-        return getString(TITLE_KEY);
-    }
+    public String getTitle() { return getString(TITLE_KEY); }
 
-    public String getString(String key) {
-        return localization.getSpecific(sceneId, key);
-    }
+    public String getString(String key) { return localization.getSpecific(sceneId, key); }
 
-    public PonderLevel getWorld() {
-        return world;
-    }
+    public PonderLevel getWorld() { return world; }
+    public String getNamespace() { return namespace; }
+    public int getKeyframeCount() { return keyframeTimes.size(); }
+    public int getKeyframeTime(int index) { return keyframeTimes.getInt(index); }
+    public List<PonderTag> getTags() { return tags; }
+    public List<SceneOrderingEntry> getOrderingEntries() { return orderingEntries; }
+    public ResourceLocation getLocation() { return location; }
+    public Set<PonderElement> getElements() { return elements; }
+    public ResourceLocation getId() { return sceneId; }
+    public SceneTransform getTransform() { return transform; }
+    public Outliner getOutliner() { return outliner; }
+    public boolean isFinished() { return finished; }
+    public void setFinished(boolean finished) { this.finished = finished; }
+    public int getBasePlateOffsetX() { return basePlateOffsetX; }
+    public int getBasePlateOffsetZ() { return basePlateOffsetZ; }
+    public boolean shouldHidePlatformShadow() { return hidePlatformShadow; }
+    public int getBasePlateSize() { return basePlateSize; }
+    public float getScaleFactor() { return scaleFactor; }
+    public float getYOffset() { return yOffset; }
+    public int getTotalTime() { return totalTime; }
+    public int getCurrentTime() { return currentTime; }
+    public void setNextUpEnabled(boolean e) { nextUpEnabled = e; }
+    public boolean isNextUpEnabled() { return nextUpEnabled; }
 
-    public String getNamespace() {
-        return namespace;
-    }
-
-    public int getKeyframeCount() {
-        return keyframeTimes.size();
-    }
-
-    public int getKeyframeTime(int index) {
-        return keyframeTimes.getInt(index);
-    }
-
-    public List<PonderTag> getTags() {
-        return tags;
-    }
-
-    public List<SceneOrderingEntry> getOrderingEntries() {
-        return orderingEntries;
-    }
-
-    public ResourceLocation getLocation() {
-        return location;
-    }
-
-    public Set<PonderElement> getElements() {
-        return elements;
-    }
-
-    // TODO: getBounds() - BoundingBox not available in 1.7.10
-    // public BoundingBox getBounds() { ... }
-
-    public ResourceLocation getId() {
-        return sceneId;
-    }
-
-    public SceneTransform getTransform() {
-        return transform;
-    }
-
-    // TODO: getOutliner() - catnip Outliner not available
-    // public Outliner getOutliner() { return outliner; }
-
-    public boolean isFinished() {
-        return finished;
-    }
-
-    public void setFinished(boolean finished) {
-        this.finished = finished;
-    }
-
-    public int getBasePlateOffsetX() {
-        return basePlateOffsetX;
-    }
-
-    public int getBasePlateOffsetZ() {
-        return basePlateOffsetZ;
-    }
-
-    public boolean shouldHidePlatformShadow() {
-        return hidePlatformShadow;
-    }
-
-    public int getBasePlateSize() {
-        return basePlateSize;
-    }
-
-    public float getScaleFactor() {
-        return scaleFactor;
-    }
-
-    public float getYOffset() {
-        return yOffset;
-    }
-
-    public int getTotalTime() {
-        return totalTime;
-    }
-
-    public int getCurrentTime() {
-        return currentTime;
-    }
-
-    public void setNextUpEnabled(boolean nextUpEnabled) {
-        this.nextUpEnabled = nextUpEnabled;
-    }
-
-    public boolean isNextUpEnabled() {
-        return nextUpEnabled;
-    }
-
-    // Simplified SceneTransform for 1.7.10 - replaces LerpedFloat with plain floats
-    // TODO: Add smooth interpolation once LerpedFloat is ported from catnip
+    // SceneTransform using LerpedFloat from metanip + GL11
     public class SceneTransform {
 
-        public float xRotation = -35f;
-        public float yRotation = 55f + 90f;
+        public LerpedFloat xRotation;
+        public LerpedFloat yRotation;
+
+        private int width, height;
+        private double offset;
+
+        public SceneTransform() {
+            xRotation = LerpedFloat.angular().disableSmartAngleChasing().startWithValue(-35);
+            yRotation = LerpedFloat.angular().disableSmartAngleChasing().startWithValue(55 + 90);
+        }
 
         public void tick() {
-            // TODO: LerpedFloat.tickChaser() not available - smooth rotation pending catnip port
+            xRotation.tickChaser();
+            yRotation.tickChaser();
+        }
+
+        public void updateScreenParams(int width, int height, double offset) {
+            this.width = width;
+            this.height = height;
+            this.offset = offset;
+        }
+
+        // Apply GL11 transforms equivalent to PoseStack.apply()
+        public void apply(float pt) {
+            GL11.glTranslatef(width / 2f, height / 2f, 200f + (float)offset);
+
+            GL11.glRotatef(-35, 1, 0, 0);
+            GL11.glRotatef(55, 0, 1, 0);
+            GL11.glTranslatef((float)offset, 0, 0);
+            GL11.glRotatef(-55, 0, 1, 0);
+            GL11.glRotatef(35, 1, 0, 0);
+            GL11.glRotatef(xRotation.getValue(pt), 1, 0, 0);
+            GL11.glRotatef(yRotation.getValue(pt), 0, 1, 0);
+
+            UIRenderHelper.flipForGuiRender();
+            float f = 30 * scaleFactor;
+            GL11.glScalef(f, f, f);
+            GL11.glTranslatef(
+                basePlateSize / -2f - basePlateOffsetX,
+                -1f + yOffset,
+                basePlateSize / -2f - basePlateOffsetZ
+            );
+        }
+
+        // Screen to scene coordinate conversion using inverse transforms
+        public Vec3 screenToScene(double x, double y, int depth, float pt) {
+            Vec3 vec = Vec3.createVectorHelper(x, y, depth);
+
+            vec = Vec3.createVectorHelper(
+                vec.xCoord - width / 2.0,
+                vec.yCoord - height / 2.0,
+                vec.zCoord - (200 + offset)
+            );
+            vec = VecHelper.rotate(vec, 35, VecHelper.AXIS_X);
+            vec = VecHelper.rotate(vec, -55, VecHelper.AXIS_Y);
+            vec = Vec3.createVectorHelper(vec.xCoord - offset, vec.yCoord, vec.zCoord);
+            vec = VecHelper.rotate(vec, 55, VecHelper.AXIS_Y);
+            vec = VecHelper.rotate(vec, -35, VecHelper.AXIS_X);
+            vec = VecHelper.rotate(vec, -xRotation.getValue(pt), VecHelper.AXIS_X);
+            vec = VecHelper.rotate(vec, -yRotation.getValue(pt), VecHelper.AXIS_Y);
+
+            float f = 1f / (30 * scaleFactor);
+            vec = Vec3.createVectorHelper(vec.xCoord * f, vec.yCoord * -f, vec.zCoord * f);
+            vec = Vec3.createVectorHelper(
+                vec.xCoord - (basePlateSize / -2f - basePlateOffsetX),
+                vec.yCoord - (-1f + yOffset),
+                vec.zCoord - (basePlateSize / -2f - basePlateOffsetZ)
+            );
+            return vec;
+        }
+
+        public void updateSceneRVE(float pt) {
+            // Update render view entity position for proper lighting
+            if (world != null) {
+                Vec3 v = screenToScene(width / 2.0, height / 2.0, 500, pt);
+                // Set position of a dummy entity if needed
+            }
         }
     }
-
-    // TODO: SceneCamera - Camera class not available in 1.7.10
-    // public static class SceneCamera extends Camera { ... }
 }
