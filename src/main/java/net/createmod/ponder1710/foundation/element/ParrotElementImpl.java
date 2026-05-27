@@ -4,34 +4,28 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-// TODO: Parrot entity does not exist in 1.7.10
-// This entire class depends on Parrot which was added in 1.12
-// Keeping structure but commenting out Parrot-specific code
-
-// import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
-// import com.mojang.math.Axis; // not available in 1.7.10
-// import net.createmod.metanip.math.AngleHelper; // TODO: catnip not available
-// import net.minecraft.client.renderer.MultiBufferSource; // not available in 1.7.10
-// import net.minecraft.client.renderer.entity.EntityRenderDispatcher; // different in 1.7.10
-// import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
-// import net.minecraft.util.Mth; // MathHelper in 1.7.10
-// import net.minecraft.world.entity.animal.Parrot; // not in 1.7.10
-// import net.minecraft.world.phys.Vec3; // net.minecraft.util.Vec3 in 1.7.10
-
+import net.createmod.metanip.math.AngleHelper;
 import net.createmod.ponder1710.api.element.ParrotElement;
 import net.createmod.ponder1710.api.element.ParrotPose;
 import net.createmod.ponder1710.api.level.PonderLevel;
 import net.createmod.ponder1710.foundation.PonderScene;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.entity.passive.EntityChicken;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 
+import org.lwjgl.opengl.GL11;
+
+// Parrot does not exist in 1.7.10 - EntityChicken used as visual substitute
 public class ParrotElementImpl extends AnimatedSceneElementBase implements ParrotElement {
 
     protected Vec3 location;
+    @Nullable
+    protected EntityChicken entity;
     protected ParrotPose pose;
     protected Supplier<? extends ParrotPose> initialPose;
-
-    // TODO: Parrot not in 1.7.10
-    // @Nullable protected Parrot entity;
 
     public static ParrotElement create(Vec3 location, Supplier<? extends ParrotPose> pose) {
         return new ParrotElementImpl(location, pose);
@@ -47,43 +41,93 @@ public class ParrotElementImpl extends AnimatedSceneElementBase implements Parro
     public void reset(PonderScene scene) {
         super.reset(scene);
         setPose(initialPose.get());
-        // TODO: entity reset - Parrot not in 1.7.10
+        if (entity != null) {
+            entity.setPosition(0, 0, 0);
+            entity.prevPosX = entity.prevPosY = entity.prevPosZ = 0;
+            entity.prevRotationYaw = entity.rotationYaw = 180;
+            entity.prevRotationPitch = entity.rotationPitch = 0;
+        }
     }
 
     @Override
     public void tick(PonderScene scene) {
         super.tick(scene);
-        // TODO: Parrot tick - Parrot not in 1.7.10
-        // pose.tick(scene, entity, location);
+        if (entity == null) {
+            entity = pose.create(scene.getWorld());
+            entity.rotationYaw = entity.prevRotationYaw = 180;
+        }
+
+        entity.ticksExisted++;
+        entity.prevRotationYaw  = entity.rotationYaw;
+        entity.prevRotationPitch = entity.rotationPitch;
+        entity.prevPosX = entity.posX;
+        entity.prevPosY = entity.posY;
+        entity.prevPosZ = entity.posZ;
+        entity.onGround = true;
+
+        pose.tick(scene, entity, location);
     }
 
     @Override
     public void setPositionOffset(Vec3 position, boolean immediate) {
-        // TODO: Parrot not in 1.7.10
+        if (entity == null) return;
+        entity.setPosition(position.xCoord, position.yCoord, position.zCoord);
+        if (immediate) {
+            entity.prevPosX = position.xCoord;
+            entity.prevPosY = position.yCoord;
+            entity.prevPosZ = position.zCoord;
+        }
     }
 
     @Override
     public void setRotation(Vec3 eulers, boolean immediate) {
-        // TODO: Parrot not in 1.7.10
+        if (entity == null) return;
+        entity.rotationPitch = (float) eulers.xCoord;
+        entity.rotationYaw   = (float) eulers.yCoord;
+        if (immediate) {
+            entity.prevRotationPitch = entity.rotationPitch;
+            entity.prevRotationYaw   = entity.rotationYaw;
+        }
     }
 
     @Override
     public Vec3 getPositionOffset() {
-        return Vec3.createVectorHelper(0, 0, 0);
+        return entity != null
+            ? Vec3.createVectorHelper(entity.posX, entity.posY, entity.posZ)
+            : Vec3.createVectorHelper(0, 0, 0);
     }
 
     @Override
     public Vec3 getRotation() {
-        return Vec3.createVectorHelper(0, 0, 0);
+        return entity != null
+            ? Vec3.createVectorHelper(entity.rotationPitch, entity.rotationYaw, 0)
+            : Vec3.createVectorHelper(0, 0, 0);
+    }
+
+    @Override
+    protected void renderLast(PonderLevel world, float fade, float pt) {
+        if (entity == null) {
+            entity = pose.create(world);
+            entity.rotationYaw = entity.prevRotationYaw = 180;
+        }
+
+        GL11.glPushMatrix();
+        GL11.glTranslatef(
+            (float)(location.xCoord + MathHelper.lerp(pt, entity.prevPosX, entity.posX)),
+            (float)(location.yCoord + MathHelper.lerp(pt, entity.prevPosY, entity.posY)),
+            (float)(location.zCoord + MathHelper.lerp(pt, entity.prevPosZ, entity.posZ))
+        );
+
+        float angle = AngleHelper.angleLerp(pt, entity.prevRotationYaw, entity.rotationYaw);
+        GL11.glRotatef(angle, 0, 1, 0);
+
+        RenderManager.instance.renderEntityWithPosYaw(entity, 0, 0, 0, angle, pt);
+
+        GL11.glPopMatrix();
     }
 
     @Override
     public void setPose(ParrotPose pose) {
         this.pose = pose;
-    }
-
-    @Override
-    protected void renderLast(PonderLevel world, float fade, float pt) {
-        // TODO: Parrot rendering not in 1.7.10
     }
 }

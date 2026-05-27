@@ -1,40 +1,75 @@
 package net.createmod.ponder1710.api.element;
 
-// TODO: Parrot entity does not exist in 1.7.10
-// This entire class depends on Parrot which was added in 1.12
-// Keeping the structure but commenting out Parrot-specific code
-
-// import com.mojang.blaze3d.platform.Window; // TODO: not available in 1.7.10
-// import net.createmod.metanip.math.AngleHelper; // TODO: catnip not available
-// import net.minecraft.world.entity.EntityType; // 1.7.10 uses different registry
-// import net.minecraft.world.entity.animal.Parrot; // TODO: Parrot not in 1.7.10
-// import net.minecraft.core.BlockPos; // 1.7.10 uses ChunkCoordinates
-// import net.minecraft.util.Mth; // 1.7.10 uses MathHelper
-
-import net.createmod.ponder1710.Ponder;
+import net.createmod.metanip.math.AngleHelper;
 import net.createmod.ponder1710.api.level.PonderLevel;
 import net.createmod.ponder1710.foundation.PonderScene;
 import net.createmod.ponder1710.foundation.ui.PonderUI;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.passive.EntityChicken;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 
+// Parrot does not exist in 1.7.10 (added in 1.12)
+// EntityChicken is used as visual substitute
 public abstract class ParrotPose {
 
-    // TODO: Parrot does not exist in 1.7.10 - entire class needs reimplementation
-    // when/if parrots are added via Et Futurum Requiem integration
+    public abstract void tick(PonderScene scene, EntityChicken entity, Vec3 location);
 
-    // public abstract void tick(PonderScene scene, Parrot entity, Vec3 location);
+    public EntityChicken create(PonderLevel world) {
+        EntityChicken chicken = new EntityChicken(world);
+        chicken.setLocationAndAngles(0, 0, 0, 180, 0);
+        return chicken;
+    }
 
-    // public Parrot create(PonderLevel world) { ... }
+    public static class DancePose extends ParrotPose {
+        @Override
+        public void tick(PonderScene scene, EntityChicken entity, Vec3 location) {
+            entity.setPosition(location.xCoord, location.yCoord, location.zCoord);
+            // Simulate dancing by bobbing
+            entity.wingRotation += 0.5f;
+        }
+    }
 
-    // public static class DancePose extends ParrotPose { ... }
+    public static class FlappyPose extends ParrotPose {
+        @Override
+        public void tick(PonderScene scene, EntityChicken entity, Vec3 location) {
+            entity.setPosition(location.xCoord, location.yCoord, location.zCoord);
+            entity.wingRotation += 0.3f;
+        }
+    }
 
-    // public static class FlappyPose extends ParrotPose { ... }
+    public static abstract class FaceVecPose extends ParrotPose {
+        protected abstract Vec3 getTarget(PonderScene scene);
 
-    // public static abstract class FaceVecPose extends ParrotPose { ... }
+        @Override
+        public void tick(PonderScene scene, EntityChicken entity, Vec3 location) {
+            entity.setPosition(location.xCoord, location.yCoord, location.zCoord);
+            Vec3 target = getTarget(scene);
+            if (target == null) return;
 
-    // public static class FacePointOfInterestPose extends FaceVecPose { ... }
+            double dx = target.xCoord - location.xCoord;
+            double dz = target.zCoord - location.zCoord;
+            float yaw = (float)(MathHelper.atan2(dz, dx) * 180 / Math.PI) - 90;
+            entity.prevRotationYaw = entity.rotationYaw;
+            entity.rotationYaw = AngleHelper.angleLerp(0.4f, entity.rotationYaw, yaw);
+        }
+    }
 
-    // public static class FaceCursorPose extends FaceVecPose { ... }
+    public static class FacePointOfInterestPose extends FaceVecPose {
+        @Override
+        protected Vec3 getTarget(PonderScene scene) {
+            return scene.getPointOfInterest();
+        }
+    }
+
+    public static class FaceCursorPose extends FaceVecPose {
+        @Override
+        protected Vec3 getTarget(PonderScene scene) {
+            // Use mouse position projected into scene
+            Minecraft mc = Minecraft.getMinecraft();
+            int mx = mc.currentScreen != null ? mc.mouseHelper.mouseX() : mc.displayWidth / 2;
+            int my = mc.currentScreen != null ? mc.mouseHelper.mouseY() : mc.displayHeight / 2;
+            return scene.getTransform().screenToScene(mx, my, 100, 0);
+        }
+    }
 }

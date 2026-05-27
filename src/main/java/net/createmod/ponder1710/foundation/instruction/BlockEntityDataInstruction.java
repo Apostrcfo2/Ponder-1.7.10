@@ -6,8 +6,6 @@ import net.createmod.ponder1710.api.level.PonderLevel;
 import net.createmod.ponder1710.api.scene.Selection;
 import net.createmod.ponder1710.foundation.PonderScene;
 
-// import net.minecraft.nbt.CompoundTag; // NBTTagCompound in 1.7.10
-// import net.minecraft.world.level.block.entity.BlockEntity; // TileEntity in 1.7.10
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
@@ -27,10 +25,21 @@ public class BlockEntityDataInstruction extends WorldModifyInstruction {
 
     @Override
     protected void runModification(Selection selection, PonderScene scene) {
-        // TODO: PonderLevel.getBounds() not available yet
-        // TODO: TileEntity NBT system different in 1.7.10
-        // Original used blockEntity.saveWithFullMetadata and loadWithComponents
-        // In 1.7.10: tileEntity.writeToNBT(tag) and tileEntity.readFromNBT(tag)
+        PonderLevel world = scene.getWorld();
+
+        selection.forEach(pos -> {
+            int x = pos[0], y = pos[1], z = pos[2];
+            TileEntity te = world.getTileEntity(x, y, z);
+            if (te == null) return;
+            if (!type.isInstance(te)) return;
+
+            // 1.7.10: writeToNBT + readFromNBT
+            NBTTagCompound tag = new NBTTagCompound();
+            te.writeToNBT(tag);
+            tag = data.apply(tag);
+            te.readFromNBT(tag);
+            world.markBlockForUpdate(x, y, z);
+        });
     }
 
     @Override

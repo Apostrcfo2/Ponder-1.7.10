@@ -2,14 +2,10 @@ package net.createmod.ponder1710.foundation;
 
 import javax.annotation.Nullable;
 
-// import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
-// import net.createmod.metanip.gui.element.GuiGameElement; // TODO: catnip not available
-// import net.createmod.metanip.gui.element.ScreenElement; // TODO: catnip not available
-// import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
-// import net.minecraft.world.item.ItemStack; // different package in 1.7.10
-
+import net.createmod.metanip.gui.element.GuiGameElement;
 import net.createmod.ponder1710.Ponder;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -27,49 +23,57 @@ public class PonderTag {
     private final ItemStack itemIcon;
     private final ItemStack mainItem;
 
-    public PonderTag(ResourceLocation id, @Nullable ResourceLocation textureIconLocation, ItemStack itemIcon, ItemStack mainItem) {
+    public PonderTag(ResourceLocation id, @Nullable ResourceLocation textureIconLocation,
+        ItemStack itemIcon, ItemStack mainItem) {
         this.id = id;
         this.textureIconLocation = textureIconLocation;
         this.itemIcon = itemIcon;
         this.mainItem = mainItem;
     }
 
-    public ResourceLocation getId() {
-        return id;
-    }
+    public ResourceLocation getId()     { return id; }
+    public ItemStack getMainItem()      { return mainItem; }
+    public String getTitle()            { return PonderIndex.getLangAccess().getTagName(id); }
+    public String getDescription()      { return PonderIndex.getLangAccess().getTagDescription(id); }
 
-    public ItemStack getMainItem() {
-        return mainItem;
-    }
-
-    public String getTitle() {
-        return PonderIndex.getLangAccess().getTagName(id);
-    }
-
-    public String getDescription() {
-        return PonderIndex.getLangAccess().getTagDescription(id);
-    }
-
-    // TODO: render(GuiGraphics, int, int) - GuiGraphics not available in 1.7.10
     public void render(int x, int y) {
         GL11.glPushMatrix();
         GL11.glTranslatef(x, y, 0);
+
         if (textureIconLocation != null) {
-            // TODO: blit equivalent using GL11
-            GL11.glScalef(0.25f, 0.25f, 1f);
+            // Render texture icon
+            Minecraft.getMinecraft().getTextureManager().bindTexture(textureIconLocation);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GL11.glColor4f(1, 1, 1, 1);
+            // Draw 16x16 quad
+            net.minecraft.client.renderer.Tessellator tess = net.minecraft.client.renderer.Tessellator.instance;
+            tess.startDrawingQuads();
+            tess.addVertexWithUV(0,  16, 0, 0, 1);
+            tess.addVertexWithUV(16, 16, 0, 1, 1);
+            tess.addVertexWithUV(16, 0,  0, 1, 0);
+            tess.addVertexWithUV(0,  0,  0, 0, 0);
+            tess.draw();
+            GL11.glDisable(GL11.GL_BLEND);
         } else if (itemIcon != null && !itemIcon.func_190926_b()) {
-            // TODO: render item in 1.7.10
+            // Render item icon using GuiGameElement
+            GuiGameElement.of(itemIcon)
+                .at(0, 0)
+                .render();
         }
+
         GL11.glPopMatrix();
     }
 
     @Override
     public boolean equals(Object other) {
-        if (this == other)
-            return true;
-        if (!(other instanceof PonderTag))
-            return false;
-        PonderTag otherTag = (PonderTag) other;
-        return getId().equals(otherTag.getId());
+        if (this == other) return true;
+        if (!(other instanceof PonderTag)) return false;
+        return getId().equals(((PonderTag) other).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 }
