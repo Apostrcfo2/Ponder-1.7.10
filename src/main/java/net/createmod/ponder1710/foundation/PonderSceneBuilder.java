@@ -197,10 +197,16 @@ public class PonderSceneBuilder implements SceneBuilder {
 
         @Override
         public void createRedstoneParticles(int x, int y, int z, int color, int amount) {
-            // TODO: DustParticleOptions not available in 1.7.10 - particle system different
             Vec3 center = Vec3.createVectorHelper(x + 0.5, y + 0.5, z + 0.5);
             addInstruction(new EmitParticlesInstruction(center,
-                (w, px, py, pz) -> { /* TODO: add particles in 1.7.10 */ }, amount, 2));
+                (w, px, py, pz) -> {
+                    float r = ((color >> 16) & 0xFF) / 255f;
+                    float g = ((color >> 8) & 0xFF) / 255f;
+                    float b = (color & 0xFF) / 255f;
+                    net.minecraft.client.particle.EntityReddustFX particle =
+                        new net.minecraft.client.particle.EntityReddustFX(w, px, py, pz, r, g, b);
+                    w.particles.addParticle(particle);
+                }, amount, 2));
         }
     }
 
@@ -272,8 +278,14 @@ public class PonderSceneBuilder implements SceneBuilder {
                 location.yCoord + side.offsetY * (-3/128f),
                 location.zCoord + side.offsetZ * (-3/128f)
             );
-            // TODO: VecHelper.axisAlingedPlaneOf not available
-            addInstruction(new HighlightValueBoxInstruction(loc, Vec3.createVectorHelper(11/128f, 11/128f, 11/128f), duration));
+            Vec3 plane = net.createmod.metanip.math.VecHelper.axisAlingedPlaneOf(
+                Vec3.createVectorHelper(side.offsetX, side.offsetY, side.offsetZ));
+            Vec3 size = Vec3.createVectorHelper(
+                plane.xCoord * (11/128f) + Math.abs(side.offsetX) * (1/128f),
+                plane.yCoord * (11/128f) + Math.abs(side.offsetY) * (1/128f),
+                plane.zCoord * (11/128f) + Math.abs(side.offsetZ) * (1/128f)
+            );
+            addInstruction(new HighlightValueBoxInstruction(loc, size, duration));
         }
 
         @Override
@@ -444,8 +456,7 @@ public class PonderSceneBuilder implements SceneBuilder {
 
         @Override
         public void destroyBlock(int x, int y, int z) {
-            // TODO: Blocks.air in 1.7.10
-            // setBlocks(scene.getSceneBuildingUtil().select().position(x, y, z), Blocks.air, 0, true);
+            setBlocks(scene.getSceneBuildingUtil().select().position(x, y, z), net.minecraft.init.Blocks.air, 0, true);
         }
 
         @Override
@@ -460,7 +471,17 @@ public class PonderSceneBuilder implements SceneBuilder {
 
         @Override
         public void toggleRedstonePower(Selection selection) {
-            // TODO: BlockState properties not available in 1.7.10
+            addInstruction(s -> {
+                PonderLevel world = s.getWorld();
+                selection.forEach(pos -> {
+                    int x = pos[0], y = pos[1], z = pos[2];
+                    net.minecraft.block.Block block = world.getBlock(x, y, z);
+                    int meta = world.getBlockMetadata(x, y, z);
+                    // Toggle redstone power via metadata bit 0 (works for levers, buttons etc.)
+                    world.setBlock(x, y, z, block, meta ^ 8, 3);
+                    world.notifyBlocksToUpdate(x, y, z, block);
+                });
+            });
         }
 
         @Override
@@ -471,8 +492,9 @@ public class PonderSceneBuilder implements SceneBuilder {
         @Override
         public <T extends Entity> void modifyEntitiesInside(Class<T> entityClass, Selection area, Consumer<T> entityCallBack) {
             addInstruction(s -> s.forEachWorldEntity(entityClass, e -> {
-                // TODO: area.test with entity position
-                entityCallBack.accept(e);
+                int[] pos = new int[]{(int)e.posX, (int)e.posY, (int)e.posZ};
+                if (area.test(pos))
+                    entityCallBack.accept(e);
             }));
         }
 
@@ -489,8 +511,7 @@ public class PonderSceneBuilder implements SceneBuilder {
         public ElementLink<EntityElement> createEntity(Function<World, Entity> factory) {
             ElementLink<EntityElement> link = new ElementLinkImpl<>(EntityElement.class, UUID.randomUUID());
             addInstruction(s -> {
-                // TODO: PonderLevel needs World integration
-                Entity entity = factory.apply(null);
+                Entity entity = factory.apply(s.getWorld());
                 EntityElement handle = new EntityElementImpl(entity);
                 s.addElement(handle);
                 s.linkElement(handle, link);
@@ -502,8 +523,7 @@ public class PonderSceneBuilder implements SceneBuilder {
         @Override
         public ElementLink<EntityElement> createItemEntity(Vec3 location, Vec3 motion, ItemStack stack) {
             return createEntity(world -> {
-                // TODO: EntityItem constructor different in 1.7.10
-                EntityItem itemEntity = new EntityItem(null, location.xCoord, location.yCoord, location.zCoord, stack);
+                EntityItem itemEntity = new EntityItem(world, location.xCoord, location.yCoord, location.zCoord, stack);
                 itemEntity.motionX = motion.xCoord;
                 itemEntity.motionY = motion.yCoord;
                 itemEntity.motionZ = motion.zCoord;

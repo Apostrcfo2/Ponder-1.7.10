@@ -5,6 +5,9 @@ import javax.annotation.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import net.minecraft.util.Vec3;
+import net.minecraftforge.common.util.ForgeDirection;
+
 // import net.minecraft.core.BlockPos; // 1.7.10 uses x,y,z
 // import net.minecraft.core.Direction; // ForgeDirection in 1.7.10
 // import net.minecraft.core.Direction.Axis; // not available
@@ -25,8 +28,6 @@ import org.joml.Vector3f;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.Vec3;
-import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.Random;
 
@@ -281,4 +282,18 @@ public class VecHelper {
         float scale = halfH / (float)(rz * Math.tan(Math.toRadians(fov / 2)));
 
         return Vec3.createVectorHelper(-(float)rx * scale, (float)ry * scale, rz);
+    }
+
+    // Returns the plane perpendicular to the given vector
+    public static Vec3 axisAlingedPlaneOf(Vec3 vec) {
+        double len = Math.sqrt(vec.xCoord*vec.xCoord + vec.yCoord*vec.yCoord + vec.zCoord*vec.zCoord);
+        if (len == 0) return Vec3.createVectorHelper(1, 1, 1);
+        double nx = Math.abs(vec.xCoord / len);
+        double ny = Math.abs(vec.yCoord / len);
+        double nz = Math.abs(vec.zCoord / len);
+        return Vec3.createVectorHelper(1 - nx, 1 - ny, 1 - nz);
+    }
+
+    public static Vec3 axisAlingedPlaneOf(ForgeDirection face) {
+        return axisAlingedPlaneOf(Vec3.createVectorHelper(face.offsetX, face.offsetY, face.offsetZ));
     }

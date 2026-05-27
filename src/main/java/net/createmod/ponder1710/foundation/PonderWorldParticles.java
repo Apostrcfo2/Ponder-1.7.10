@@ -1,54 +1,73 @@
 package net.createmod.ponder1710.foundation;
 
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Queue;
 
-// import org.joml.Matrix4fStack; // not available in 1.7.10
-// import com.google.common.collect.EvictingQueue; // not available in 1.7.10
-// import com.mojang.blaze3d.systems.RenderSystem; // not available in 1.7.10
-// import com.mojang.blaze3d.vertex.*; // not available in 1.7.10
-// import net.minecraft.client.Camera; // not available in 1.7.10
-// import net.minecraft.client.particle.Particle; // different in 1.7.10
-// import net.minecraft.client.particle.ParticleRenderType; // not available in 1.7.10
-// import net.minecraft.client.renderer.GameRenderer; // different in 1.7.10
-// import net.minecraft.client.renderer.LightTexture; // not available in 1.7.10
-// import net.minecraft.client.renderer.MultiBufferSource; // not available in 1.7.10
-
-import net.createmod.ponder1710.api.level.PonderLevel;
-
-import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
+import net.createmod.ponder1710.api.level.PonderLevel;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.EntityFX;
+
+import org.lwjgl.opengl.GL11;
+
+// In 1.7.10 particles are EntityFX instances rendered via EffectRenderer
 public class PonderWorldParticles {
 
-    // TODO: Particle system completely different in 1.7.10
-    // Using Object as placeholder for Particle
-    private final Queue<Object> queue = Queues.newArrayDeque();
-
+    private final Queue<EntityFX> queue = Queues.newArrayDeque();
     PonderLevel world;
 
     public PonderWorldParticles(PonderLevel world) {
         this.world = world;
     }
 
-    public void addParticle(Object p) {
-        this.queue.add(p);
+    public void addParticle(EntityFX p) {
+        queue.add(p);
     }
 
     public void tick() {
-        // TODO: Reimplement using 1.7.10 particle system
-        queue.clear();
+        Iterator<EntityFX> iterator = queue.iterator();
+        while (iterator.hasNext()) {
+            EntityFX particle = iterator.next();
+            particle.onUpdate();
+            if (!particle.isEntityAlive())
+                iterator.remove();
+        }
     }
 
-    // TODO: renderParticles - Camera/PoseStack/MultiBufferSource not available in 1.7.10
-    // public void renderParticles(PoseStack ms, MultiBufferSource buffer, Camera renderInfo, float pt) { ... }
     public void renderParticles(float pt) {
-        // TODO: Reimplement using 1.7.10 EffectRenderer
+        if (queue.isEmpty()) return;
+
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glDepthMask(false);
+
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.getTextureManager().bindTexture(
+            net.minecraft.client.renderer.texture.TextureMap.locationParticlesTexture
+        );
+
+        for (EntityFX particle : queue) {
+            // In 1.7.10 particle rendering uses Tessellator
+            net.minecraft.client.renderer.Tessellator tess = net.minecraft.client.renderer.Tessellator.instance;
+            tess.startDrawingQuads();
+            particle.renderParticle(tess,
+                mc.renderViewEntity,
+                pt,
+                (float) Math.cos(Math.toRadians(mc.thePlayer.rotationYaw)),
+                (float) Math.sin(Math.toRadians(mc.thePlayer.rotationPitch)),
+                (float) -Math.sin(Math.toRadians(mc.thePlayer.rotationYaw)),
+                (float) (Math.sin(Math.toRadians(mc.thePlayer.rotationPitch)) * Math.cos(Math.toRadians(mc.thePlayer.rotationYaw))),
+                (float) (Math.sin(Math.toRadians(mc.thePlayer.rotationPitch)) * Math.sin(Math.toRadians(mc.thePlayer.rotationYaw)))
+            );
+            tess.draw();
+        }
+
+        GL11.glDepthMask(true);
+        GL11.glDisable(GL11.GL_BLEND);
     }
 
     public void clearEffects() {
-        this.queue.clear();
+        queue.clear();
     }
 }
