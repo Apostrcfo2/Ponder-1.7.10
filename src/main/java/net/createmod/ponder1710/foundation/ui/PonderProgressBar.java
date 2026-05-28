@@ -1,12 +1,10 @@
 package net.createmod.ponder1710.foundation.ui;
 
 // import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
-// import net.createmod.metanip.animation.LerpedFloat; // TODO: catnip not available
-// import net.createmod.metanip.data.Couple; // TODO: catnip not available
-// import net.createmod.metanip.gui.UIRenderHelper; // TODO: catnip not available
-// import net.createmod.metanip.gui.element.BoxElement; // TODO: catnip not available
-// import net.createmod.metanip.gui.widget.AbstractSimiWidget; // TODO: catnip not available
-// import net.createmod.metanip.theme.Color; // TODO: catnip not available
+import net.createmod.metanip.animation.LerpedFloat;
+import net.createmod.metanip.animation.LerpedFloat.Chaser;
+import net.createmod.metanip.gui.UIRenderHelper;
+import net.createmod.metanip.theme.Color;
 // import net.minecraft.ChatFormatting; // EnumChatFormatting in 1.7.10
 // import net.minecraft.client.gui.Font; // FontRenderer in 1.7.10
 // import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
@@ -20,9 +18,7 @@ import org.lwjgl.opengl.GL11;
 
 public class PonderProgressBar extends GuiButton {
 
-    // TODO: LerpedFloat from catnip not available - replaced with float
-    float progress = 0;
-    float prevProgress = 0;
+    LerpedFloat progress = LerpedFloat.linear().startWithValue(0);
 
     PonderUI ponder;
 
@@ -32,17 +28,53 @@ public class PonderProgressBar extends GuiButton {
     }
 
     public void tick() {
-        prevProgress = progress;
-        // TODO: smooth chase with LerpedFloat not available
-        float target = ponder.getActiveScene().getSceneProgress();
-        progress += (target - progress) * 0.5f;
+        progress.chase(ponder.getActiveScene().getSceneProgress(), 0.5f, Chaser.EXP);
+        progress.tickChaser();
     }
 
-    // TODO: doRender - BoxElement/UIRenderHelper/GuiGraphics not available in 1.7.10
-    // Full reimplementation needed using GL11
     public void doRender(int mouseX, int mouseY, float partialTicks) {
-        float lerpedProgress = prevProgress + (progress - prevProgress) * partialTicks;
-        // TODO: render progress bar using GL11
+        float lerpedProgress = progress.getValue(partialTicks);
+        PonderScene activeScene = ponder.getActiveScene();
+
+        // Background
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glColor4f(0, 0, 0, 0.4f);
+        net.minecraft.client.renderer.Tessellator tess = net.minecraft.client.renderer.Tessellator.instance;
+        tess.startDrawingQuads();
+        tess.addVertex(xPosition, yPosition + height, 0);
+        tess.addVertex(xPosition + width, yPosition + height, 0);
+        tess.addVertex(xPosition + width, yPosition, 0);
+        tess.addVertex(xPosition, yPosition, 0);
+        tess.draw();
+
+        // Progress fill
+        float r = 0.8f, g = 0.9f, b = 1.0f;
+        GL11.glColor4f(r, g, b, 0.8f);
+        int fillW = (int)(width * lerpedProgress);
+        tess.startDrawingQuads();
+        tess.addVertex(xPosition, yPosition + height, 0);
+        tess.addVertex(xPosition + fillW, yPosition + height, 0);
+        tess.addVertex(xPosition + fillW, yPosition, 0);
+        tess.addVertex(xPosition, yPosition, 0);
+        tess.draw();
+
+        // Keyframe markers
+        GL11.glColor4f(1f, 1f, 1f, 0.6f);
+        int totalTime = activeScene.getTotalTime();
+        for (int k = 0; k < activeScene.getKeyframeCount(); k++) {
+            int kTime = activeScene.getKeyframeTime(k);
+            int kX = xPosition + (int)(width * kTime / (float)totalTime);
+            tess.startDrawingQuads();
+            tess.addVertex(kX - 1, yPosition + height + 2, 0);
+            tess.addVertex(kX + 1, yPosition + height + 2, 0);
+            tess.addVertex(kX + 1, yPosition - 2, 0);
+            tess.addVertex(kX - 1, yPosition - 2, 0);
+            tess.draw();
+        }
+
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
     }
 
     public int getHoveredKeyframeIndex(PonderScene activeScene, double mouseX) {

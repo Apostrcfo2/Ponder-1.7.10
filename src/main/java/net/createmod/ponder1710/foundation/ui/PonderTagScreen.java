@@ -5,31 +5,20 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-// import com.mojang.blaze3d.platform.Window; // not available in 1.7.10
-// import com.mojang.blaze3d.systems.RenderSystem; // not available in 1.7.10
-// import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
-// import net.createmod.metanip.gui.NavigatableSimiScreen; // TODO: catnip not available
-// import net.createmod.metanip.gui.ScreenOpener; // TODO: catnip not available
-// import net.createmod.metanip.gui.UIRenderHelper; // TODO: catnip not available
-// import net.createmod.metanip.gui.element.BoxElement; // TODO: catnip not available
-// import net.createmod.metanip.gui.widget.BoxWidget; // TODO: catnip not available
-// import net.createmod.metanip.lang.ClientFontHelper; // TODO: catnip not available
-// import net.createmod.metanip.layout.LayoutHelper; // TODO: catnip not available
-// import net.createmod.metanip.registry.RegisteredObjectsHelper; // TODO: catnip not available
-// import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
-// import net.minecraft.client.gui.components.events.GuiEventListener; // not available
-// import net.minecraft.client.renderer.Rect2i; // not available in 1.7.10
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
-// import net.minecraft.util.Mth; // MathHelper in 1.7.10
-// import net.minecraft.world.item.ItemStack; // different package in 1.7.10
-// import net.minecraft.world.level.ItemLike; // not available in 1.7.10
+import net.createmod.metanip.gui.ScreenOpener;
+import net.createmod.metanip.gui.UIRenderHelper;
+import net.createmod.metanip.gui.element.GuiGameElement;
+import net.createmod.metanip.lang.ClientFontHelper;
+import net.createmod.metanip.registry.RegisteredObjectsHelper;
 
-import net.createmod.ponder1710.foundation.PonderChapter;
 import net.createmod.ponder1710.foundation.PonderIndex;
 import net.createmod.ponder1710.foundation.PonderTag;
+
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+
+import org.lwjgl.opengl.GL11;
 
 public class PonderTagScreen extends AbstractPonderScreen {
 
@@ -38,8 +27,7 @@ public class PonderTagScreen extends AbstractPonderScreen {
     private final double itemXmult = 0.5;
     private final double mainYmult = 0.15;
 
-    @Nullable
-    private ItemStack hoveredItem = null;
+    @Nullable private ItemStack hoveredItem = null;
 
     public PonderTagScreen(ResourceLocation tag) {
         this.tag = PonderIndex.getTagAccess().getRegisteredTag(tag);
@@ -54,9 +42,19 @@ public class PonderTagScreen extends AbstractPonderScreen {
         super.initGui();
         items.clear();
 
-        // TODO: RegisteredObjectsHelper from catnip not available
-        // TODO: LayoutHelper from catnip not available
-        // Full init to be reimplemented using 1.7.10 item registry
+        // Populate items that have scenes tagged with this tag
+        PonderIndex.getSceneAccess().getRegisteredEntries().forEach(entry -> {
+            ResourceLocation key = entry.getKey();
+            List<net.createmod.ponder1710.foundation.PonderScene> scenes =
+                PonderIndex.getSceneAccess().compile(key);
+            boolean hasTag = scenes.stream().anyMatch(s -> s.getTags().contains(tag));
+            if (!hasTag) return;
+
+            Item item = (Item) RegisteredObjectsHelper.getItemOrBlock(key);
+            if (item == null) return;
+            if (items.stream().anyMatch(e -> e.key.equals(key))) return;
+            items.add(new ItemEntry(item, key));
+        });
     }
 
     @Override
@@ -67,32 +65,61 @@ public class PonderTagScreen extends AbstractPonderScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        // TODO: Full rendering to be reimplemented using GL11
         super.drawScreen(mouseX, mouseY, partialTicks);
+
+        GL11.glPushMatrix();
+        GL11.glTranslatef(0, 0, 400);
+
+        int cx = width / 2;
+        int headerY = (int)(mainYmult * height);
+
+        // Tag icon + title
+        tag.render(cx - 8, headerY);
+        drawCenteredString(mc.fontRendererObj, tag.getTitle(), cx, headerY + 20,
+            UIRenderHelper.COLOR_TEXT.getFirst().getRGB());
+        drawCenteredString(mc.fontRendererObj, tag.getDescription(), cx, headerY + 32,
+            UIRenderHelper.COLOR_TEXT_DARKER.getFirst().getRGB());
+
+        // Items
+        int itemsY = getItemsY();
+        int itemsX = (int)(itemXmult * width);
+        int startX = itemsX - items.size() * 18;
+
+        for (int i = 0; i < items.size(); i++) {
+            ItemEntry entry = items.get(i);
+            int ix = startX + i * 36;
+            int iy = itemsY;
+
+            if (entry.item != null) {
+                ItemStack stack = new ItemStack(entry.item);
+                GuiGameElement.of(stack).at(ix, iy).render();
+
+                boolean hovered = mouseX >= ix && mouseX <= ix+16 && mouseY >= iy && mouseY <= iy+16;
+                if (hovered) {
+                    hoveredItem = stack;
+                }
+            }
+        }
+
+        if (hoveredItem != null)
+            renderToolTip(hoveredItem, mouseX, mouseY);
+
+        GL11.glPopMatrix();
     }
 
-    public int getItemsY() {
-        return (int) (mainYmult * height + 85);
-    }
+    public int getItemsY() { return (int)(mainYmult * height + 85); }
 
     @Override
-    public boolean doesGuiPauseGame() {
-        return true;
-    }
+    public boolean doesGuiPauseGame() { return true; }
 
-    public PonderTag getTag() {
-        return tag;
-    }
+    public PonderTag getTag() { return tag; }
 
-    // TODO: record not available in Java 8
     public static class ItemEntry {
-        @Nullable
-        public final Item item;
+        @Nullable public final Item item;
         public final ResourceLocation key;
 
         public ItemEntry(@Nullable Item item, ResourceLocation key) {
-            this.item = item;
-            this.key = key;
+            this.item = item; this.key = key;
         }
     }
 }

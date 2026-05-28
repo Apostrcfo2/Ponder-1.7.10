@@ -7,7 +7,7 @@ dependencies {
 
     // MetaWorld Mixins - SubWorldClient API (su.sergiusonesimus.metaworlds)
     // :dev classifier gives us the deobf sources to compile against
-    api "com.github.Gordon-Frohman:MetaWorlds-Mixins:1.6.1a:dev"
+    api "com.github.Gordon-Frohman:MetaWorlds-Mixins:1.6.1:dev"
 
     // JOML - Matrix math (replaces com.mojang.math in 1.7.10)
     api "org.joml:joml:1.10.8"
