@@ -2,13 +2,17 @@ package net.createmod.ponder1710.foundation.ui;
 
 import static net.createmod.ponder1710.foundation.registration.PonderLocalization.UI_PREFIX;
 
-// import net.createmod.metanip.gui.NavigatableSimiScreen; // TODO: catnip not available
-// import net.createmod.metanip.gui.ScreenOpener; // TODO: catnip not available
-// import net.minecraft.network.chat.Component; // not available in 1.7.10
+import net.createmod.metanip.gui.NavigatableSimiScreen;
+import net.createmod.metanip.gui.ScreenOpener;
+import net.createmod.metanip.theme.Color;
 
-import net.minecraft.client.gui.GuiScreen;
+public abstract class AbstractPonderScreen extends NavigatableSimiScreen {
 
-public abstract class AbstractPonderScreen extends GuiScreen {
+    protected static final net.createmod.metanip.data.Couple<Color> COLOR_NAV_ARROW =
+        net.createmod.metanip.data.Couple.create(
+            new Color(0x80ffeedd, true),
+            new Color(0x40ffeedd, true)
+        );
 
     public static final String INDEX_TITLE = UI_PREFIX + "index_title";
     public static final String WELCOME = UI_PREFIX + "welcome";
@@ -33,6 +37,13 @@ public abstract class AbstractPonderScreen extends GuiScreen {
     @Override
     public void initGui() {
         super.initGui();
-        // TODO: backTrack button from NavigatableSimiScreen not available in 1.7.10
     }
+
+    protected void centerScalingOn(int x, int y) {
+        // Called before screen transitions for scaling animation center
+    }
+
+    protected String getBreadcrumbTitle() { return ""; }
+
+    protected void initBackTrackIcon(net.createmod.metanip.gui.widget.BoxWidget backTrack) {}
 }

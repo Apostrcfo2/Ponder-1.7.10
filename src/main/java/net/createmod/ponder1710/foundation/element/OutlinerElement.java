@@ -23,7 +23,7 @@ public class OutlinerElement extends AnimatedSceneElementBase {
         super.tick(scene);
         if (fadeValue < 1 / 16f)
             return;
-        // TODO: Outliner not available in 1.7.10
+
         // OutlineParams params = outlinerCall.apply(scene.getOutliner());
         // if (overrideColor != -1)
         //     params.colored(overrideColor);

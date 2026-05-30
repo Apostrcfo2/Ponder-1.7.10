@@ -82,7 +82,6 @@ public abstract class AnimatedSceneElementBase extends PonderElementBase impleme
     protected void renderLast(PonderLevel world, float fade, float pt) {}
 
     protected int lightCoordsFromFade(float fade) {
-        // TODO: LightTexture not available in 1.7.10 - simplified
         if (fade == 1)
             return 0xF000F0;
         int light = (int) MathHelper.lerp(fade, 5, 0xF);

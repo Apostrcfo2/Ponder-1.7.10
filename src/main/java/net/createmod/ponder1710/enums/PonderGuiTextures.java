@@ -1,14 +1,8 @@
 package net.createmod.ponder1710.enums;
 
-// import net.createmod.metanip.gui.TextureSheetSegment; // TODO: catnip not available
-// import net.createmod.metanip.gui.UIRenderHelper; // TODO: catnip not available
-// import net.createmod.metanip.gui.element.DelegatedStencilElement; // TODO: catnip not available
-// import net.createmod.metanip.gui.element.ScreenElement; // TODO: catnip not available
-// import net.createmod.metanip.render.ColoredRenderable; // TODO: catnip not available
-// import net.createmod.metanip.theme.Color; // TODO: catnip not available
-// import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
 
+import net.createmod.metanip.theme.Color;
+import net.createmod.metanip.theme.Color;
 import net.createmod.ponder1710.Ponder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
@@ -31,6 +25,10 @@ public enum PonderGuiTextures {
     ICON_PONDER_SLOW_MODE("widgets", 6, 2),
 
     PLACEMENT_INDICATOR_SHEET("placement_indicator", 0, 0, 16, 256),
+
+    ICON_LMB("widgets", 7, 2),
+    ICON_RMB("widgets", 8, 2),
+    ICON_SCROLL("widgets", 9, 2),
 
     ;
 
@@ -69,12 +67,39 @@ public enum PonderGuiTextures {
         Minecraft.getMinecraft().getTextureManager().bindTexture(location);
     }
 
-    // TODO: render(GuiGraphics, int, int) - GuiGraphics not available in 1.7.10
-    // Use GL11 directly instead
     public void render(int x, int y) {
+        render(x, y, null);
+    }
+
+    public void render(int x, int y, net.createmod.metanip.theme.Color color) {
         bind();
+        if (color != null) {
+            float r = ((color.getRGB() >> 16) & 0xFF) / 255f;
+            float g = ((color.getRGB() >> 8) & 0xFF) / 255f;
+            float b = (color.getRGB() & 0xFF) / 255f;
+            float a = ((color.getRGB() >> 24) & 0xFF) / 255f;
+            GL11.glColor4f(r, g, b, a);
+        } else {
+            GL11.glColor4f(1f, 1f, 1f, 1f);
+        }
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+        float u1 = startX / (float) sheetWidth;
+        float v1 = startY / (float) sheetHeight;
+        float u2 = (startX + width) / (float) sheetWidth;
+        float v2 = (startY + height) / (float) sheetHeight;
+
+        net.minecraft.client.renderer.Tessellator tess = net.minecraft.client.renderer.Tessellator.instance;
+        tess.startDrawingQuads();
+        tess.addVertexWithUV(x,         y + height, 0, u1, v2);
+        tess.addVertexWithUV(x + width, y + height, 0, u2, v2);
+        tess.addVertexWithUV(x + width, y,          0, u2, v1);
+        tess.addVertexWithUV(x,         y,          0, u1, v1);
+        tess.draw();
+
+        GL11.glDisable(GL11.GL_BLEND);
         GL11.glColor4f(1f, 1f, 1f, 1f);
-        // TODO: drawTexturedModalRect equivalent
     }
 
     public ResourceLocation getLocation() { return location; }

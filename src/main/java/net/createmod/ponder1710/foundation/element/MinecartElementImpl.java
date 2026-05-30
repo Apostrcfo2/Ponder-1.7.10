@@ -2,15 +2,7 @@ package net.createmod.ponder1710.foundation.element;
 
 import javax.annotation.Nullable;
 
-// import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10 - use GL11
-// import com.mojang.math.Axis; // not available in 1.7.10
-// import net.createmod.metanip.animation.LerpedFloat; // TODO: catnip not available
-// import net.minecraft.client.renderer.MultiBufferSource; // not available in 1.7.10
-// import net.minecraft.client.renderer.entity.EntityRenderDispatcher; // different in 1.7.10
-// import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
-// import net.minecraft.util.Mth; // MathHelper in 1.7.10
-// import net.minecraft.world.entity.vehicle.AbstractMinecart; // different package in 1.7.10
-// import net.minecraft.world.phys.Vec3; // net.minecraft.util.Vec3 in 1.7.10
+import net.createmod.metanip.animation.LerpedFloat;
 
 import net.createmod.ponder1710.api.element.MinecartElement;
 import net.createmod.ponder1710.api.level.PonderLevel;
@@ -25,9 +17,7 @@ import org.lwjgl.opengl.GL11;
 public class MinecartElementImpl extends AnimatedSceneElementBase implements MinecartElement {
 
     private final Vec3 location;
-    // TODO: LerpedFloat from catnip not available - replaced with float
-    private float rotationValue;
-    private float prevRotationValue;
+    private final LerpedFloat rotation;
     private final float initialRotation;
     @Nullable
     private EntityMinecart entity;
@@ -37,8 +27,7 @@ public class MinecartElementImpl extends AnimatedSceneElementBase implements Min
         initialRotation = rotation;
         this.location = Vec3.createVectorHelper(location.xCoord, location.yCoord + 1/16f, location.zCoord);
         this.constructor = constructor;
-        this.rotationValue = rotation;
-        this.prevRotationValue = rotation;
+        this.rotation = LerpedFloat.angular().startWithValue(rotation);
     }
 
     @Override
@@ -55,8 +44,7 @@ public class MinecartElementImpl extends AnimatedSceneElementBase implements Min
             entity.lastTickPosY = 0;
             entity.lastTickPosZ = 0;
         }
-        rotationValue = initialRotation;
-        prevRotationValue = initialRotation;
+        rotation.startWithValue(initialRotation);
     }
 
     @Override
@@ -73,7 +61,7 @@ public class MinecartElementImpl extends AnimatedSceneElementBase implements Min
         entity.lastTickPosX = entity.posX;
         entity.lastTickPosY = entity.posY;
         entity.lastTickPosZ = entity.posZ;
-        prevRotationValue = rotationValue;
+        rotation.tickChaser();
     }
 
     @Override
@@ -91,9 +79,8 @@ public class MinecartElementImpl extends AnimatedSceneElementBase implements Min
 
     @Override
     public void setRotation(float angle, boolean immediate) {
-        rotationValue = angle;
-        if (immediate)
-            prevRotationValue = angle;
+        rotation.chase(angle, 0.4f, LerpedFloat.Chaser.EXP);
+        if (immediate) rotation.startWithValue(angle);
     }
 
     @Override
@@ -103,7 +90,7 @@ public class MinecartElementImpl extends AnimatedSceneElementBase implements Min
 
     @Override
     public Vec3 getRotation() {
-        return Vec3.createVectorHelper(0, rotationValue, 0);
+        return Vec3.createVectorHelper(0, rotation.getValue(), 0);
     }
 
     @Override
@@ -119,11 +106,11 @@ public class MinecartElementImpl extends AnimatedSceneElementBase implements Min
         double lerpZ = MathHelper.lerp(pt, entity.prevPosZ, entity.posZ);
         GL11.glTranslated(lerpX, lerpY, lerpZ);
 
-        float lerpRot = MathHelper.lerp(pt, prevRotationValue, rotationValue);
-        GL11.glRotatef(lerpRot, 0, 1, 0);
+        GL11.glRotatef(rotation.getValue(pt), 0, 1, 0);
 
-        // TODO: render entity using 1.7.10 RenderManager
-        // Minecraft.getMinecraft().getRenderManager().renderEntity(entity, 0, 0, 0, 0, pt, false);
+        // Render entity using 1.7.10 RenderManager
+        net.minecraft.client.renderer.entity.RenderManager.instance.renderEntityWithPosYaw(
+            entity, 0, 0, 0, rotation.getValue(pt), pt);
 
         GL11.glPopMatrix();
     }

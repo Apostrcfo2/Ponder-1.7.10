@@ -43,8 +43,6 @@ public interface StoryBoardEntry {
         BEFORE, AFTER
     }
 
-    // TODO: record not available in Java 8 - replaced with class
-    // record SceneOrderingEntry(SceneOrderingType type, ResourceLocation sceneId) { ... }
     class SceneOrderingEntry {
 
         private final SceneOrderingType type;

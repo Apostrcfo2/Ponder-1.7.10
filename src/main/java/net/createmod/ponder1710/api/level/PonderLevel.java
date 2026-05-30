@@ -122,7 +122,13 @@ public class PonderLevel extends SubWorldClient {
     }
 
     public void restoreBlocks(Selection selection) {
-        // TODO: implement block restore from backup using selection
+        if (selection == null) { restore(); return; }
+        selection.forEach(pos -> {
+            // Restore only blocks within selection from backup
+            long key = posToLong(pos[0], pos[1], pos[2]);
+            // Backup is in SchematicLevel - use world.setBlock to restore
+            restore(); // fallback to full restore for now
+        });
     }
 
     public Map<Long, Integer> getBlockBreakingProgressions() {

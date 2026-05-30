@@ -202,8 +202,61 @@ public class PonderScene {
     }
 
     public Pair<ItemStack, int[]> rayTraceScene(Vec3 from, Vec3 to) {
-        // TODO: implement ray tracing for identify mode
-        return Pair.of(null, null);
+        // Nearest hit tracking - using Object[] since no MutableObject in Java 8
+        final WorldSectionElement[] nearestElement = {null};
+        final Pair<Vec3, net.minecraft.util.MovingObjectPosition>[] nearestHit = new Pair[1];
+        final double[] bestDistance = {0};
+
+        forEach(WorldSectionElement.class, wse -> {
+            wse.resetSelectedBlock();
+            if (!wse.isVisible()) return;
+            Pair<Vec3, net.minecraft.util.MovingObjectPosition> rayTrace = wse.rayTrace(world, from, to);
+            if (rayTrace == null || rayTrace.getFirst() == null) return;
+
+            double distanceTo = rayTrace.getFirst().distanceTo(from);
+            if (nearestHit[0] != null && distanceTo >= bestDistance[0]) return;
+
+            nearestElement[0] = wse;
+            nearestHit[0] = rayTrace;
+            bestDistance[0] = distanceTo;
+        });
+
+        if (nearestHit[0] == null)
+            return Pair.of(null, new int[]{0, 0, 0});
+
+        net.minecraft.util.MovingObjectPosition mop = nearestHit[0].getSecond();
+        if (mop == null || mop.typeOfHit == net.minecraft.util.MovingObjectPosition.MovingObjectType.MISS)
+            return Pair.of(null, null);
+
+        int sx = mop.blockX, sy = mop.blockY, sz = mop.blockZ;
+        int[] selectedPos = new int[]{sx, sy, sz};
+
+        // Check bounds
+        int[] bounds = world.getBounds();
+        if (sx < bounds[0] || sx > bounds[3] || sy < bounds[1] || sy > bounds[4] || sz < bounds[2] || sz > bounds[5])
+            return Pair.of(null, null);
+
+        // Check if on base plate
+        int minX = basePlateOffsetX, minZ = basePlateOffsetZ;
+        int maxX = minX + basePlateSize - 1, maxZ = minZ + basePlateSize - 1;
+        if (sx >= minX && sx <= maxX && sy == 0 && sz >= minZ && sz <= maxZ) {
+            if (PonderIndex.editingModeActive())
+                nearestElement[0].selectBlock(sx, sy, sz);
+            return Pair.of(null, selectedPos);
+        }
+
+        nearestElement[0].selectBlock(sx, sy, sz);
+
+        // Get pick block
+        net.minecraft.block.Block block = world.getBlock(sx, sy, sz);
+        int meta = world.getBlockMetadata(sx, sy, sz);
+        ItemStack pickBlock = block.getPickBlock(mop, world, sx, sy, sz,
+            net.minecraft.client.Minecraft.getMinecraft().thePlayer);
+
+        if (pickBlock == null)
+            pickBlock = new ItemStack(block, 1, meta);
+
+        return Pair.of(pickBlock, selectedPos);
     }
 
     public void deselect() {

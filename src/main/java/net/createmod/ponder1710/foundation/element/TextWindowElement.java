@@ -4,18 +4,10 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-// import com.mojang.blaze3d.vertex.PoseStack; // not available in 1.7.10
-// import net.createmod.metanip.data.Couple; // TODO: catnip not available
-// import net.createmod.metanip.gui.element.BoxElement; // TODO: catnip not available
-// import net.createmod.metanip.theme.Color; // TODO: catnip not available
-// import net.minecraft.client.gui.GuiGraphics; // not available in 1.7.10
-// import net.minecraft.network.chat.FormattedText; // not available in 1.7.10
-// import net.minecraft.network.chat.Style; // not available in 1.7.10
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
-// import net.minecraft.util.Mth; // MathHelper in 1.7.10
-// import net.minecraft.world.phys.Vec2; // not available in 1.7.10
-// import net.minecraft.world.phys.Vec3; // net.minecraft.util.Vec3 in 1.7.10
 
+import net.createmod.metanip.gui.UIRenderHelper;
+import net.createmod.metanip.gui.element.BoxElement;
+import net.createmod.metanip.theme.Color;
 import net.createmod.ponder1710.api.PonderPalette;
 import net.createmod.ponder1710.api.element.TextElementBuilder;
 import net.createmod.ponder1710.foundation.PonderIndex;
@@ -121,20 +113,50 @@ public class TextWindowElement extends AnimatedOverlayElementBase {
     }
 
     @Override
-    // TODO: render - GuiGraphics, BoxElement, Color from catnip not available in 1.7.10
-    // Full reimplementation needed using GL11 and FontRenderer
     public void render(PonderScene scene, PonderUI screen, float partialTicks, float fade) {
         if (bakedText == null)
             bakedText = textGetter.get();
+        if (fade < 1 / 16f) return;
 
-        if (fade < 1 / 16f)
-            return;
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
+        int screenW = screen.width;
+        int screenH = screen.height;
 
-        // TODO: sceneToScreen not available yet - needs SceneTransform port
-        // TODO: BoxElement from catnip not available
-        // TODO: Color from catnip not available
-        // TODO: FormattedText/Style not available in 1.7.10
-        // Full rendering to be reimplemented using GL11 + FontRenderer
+        int textX, textY;
+
+        if (vec != null) {
+            // Project 3D scene coordinate to 2D screen
+            Vec3 screenPos = scene.getTransform().screenToScene(screenW / 2.0, screenH / 2.0, 100, partialTicks);
+            // Approximate: use scene transform to get screen coords
+            textX = (int)(screenW * 0.5 + (vec.xCoord - screenPos.xCoord) * 30);
+            textY = (int)(screenH * 0.4 + (vec.yCoord - screenPos.yCoord) * 30);
+        } else {
+            textX = screenW / 2;
+            textY = screenH / 2 + y;
+        }
+
+        int color = palette.getColor().getRGB();
+        int textWidth = mc.fontRendererObj.getStringWidth(bakedText);
+        int boxW = textWidth + 12;
+        int boxH = 16;
+
+        // Background box
+        org.lwjgl.opengl.GL11.glPushMatrix();
+        org.lwjgl.opengl.GL11.glTranslatef(0, 0, 200);
+        new BoxElement()
+            .withBackground(new Color(0xdd000000, true))
+            .gradientBorder(net.createmod.metanip.data.Couple.create(
+                new Color(color, true).scaleAlpha(fade),
+                new Color(color, true).scaleAlpha(fade * 0.5f)
+            ))
+            .at(textX - boxW/2, textY - 2, 0)
+            .withBounds(boxW, boxH)
+            .render();
+
+        org.lwjgl.opengl.GL11.glTranslatef(0, 0, 10);
+        int textColor = new Color(color, true).scaleAlpha(fade).getRGB();
+        mc.fontRendererObj.drawStringWithShadow(bakedText, textX - textWidth/2, textY + 2, textColor);
+        org.lwjgl.opengl.GL11.glPopMatrix();
     }
 
     public PonderPalette getPalette() {

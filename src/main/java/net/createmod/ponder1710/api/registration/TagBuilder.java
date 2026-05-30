@@ -2,7 +2,6 @@ package net.createmod.ponder1710.api.registration;
 
 import net.minecraft.util.ResourceLocation;
 
-// import net.minecraft.world.level.ItemLike; // TODO: not available in 1.7.10
 import net.minecraft.item.Item;
 
 public interface TagBuilder {
