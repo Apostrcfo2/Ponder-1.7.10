@@ -1,7 +1,6 @@
 package net.createmod.ponder1710.api.element;
 
-// import net.createmod.metanip.gui.element.ScreenElement; // TODO: catnip not available in 1.7.10
-// import net.minecraft.world.item.ItemStack; // 1.7.10 uses different package
+import net.createmod.metanip.gui.element.ScreenElement;
 import net.minecraft.item.ItemStack;
 
 public interface InputElementBuilder {
@@ -14,8 +13,7 @@ public interface InputElementBuilder {
 
     InputElementBuilder scroll();
 
-    // TODO: ScreenElement from catnip not available in 1.7.10
-    // InputElementBuilder showing(ScreenElement icon);
+    InputElementBuilder showing(ScreenElement icon);
 
     InputElementBuilder whileSneaking();
 

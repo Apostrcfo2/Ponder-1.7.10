@@ -1,7 +1,6 @@
 package net.createmod.ponder1710.api;
 
-// import net.createmod.metanip.theme.Color; // TODO: catnip not available in 1.7.10
-// Replaced with plain int color values
+import net.createmod.metanip.theme.Color;
 
 public enum PonderPalette {
 
@@ -21,18 +20,17 @@ public enum PonderPalette {
 
     ;
 
-    private final int color;
+    private final Color color;
 
     PonderPalette(int color) {
-        this.color = color;
+        this.color = new Color(color, false).setImmutable();
     }
 
     public int getColor() {
-        return color;
+        return color.getRGB();
     }
 
-    // TODO: getColorObject() - Color from catnip not available in 1.7.10
-    // public Color getColorObject() {
-    //     return color;
-    // }
+    public Color getColorObject() {
+        return color;
+    }
 }
