@@ -58,14 +58,20 @@ public class ParrotElementImpl extends AnimatedSceneElementBase implements Parro
         }
 
         entity.ticksExisted++;
-        entity.prevRotationYaw  = entity.rotationYaw;
-        entity.prevRotationPitch = entity.rotationPitch;
+        entity.onGround = true;
+
         entity.prevPosX = entity.posX;
         entity.prevPosY = entity.posY;
         entity.prevPosZ = entity.posZ;
-        entity.onGround = true;
+        entity.prevRotationYaw   = entity.rotationYaw;
+        entity.prevRotationPitch = entity.rotationPitch;
 
         pose.tick(scene, entity, location);
+
+        // Save post-tick position for interpolation (mirrors original xOld/yOld/zOld)
+        entity.lastTickPosX = entity.posX;
+        entity.lastTickPosY = entity.posY;
+        entity.lastTickPosZ = entity.posZ;
     }
 
     @Override

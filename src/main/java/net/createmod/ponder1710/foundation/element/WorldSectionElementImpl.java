@@ -261,8 +261,9 @@ public class WorldSectionElementImpl extends AnimatedSceneElementBase implements
         transformGL(pt);
 
         int light = -1;
-        if (fadeValue != 1)
-            light = (int) MathHelper.lerp(fadeValue, 5, 15);
+        float currentFade = fade.getValue();
+        if (currentFade != 1)
+            light = (int) MathHelper.lerp(currentFade, 5, 15);
         world.pushFakeLight(light);
         renderTileEntities(world, pt);
         world.popLight();

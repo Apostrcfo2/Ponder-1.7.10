@@ -1,5 +1,6 @@
 package net.createmod.ponder1710.api.level;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -16,127 +17,164 @@ import net.createmod.ponder1710.foundation.PonderWorldParticles;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.profiler.Profiler;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.WorldSettings;
+import net.minecraft.world.WorldType;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import su.sergiusonesimus.metaworlds.client.multiplayer.SubWorldClient;
+import su.sergiusonesimus.metaworlds.zmixin.interfaces.minecraft.world.IMixinWorld;
 
-// PonderLevel extends SubWorldClient - same pattern as ContraptionWorldClient in ReCreate
-// This gives us full block rendering, TileEntity animation, physics, lighting etc.
-@SideOnly(Side.CLIENT)
+// PonderLevel extends SubWorldClient (MetaWorld Mixins)
+// Each Ponder scene is a real SubWorldClient registered in parent.getSubWorldsMap()
+// canUpdate = false: Ponder controls ticking manually
+// Coordinate transforms via IMixinWorld.transformToGlobal()
 public class PonderLevel extends SubWorldClient {
 
-    @Nullable
-    public PonderScene scene;
+    @Nullable public PonderScene scene;
 
-    protected Map<Long, Integer> blockBreakingProgressions = new HashMap<>();
-    protected PonderWorldParticles particles;
+    protected final Map<Long, Block>          originalBlocks;
+    protected final Map<Long, Integer>        originalBlockMeta;
+    protected final Map<Long, NBTTagCompound> originalBlockEntities;
+    protected final Map<Long, Integer>        blockBreakingProgressions;
+    protected final List<Entity>              originalEntities;
+    protected final List<Entity>              entities;
+    protected final PonderWorldParticles      particles;
 
     int overrideLight = -1;
-    @Nullable
-    Selection mask;
+    @Nullable Selection mask;
     boolean currentlyTickingEntities;
 
-    public PonderLevel(WorldClient parentWorld, int subWorldID) {
+    // minX,minY,minZ,maxX,maxY,maxZ
+    private int[] bounds = {0, 0, 0, 0, 0, 0};
+
+    public PonderLevel(WorldClient parent, int subWorldId) {
         super(
-            parentWorld,
-            subWorldID,
+            parent,
+            subWorldId,
             Minecraft.getMinecraft().getNetHandler(),
-            new WorldSettings(
-                0L,
-                parentWorld.getWorldInfo().getGameType(),
-                false,
-                false,
-                parentWorld.getWorldInfo().getTerrainType()
-            ),
-            0, // dimension - overworld
-            parentWorld.difficultySetting,
-            parentWorld.theProfiler
+            new WorldSettings(0L, WorldSettings.GameType.CREATIVE, false, false, WorldType.DEFAULT),
+            parent.provider.dimensionId,
+            EnumDifficulty.PEACEFUL,
+            new Profiler()
         );
-        this.particles = new PonderWorldParticles(this);
+        this.canUpdate = false;
+        this.isRemote  = true;
+
+        originalBlocks            = new HashMap<>();
+        originalBlockMeta         = new HashMap<>();
+        originalBlockEntities     = new HashMap<>();
+        blockBreakingProgressions = new HashMap<>();
+        originalEntities          = new ArrayList<>();
+        entities                  = new ArrayList<>();
+        particles                 = new PonderWorldParticles(this);
     }
 
-    public void pushFakeLight(int light) {
-        this.overrideLight = light;
-    }
+    public void createBackup() {
+        originalBlocks.clear();
+        originalBlockMeta.clear();
+        originalBlockEntities.clear();
+        originalEntities.clear();
 
-    public void popLight() {
-        this.overrideLight = -1;
-    }
-
-    public void setMask(@Nullable Selection mask) {
-        this.mask = mask;
-    }
-
-    public void clearMask() {
-        this.mask = null;
-    }
-
-    // Full bright for Ponder scenes, unless overridden
-    @Override
-    public int getLightBrightnessForSkyBlocks(int x, int y, int z, int min) {
-        if (overrideLight != -1)
-            return overrideLight << 20 | overrideLight << 4;
-        return 0xF000F0;
-    }
-
-    public void renderEntities(float pt) {
-        for (Entity entity : (List<Entity>) getLoadedEntityList()) {
-            net.minecraft.client.renderer.entity.RenderManager.instance.renderEntityWithPosYaw(
-                entity,
-                entity.prevPosX + (entity.posX - entity.prevPosX) * pt,
-                entity.prevPosY + (entity.posY - entity.prevPosY) * pt,
-                entity.prevPosZ + (entity.posZ - entity.prevPosZ) * pt,
-                entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * pt,
-                pt
-            );
+        for (int x = bounds[0]; x <= bounds[3]; x++) {
+            for (int y = bounds[1]; y <= bounds[4]; y++) {
+                for (int z = bounds[2]; z <= bounds[5]; z++) {
+                    long key = posToLong(x, y, z);
+                    originalBlocks.put(key, getBlock(x, y, z));
+                    originalBlockMeta.put(key, getBlockMetadata(x, y, z));
+                    TileEntity te = getTileEntity(x, y, z);
+                    if (te != null) {
+                        NBTTagCompound nbt = new NBTTagCompound();
+                        te.writeToNBT(nbt);
+                        originalBlockEntities.put(key, nbt);
+                    }
+                }
+            }
         }
     }
 
-    public void renderParticles(float pt) {
-        particles.renderParticles(pt);
+    public void restore() {
+        entities.clear();
+        blockBreakingProgressions.clear();
+        particles.clearEffects();
+
+        for (int x = bounds[0]; x <= bounds[3]; x++) {
+            for (int y = bounds[1]; y <= bounds[4]; y++) {
+                for (int z = bounds[2]; z <= bounds[5]; z++) {
+                    long key  = posToLong(x, y, z);
+                    Block b   = originalBlocks.getOrDefault(key, Blocks.air);
+                    int meta  = originalBlockMeta.getOrDefault(key, 0);
+                    setBlock(x, y, z, b, meta, 2);
+                    if (originalBlockEntities.containsKey(key)) {
+                        TileEntity te = getTileEntity(x, y, z);
+                        if (te != null) te.readFromNBT(originalBlockEntities.get(key));
+                    }
+                }
+            }
+        }
+
+        PonderIndex.forEachPlugin(plugin -> plugin.onPonderLevelRestore(this));
+        redraw();
     }
 
+    private void redraw() {
+        if (scene != null)
+            scene.forEach(WorldSectionElement.class, WorldSectionElement::queueRedraw);
+    }
+
+    @Override
+    public void setBoundaries(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        super.setBoundaries(minX, minY, minZ, maxX, maxY, maxZ);
+        bounds[0] = minX; bounds[1] = minY; bounds[2] = minZ;
+        bounds[3] = maxX; bounds[4] = maxY; bounds[5] = maxZ;
+    }
+
+    public int[] getBounds() { return bounds; }
+
+    @Override
     public void tick() {
-        super.tick();
+        // Ponder controls ticking — skip SubWorld physics
         currentlyTickingEntities = true;
         particles.tick();
-
-        for (Iterator<Entity> it = ((List<Entity>) getLoadedEntityList()).iterator(); it.hasNext();) {
-            Entity entity = it.next();
-            entity.onUpdate();
-            if (entity.posY <= -.5f) entity.setDead();
-            if (entity.isDead) it.remove();
+        for (Iterator<Entity> it = entities.iterator(); it.hasNext();) {
+            Entity e = it.next();
+            e.onUpdate();
+            if (e.posY <= -.5f) e.setDead();
+            if (e.isDead) it.remove();
         }
-
         currentlyTickingEntities = false;
     }
 
+    @Override
+    public int getLightBrightnessForSkyBlocks(int x, int y, int z, int minLight) {
+        if (overrideLight != -1) return overrideLight;
+        return 0xF000F0; // full bright
+    }
+
+    public void pushFakeLight(int light) { this.overrideLight = light; }
+    public void popLight()               { this.overrideLight = -1; }
+    public void setMask(@Nullable Selection mask) { this.mask = mask; }
+    public void clearMask() { this.mask = null; }
+
     public void addBlockDestroyEffects(int x, int y, int z, Block block, int meta) {
-        Minecraft.getMinecraft().effectRenderer.addBlockDestroyEffects(x, y, z, block, meta);
+        // TODO: EntityDiggingFX particles
     }
 
-    public void restoreBlocks(Selection selection) {
-        if (selection == null) { restore(); return; }
-        selection.forEach(pos -> {
-            // Restore only blocks within selection from backup
-            long key = posToLong(pos[0], pos[1], pos[2]);
-            // Backup is in SchematicLevel - use world.setBlock to restore
-            restore(); // fallback to full restore for now
-        });
-    }
+    public Map<Long, Integer> getBlockBreakingProgressions() { return blockBreakingProgressions; }
+    public List<Entity> getEntityList() { return entities; }
 
-    public Map<Long, Integer> getBlockBreakingProgressions() {
-        return blockBreakingProgressions;
-    }
-
-    // Helper to encode x,y,z into long key
     public static long posToLong(int x, int y, int z) {
-        return ((long)(x + 30000000)) | ((long)(y + 30000000) << 20) | ((long)(z + 30000000) << 40);
+        return ((long)(x & 0xFFFF)) | (((long)(y & 0xFFFF)) << 16) | (((long)(z & 0xFFFF)) << 32);
+    }
+
+    public static int[] decodePos(long key) {
+        int x = (int)(key & 0xFFFF);
+        int y = (int)((key >> 16) & 0xFFFF);
+        int z = (int)((key >> 32) & 0xFFFF);
+        return new int[]{x, y, z};
     }
 }

@@ -29,11 +29,16 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 
+import su.sergiusonesimus.metaworlds.zmixin.interfaces.minecraft.world.IMixinWorld;
+
 public class PonderSceneRegistry implements SceneRegistryAccess {
 
     private final PonderLocalization localization;
     private final Multimap<ResourceLocation, StoryBoardEntry> scenes;
     private boolean allowRegistration = true;
+
+    // Track active PonderLevels for cleanup on reload
+    private final List<PonderLevel> activeLevels = new ArrayList<>();
 
     public PonderSceneRegistry(PonderLocalization localization) {
         this.localization = localization;
@@ -76,14 +81,23 @@ public class PonderSceneRegistry implements SceneRegistryAccess {
             PonderIndex.gatherSharedText();
         }
 
+        // Unregister previous levels from MetaWorld
+        cleanupActiveLevels();
+
         List<PonderScene> result = new ArrayList<>();
-        int subWorldId = 1000;
+        WorldClient parent = Minecraft.getMinecraft().theWorld;
+        IMixinWorld mixinParent = (IMixinWorld) parent;
 
         for (StoryBoardEntry storyBoard : entries) {
-            WorldClient parent = Minecraft.getMinecraft().theWorld;
-            PonderLevel level = new PonderLevel(parent, subWorldId++);
+            // Get safe unoccupied SubWorld ID from MetaWorld
+            int subWorldId = mixinParent.getUnoccupiedSubworldID();
+            PonderLevel level = new PonderLevel(parent, subWorldId);
 
-            // Load schematic into level
+            // Register in MetaWorld's subworld map (lightweight — no proxy player)
+            // This enables coordinate transforms and rendering via RenderGlobalSubWorld
+            mixinParent.getSubWorldsMap().put(subWorldId, level);
+            activeLevels.add(level);
+
             ResourceLocation schematicLoc = storyBoard.getSchematicLocation();
             if (schematicLoc != null) {
                 try {
@@ -102,6 +116,15 @@ public class PonderSceneRegistry implements SceneRegistryAccess {
         return result;
     }
 
+    private void cleanupActiveLevels() {
+        WorldClient parent = Minecraft.getMinecraft().theWorld;
+        if (parent == null) { activeLevels.clear(); return; }
+        IMixinWorld mixinParent = (IMixinWorld) parent;
+        for (PonderLevel level : activeLevels)
+            mixinParent.getSubWorldsMap().remove(level.getSubWorldID());
+        activeLevels.clear();
+    }
+
     public static PonderScene compileScene(PonderLocalization localization, StoryBoardEntry sb,
         @Nullable PonderLevel level) {
         PonderScene scene = new PonderScene(level, localization, sb.getNamespace(),
@@ -111,8 +134,8 @@ public class PonderSceneRegistry implements SceneRegistryAccess {
         return scene;
     }
 
-    // Load a 1.7.10-compatible .nbt schematic into a PonderLevel
-    // Schematic format: NBTTagCompound with Width, Height, Length, Blocks[], Data[], TileEntities[]
+    // Load a .nbt schematic (Schematica/MCEdit format) into a PonderLevel (SubWorldClient)
+    // Format: Width(short), Height(short), Length(short), Blocks(byte[]), Data(byte[]), TileEntities(list)
     public static void loadSchematic(ResourceLocation location, PonderLevel level) throws Exception {
         String path = "/assets/" + location.getResourceDomain()
             + "/ponder/" + location.getResourcePath() + ".nbt";
@@ -133,7 +156,6 @@ public class PonderSceneRegistry implements SceneRegistryAccess {
         byte[] blockIds   = nbt.getByteArray("Blocks");
         byte[] blockMetas = nbt.getByteArray("Data");
 
-        // Place blocks
         for (int y = 0; y < height; y++) {
             for (int z = 0; z < length; z++) {
                 for (int x = 0; x < width; x++) {
@@ -147,24 +169,22 @@ public class PonderSceneRegistry implements SceneRegistryAccess {
             }
         }
 
-        // Place TileEntities
         if (nbt.hasKey("TileEntities")) {
             NBTTagList teList = nbt.getTagList("TileEntities", 10);
             for (int i = 0; i < teList.tagCount(); i++) {
                 NBTTagCompound teNbt = teList.getCompoundTagAt(i);
                 try {
                     TileEntity te = TileEntity.createAndLoadEntity(teNbt);
-                    if (te != null) {
+                    if (te != null)
                         level.setTileEntity(te.xCoord, te.yCoord, te.zCoord, te);
-                    }
                 } catch (Exception e) {
                     Ponder.LOGGER.debug("Failed to load TileEntity from schematic", e);
                 }
             }
         }
 
-        // Set bounds on the level
-        level.setBounds(new int[]{0, 0, 0, width-1, height-1, length-1});
+        // Set SubWorld boundaries (triggers MetaWorld renderer update)
+        level.setBoundaries(0, 0, 0, width - 1, height - 1, length - 1);
         Ponder.LOGGER.debug("Loaded schematic {} ({}x{}x{})", location, width, height, length);
     }
 }
