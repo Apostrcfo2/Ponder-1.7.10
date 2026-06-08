@@ -43,7 +43,7 @@ public class PonderLevel extends SubWorldClient {
     protected final Map<Long, Integer>        blockBreakingProgressions;
     protected final List<Entity>              originalEntities;
     protected final List<Entity>              entities;
-    protected final PonderWorldParticles      particles;
+    public final PonderWorldParticles          particles;
 
     int overrideLight = -1;
     @Nullable Selection mask;

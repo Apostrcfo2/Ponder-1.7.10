@@ -111,12 +111,15 @@ public class PonderScene {
         outliner = new Outliner();
         elements = new HashSet<>();
         linkedElements = new HashMap<>();
-        this.tags = new ArrayList<>();
+        this.tags = tags.stream()
+            .map(PonderIndex.getTagAccess()::getRegisteredTag)
+            .filter(t -> t != null)
+            .collect(java.util.stream.Collectors.toList());
         this.orderingEntries = new ArrayList<>(orderingEntries);
         schedule = new ArrayList<>();
         activeSchedule = new ArrayList<>();
         transform = new SceneTransform();
-        basePlateSize = world != null ? getBounds()[3] - getBounds()[0] + 1 : 5;
+        basePlateSize = world != null ? world.getBounds()[3] - world.getBounds()[0] + 1 : 5;
         baseWorldSection = new WorldSectionElementImpl();
         keyframeTimes = new IntArrayList(4);
         scaleFactor = 1;
@@ -186,8 +189,8 @@ public class PonderScene {
 
         // Camera angles from transform
         // In 1.7.10 the camera is implicit via GL11 transforms applied in SceneTransform
-        world.renderEntities(pt);
-        world.renderParticles(pt);
+        // Entities rendered via SubWorldClient - particle system via PonderWorldParticles
+        if (world != null) world.particles.renderParticles(pt);
 
         outliner.renderOutlines(new Matrix4f(), Vec3.createVectorHelper(0, 0, 0), pt);
 
@@ -355,10 +358,24 @@ public class PonderScene {
             if (type.isInstance(element) && element.isVisible()) function.accept(type.cast(element));
     }
 
+    public <T extends Entity> void forEachWorldEntity(Class<T> type, Consumer<T> function) {
+        if (world == null) return;
+        for (Entity entity : world.getEntityList())
+            if (type.isInstance(entity)) function.accept(type.cast(entity));
+    }
+
     public Supplier<String> registerText(String defaultText) {
         final String key = "text_" + textIndex;
         localization.registerSpecific(sceneId, key, defaultText);
         Supplier<String> supplier = () -> localization.getSpecific(sceneId, key);
+        textIndex++;
+        return supplier;
+    }
+
+    public Supplier<String> registerText(String defaultText, Object... params) {
+        final String key = "text_" + textIndex;
+        localization.registerSpecific(sceneId, key, defaultText);
+        Supplier<String> supplier = () -> localization.getSpecific(sceneId, key, params);
         textIndex++;
         return supplier;
     }
