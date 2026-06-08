@@ -1,29 +1,28 @@
-// PORT LATER - 1.7.10
 package net.createmod.metanip.levelWrappers;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
+import net.minecraft.tileentity.TileEntity;
 
-public interface SchematicLevelAccessor extends LevelAccessor {
-	Set<BlockPos> getAllPositions();
+// 1.7.10 port of SchematicLevelAccessor
+// BlockPos -> int[] {x,y,z}, BlockState -> Block+meta, BoundingBox -> int[] bounds
+public interface SchematicLevelAccessor {
 
-	List<Entity> getEntityList();
+    Set<Long> getAllPositions();
 
-	Map<BlockPos, BlockState> getBlockMap();
+    List<Entity> getEntityList();
 
-	BoundingBox getBounds();
+    Map<Long, Object[]> getBlockMap(); // Object[] = {Block, int meta}
 
-	void setBounds(BoundingBox bounds);
+    int[] getBounds(); // {minX,minY,minZ,maxX,maxY,maxZ}
 
-	Iterable<BlockEntity> getBlockEntities();
+    void setBounds(int[] bounds);
 
-	Iterable<BlockEntity> getRenderedBlockEntities();
+    Iterable<TileEntity> getTileEntitiesIterable();
+
+    Iterable<TileEntity> getRenderedTileEntities();
 }
