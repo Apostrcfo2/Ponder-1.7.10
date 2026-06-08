@@ -6,31 +6,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-// import org.joml.Vector3f; // not available in 1.7.10
-// import net.createmod.metanip.math.Pointing; // TODO: catnip not available
-// import net.createmod.metanip.math.VecHelper; // TODO: catnip not available
-// import net.createmod.metanip.theme.Color; // TODO: catnip not available
-// import net.minecraft.core.BlockPos; // 1.7.10 uses x,y,z
-// import net.minecraft.core.Direction; // ForgeDirection in 1.7.10
-// import net.minecraft.core.Direction.Axis; // ForgeDirection in 1.7.10
-// import net.minecraft.core.HolderLookup; // not available in 1.7.10
-// import net.minecraft.core.Vec3i; // not available in 1.7.10
-// import net.minecraft.core.particles.DustParticleOptions; // not available in 1.7.10
-// import net.minecraft.core.particles.ParticleOptions; // not available in 1.7.10
-// import net.minecraft.nbt.CompoundTag; // NBTTagCompound in 1.7.10
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
-// import net.minecraft.world.entity.Entity; // different package in 1.7.10
-// import net.minecraft.world.entity.item.ItemEntity; // different in 1.7.10
-// import net.minecraft.world.item.ItemStack; // different package in 1.7.10
-// import net.minecraft.world.level.Level; // World in 1.7.10
-// import net.minecraft.world.level.block.Blocks; // different in 1.7.10
-// import net.minecraft.world.level.block.RedstoneTorchBlock; // different in 1.7.10
-// import net.minecraft.world.level.block.entity.BlockEntity; // TileEntity in 1.7.10
-// import net.minecraft.world.level.block.state.BlockState; // not available in 1.7.10
-// import net.minecraft.world.level.block.state.properties.BlockStateProperties; // not available
-// import net.minecraft.world.level.block.state.properties.Property; // not available
-// import net.minecraft.world.phys.AABB; // AxisAlignedBB in 1.7.10
-// import net.minecraft.world.phys.Vec3; // net.minecraft.util.Vec3 in 1.7.10
 
 import net.createmod.ponder1710.Ponder;
 import net.createmod.ponder1710.api.ParticleEmitter;
@@ -103,6 +78,14 @@ public class PonderSceneBuilder implements SceneBuilder {
     private final SpecialInstructions special;
 
     protected final PonderScene scene;
+
+    private static ForgeDirection pointingToForgeDir(Pointing p) {
+        if (p == Pointing.UP)    return ForgeDirection.UP;
+        if (p == Pointing.DOWN)  return ForgeDirection.DOWN;
+        if (p == Pointing.LEFT)  return ForgeDirection.WEST;
+        if (p == Pointing.RIGHT) return ForgeDirection.EAST;
+        return ForgeDirection.DOWN;
+    }
 
     public PonderSceneBuilder(PonderScene ponderScene) {
         scene = ponderScene;
@@ -227,8 +210,10 @@ public class PonderSceneBuilder implements SceneBuilder {
         }
 
         @Override
-        public InputElementBuilder showControls(Vec3 sceneSpace, ForgeDirection direction, int duration) {
-            InputWindowElement inputWindowElement = new InputWindowElement(sceneSpace, direction);
+        public InputElementBuilder showControls(Vec3 sceneSpace, Pointing direction, int duration) {
+            // Convert Pointing to ForgeDirection for InputWindowElement
+            ForgeDirection fd = pointingToForgeDir(direction);
+            InputWindowElement inputWindowElement = new InputWindowElement(sceneSpace, fd);
             addInstruction(new ShowInputInstruction(inputWindowElement, duration));
             return inputWindowElement.builder();
         }
@@ -338,6 +323,31 @@ public class PonderSceneBuilder implements SceneBuilder {
         @Override
         public <T extends AnimatedSceneElement> void hideElement(ElementLink<T> link, ForgeDirection direction) {
             addInstruction(new FadeOutOfSceneInstruction<>(15, direction, link));
+        }
+
+        @Override
+        public ElementLink<ParrotElement> createBirb(Vec3 location, java.util.function.Supplier<? extends ParrotPose> pose) {
+            ElementLink<ParrotElement> link = new ElementLinkImpl<>(ParrotElement.class);
+            ParrotElement birb = ParrotElementImpl.create(location, pose);
+            addInstruction(new CreateParrotInstruction(10, ForgeDirection.DOWN, birb));
+            addInstruction(s -> s.linkElement(birb, link));
+            return link;
+        }
+
+        @Override
+        public void changeBirbPose(ElementLink<ParrotElement> birb, java.util.function.Supplier<? extends ParrotPose> pose) {
+            addInstruction(s -> s.resolveOptional(birb).ifPresent(b -> b.setPose(pose.get())));
+        }
+
+        @Override
+        public void rotateParrot(ElementLink<ParrotElement> link, double xRotation, double yRotation, double zRotation, int duration) {
+            addInstruction(AnimateParrotInstruction.rotate(link,
+                Vec3.createVectorHelper(xRotation, yRotation, zRotation), duration));
+        }
+
+        @Override
+        public void moveParrot(ElementLink<ParrotElement> link, Vec3 offset, int duration) {
+            addInstruction(AnimateParrotInstruction.move(link, offset, duration));
         }
     }
 
@@ -546,6 +556,42 @@ public class PonderSceneBuilder implements SceneBuilder {
         @Override
         public void modifyTileEntityNBT(Selection selection, Class<? extends TileEntity> teType, Consumer<NBTTagCompound> consumer, boolean reDrawBlocks) {
             addInstruction(new BlockEntityDataInstruction(selection, teType, nbt -> { consumer.accept(nbt); return nbt; }, reDrawBlocks));
+        }
+
+        @Override
+        public void modifyBlock(int x, int y, int z, UnaryOperator<int[]> blockMetaFunc, boolean spawnParticles) {
+            addInstruction(s -> {
+                PonderLevel world = s.getWorld();
+                Block b = world.getBlock(x, y, z);
+                int meta = world.getBlockMetadata(x, y, z);
+                int[] result = blockMetaFunc.apply(new int[]{net.minecraft.block.Block.getIdFromBlock(b), meta});
+                Block newBlock = net.minecraft.block.Block.getBlockById(result[0]);
+                if (newBlock != null) world.setBlock(x, y, z, newBlock, result[1], 3);
+            });
+        }
+
+        @Override
+        public void cycleBlockProperty(int x, int y, int z) {
+            addInstruction(s -> {
+                PonderLevel world = s.getWorld();
+                int meta = world.getBlockMetadata(x, y, z);
+                world.setBlock(x, y, z, world.getBlock(x, y, z), (meta + 1) & 15, 3);
+            });
+        }
+
+        @Override
+        public void modifyBlocks(Selection selection, UnaryOperator<int[]> blockMetaFunc, boolean spawnParticles) {
+            addInstruction(s -> {
+                PonderLevel world = s.getWorld();
+                selection.forEach(pos -> {
+                    int x = pos[0], y = pos[1], z = pos[2];
+                    Block b = world.getBlock(x, y, z);
+                    int meta = world.getBlockMetadata(x, y, z);
+                    int[] result = blockMetaFunc.apply(new int[]{net.minecraft.block.Block.getIdFromBlock(b), meta});
+                    Block newBlock = net.minecraft.block.Block.getBlockById(result[0]);
+                    if (newBlock != null) world.setBlock(x, y, z, newBlock, result[1], 3);
+                });
+            });
         }
     }
 
