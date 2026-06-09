@@ -10,7 +10,8 @@ import net.createmod.ponder1710.api.scene.PonderStoryBoard;
 import net.createmod.ponder1710.foundation.PonderStoryBoardEntry;
 
 // // import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
-import net.minecraft.util.ResourceLocation; // different package in 1.7.10
+import java.util.function.Consumer;
+import net.createmod.ponder1710.api.level.PonderLevel;
 import net.minecraft.util.ResourceLocation;
 
 public class DefaultPonderSceneRegistrationHelper implements PonderSceneRegistrationHelper<ResourceLocation> {
@@ -57,6 +58,15 @@ public class DefaultPonderSceneRegistrationHelper implements PonderSceneRegistra
     public ResourceLocation asLocation(String path) {
         // ResourceLocation.fromNamespaceAndPath not available in 1.7.10
         return new ResourceLocation(namespace, path);
+    }
+
+    @Override
+    public StoryBoardEntry addStoryBoard(ResourceLocation component, Consumer<PonderLevel> worldSetup,
+        PonderStoryBoard storyBoard, ResourceLocation... tags) {
+        StoryBoardEntry entry = new PonderStoryBoardEntry(storyBoard, namespace, worldSetup, component);
+        entry.highlightTags(tags);
+        sceneRegistry.addStoryBoard(entry);
+        return entry;
     }
 
     private PonderStoryBoardEntry createStoryBoardEntry(PonderStoryBoard storyBoard, ResourceLocation schematicLocation,

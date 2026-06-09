@@ -2,12 +2,24 @@ package net.createmod.ponder1710.api.registration;
 
 import java.util.List;
 
+import java.util.function.Consumer;
+import net.createmod.ponder1710.api.level.PonderLevel;
+import java.util.function.Consumer;
+import net.createmod.ponder1710.api.level.PonderLevel;
 import net.createmod.ponder1710.api.scene.PonderStoryBoard;
 
 // import net.minecraft.resources.ResourceLocation; // 1.7.10 uses different package
 import net.minecraft.util.ResourceLocation;
 
 public interface StoryBoardEntry {
+
+    // Consumer<PonderLevel> that places blocks programmatically (alternative to schematic)
+    @javax.annotation.Nullable
+    Consumer<PonderLevel> getWorldSetup();
+
+    // Consumer<PonderLevel> that places blocks programmatically (alternative to schematic)
+    @javax.annotation.Nullable
+    Consumer<PonderLevel> getWorldSetup();
 
     PonderStoryBoard getBoard();
 

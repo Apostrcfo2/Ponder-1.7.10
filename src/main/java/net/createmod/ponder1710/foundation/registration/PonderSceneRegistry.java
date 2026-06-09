@@ -99,11 +99,21 @@ public class PonderSceneRegistry implements SceneRegistryAccess {
             activeLevels.add(level);
 
             ResourceLocation schematicLoc = storyBoard.getSchematicLocation();
+            java.util.function.Consumer<net.createmod.ponder1710.api.level.PonderLevel> worldSetup = storyBoard.getWorldSetup();
+
             if (schematicLoc != null) {
+                // Load from .nbt schematic file
                 try {
                     loadSchematic(schematicLoc, level);
                 } catch (Exception e) {
                     Ponder.LOGGER.warn("Failed to load schematic {}: {}", schematicLoc, e.getMessage());
+                }
+            } else if (worldSetup != null) {
+                // Place blocks via code
+                try {
+                    worldSetup.accept(level);
+                } catch (Exception e) {
+                    Ponder.LOGGER.warn("Failed to run world setup for {}: {}", storyBoard.getComponent(), e.getMessage());
                 }
             }
 
