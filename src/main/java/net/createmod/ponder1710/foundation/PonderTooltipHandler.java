@@ -10,11 +10,10 @@ import net.createmod.metanip.animation.AnimationTickHolder;
 import net.createmod.metanip.animation.LerpedFloat;
 import net.createmod.metanip.gui.ScreenOpener;
 import net.createmod.metanip.registry.RegisteredObjectsHelper;
-import net.createmod.ponder1710.Ponder;
 import net.createmod.ponder1710.enums.PonderKeybinds;
-import net.createmod.ponder1710.foundation.PonderIndex;
 import net.createmod.ponder1710.foundation.registration.PonderLocalization;
 import net.createmod.ponder1710.foundation.ui.PonderUI;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
@@ -33,7 +32,7 @@ public class PonderTooltipHandler {
     static final List<Consumer<ItemStack>> hoveredStackCallbacks = new ArrayList<>();
 
     public static final String HOLD_TO_PONDER = PonderLocalization.UI_PREFIX + "hold_to_ponder";
-    public static final String SUBJECT = PonderLocalization.UI_PREFIX + "subject";
+    public static final String SUBJECT        = PonderLocalization.UI_PREFIX + "subject";
 
     public static void tick() {
         deferTick = true;
@@ -45,76 +44,93 @@ public class PonderTooltipHandler {
 
         if (hoveredStack == null || trackingStack == null) {
             trackingStack = null;
-            holdKeyProgress.setValue(0);
+            holdKeyProgress.startWithValue(0);
             return;
         }
 
-        if (!subject && PonderKeybinds.PONDER.isDown() && mc.currentScreen != null) {
-            float progress = holdKeyProgress.getValue();
-            if (progress >= 1) {
-                mc.displayGuiScreen(PonderUI.of(trackingStack));
-                holdKeyProgress.setValue(0);
+        float value = holdKeyProgress.getValue();
+
+        if (!subject && PonderKeybinds.PONDER.isKeyDown() && mc.currentScreen != null) {
+            if (value >= 1) {
+                ScreenOpener.transitionTo(PonderUI.of(trackingStack));
+                holdKeyProgress.startWithValue(0);
                 return;
             }
-            holdKeyProgress.setValue(Math.min(1, progress + Math.max(.25f, progress) * .25f));
+            holdKeyProgress.setValue(Math.min(1, value + Math.max(.25f, value) * .25f));
         } else {
-            float progress = holdKeyProgress.getValue();
-            holdKeyProgress.setValue(Math.max(0, progress - .05f));
+            holdKeyProgress.setValue(Math.max(0, value - .05f));
         }
 
         hoveredStack = null;
     }
 
-    // Called from GuiContainerMixin when an item is hovered
-    public static void onHoveredItem(ItemStack stack) {
+    // Called from GuiContainerMixin / tooltip hook
+    public static void addToTooltip(List<String> tooltip, ItemStack stack) {
         if (!enable) return;
-        if (stack == null || stack.getItem() == null) {
-            hoveredStack = null;
-            return;
+
+        updateHovered(stack);
+
+        if (deferTick) deferredTick();
+
+        if (trackingStack != stack) return;
+
+        float renderPT = AnimationTickHolder.getPartialTicksUI();
+        float progress = Math.min(1, holdKeyProgress.getValue(renderPT) * 8 / 7f);
+
+        String line;
+        if (subject) {
+            line = EnumChatFormatting.GREEN + "Pondering...";
+        } else {
+            line = makeProgressBar(progress);
         }
 
-        hoveredStack = stack;
-
-        // Check if item has ponder scenes
-        ResourceLocation key = RegisteredObjectsHelper.getKeyOrThrow(stack.getItem());
-        if (!PonderIndex.getSceneAccess().doScenesExistForId(key)) {
-            hoveredStack = null;
-            return;
-        }
-
-        trackingStack = stack;
-        hoveredStackCallbacks.forEach(cb -> cb.accept(stack));
+        if (tooltip.size() < 2) tooltip.add(line);
+        else tooltip.add(1, line);
     }
 
-    // Called from ItemStack.getTooltip hook in 1.7.10
-    // Returns extra tooltip lines for the hovered item
-    public static List<String> addToTooltip(ItemStack stack) {
-        List<String> tooltip = new ArrayList<>();
-        if (!enable || stack == null) return tooltip;
+    protected static void updateHovered(ItemStack stack) {
+        Minecraft mc = Minecraft.getMinecraft();
+        boolean inPonderUI = mc.currentScreen instanceof PonderUI;
 
-        ResourceLocation key = RegisteredObjectsHelper.getKeyOrThrow(stack.getItem());
-        if (!PonderIndex.getSceneAccess().doScenesExistForId(key)) return tooltip;
-
+        ItemStack prevStack = trackingStack;
+        hoveredStack = null;
         subject = false;
-        float progress = holdKeyProgress.getValue();
 
-        if (progress > 0) {
-            // Show progress bar
-            int filled = (int)(progress * 20);
-            String bar = EnumChatFormatting.GREEN
-                + Strings.repeat("|", filled)
-                + EnumChatFormatting.DARK_GRAY
-                + Strings.repeat("|", 20 - filled);
-            tooltip.add(bar);
-        } else {
-            // Show hold hint
-            String key1 = PonderKeybinds.PONDER.getKeyDescription();
-            tooltip.add(EnumChatFormatting.GRAY + "Hold "
-                + EnumChatFormatting.AQUA + key1
-                + EnumChatFormatting.GRAY + " to Ponder");
+        if (inPonderUI) {
+            PonderUI ponderUI = (PonderUI) mc.currentScreen;
+            ItemStack uiSubject = ponderUI.getSubject();
+            if (uiSubject != null && uiSubject.getItem() == stack.getItem())
+                subject = true;
         }
 
-        return tooltip;
+        if (stack == null || stack.getItem() == null) return;
+
+        ResourceLocation key = RegisteredObjectsHelper.getKeyOrThrow(stack.getItem());
+        if (!PonderIndex.getSceneAccess().doScenesExistForId(key)) return;
+
+        if (prevStack == null || prevStack.getItem() != stack.getItem())
+            holdKeyProgress.startWithValue(0);
+
+        hoveredStack = stack;
+        trackingStack = stack;
+
+        for (Consumer<ItemStack> cb : hoveredStackCallbacks)
+            cb.accept(hoveredStack);
+    }
+
+    private static String makeProgressBar(float progress) {
+        String keyName = PonderKeybinds.PONDER.getKeyDescription();
+
+        if (progress > 0) {
+            int total = 20;
+            int current = (int)(progress * total);
+            return EnumChatFormatting.GRAY + Strings.repeat("|", current)
+                + EnumChatFormatting.DARK_GRAY + Strings.repeat("|", total - current);
+        }
+
+        return EnumChatFormatting.DARK_GRAY + "Hold "
+            + EnumChatFormatting.GRAY + "[" + keyName + "]"
+            + EnumChatFormatting.DARK_GRAY + " to Ponder";
     }
 
     public synchronized static void registerHoveredPonderStackCallback(Consumer<ItemStack> consumer) {

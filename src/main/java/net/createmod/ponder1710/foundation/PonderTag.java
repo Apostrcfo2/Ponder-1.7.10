@@ -55,7 +55,7 @@ public class PonderTag {
             tess.addVertexWithUV(0,  0,  0, 0, 0);
             tess.draw();
             GL11.glDisable(GL11.GL_BLEND);
-        } else if (itemIcon != null && !itemIcon.func_190926_b()) {
+        } else if (itemIcon != null && itemIcon.getItem() != null) {
             // Render item icon using GuiGameElement
             GuiGameElement.of(itemIcon)
                 .at(0, 0)
