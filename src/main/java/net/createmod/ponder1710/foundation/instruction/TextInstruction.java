@@ -17,9 +17,7 @@ public class TextInstruction extends FadeInOutInstruction {
 
     public TextInstruction(TextWindowElement element, int duration, Selection selection) {
         this(element, duration);
-        // TODO: OutlinerElement constructor - Outliner from catnip not available
-        // outline = new OutlinerElement(o -> selection.makeOutline(o).lineWidth(1 / 16f));
-        outline = new OutlinerElement();
+        outline = new OutlinerElement(o -> selection.makeOutline(o).lineWidth(1 / 16f));
     }
 
     @Override

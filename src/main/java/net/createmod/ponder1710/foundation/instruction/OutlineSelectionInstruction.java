@@ -20,7 +20,8 @@ public class OutlineSelectionInstruction extends TickingInstruction {
     @Override
     public void tick(PonderScene scene) {
         super.tick(scene);
-        // TODO: selection.makeOutline - Outliner from catnip not available in 1.7.10
-        // selection.makeOutline(scene.getOutliner(), slot).lineWidth(1/16f).colored(color.getColor());
+        selection.makeOutline(scene.getOutliner(), slot)
+            .lineWidth(1 / 16f)
+            .colored(color.getColor());
     }
 }

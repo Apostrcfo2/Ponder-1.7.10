@@ -3,7 +3,6 @@ package net.createmod.ponder1710.foundation.instruction;
 import net.createmod.ponder1710.api.PonderPalette;
 import net.createmod.ponder1710.foundation.PonderScene;
 
-// import net.minecraft.world.phys.Vec3; // net.minecraft.util.Vec3 in 1.7.10
 import net.minecraft.util.Vec3;
 
 public class LineInstruction extends TickingInstruction {
@@ -24,7 +23,9 @@ public class LineInstruction extends TickingInstruction {
     @Override
     public void tick(PonderScene scene) {
         super.tick(scene);
-        // TODO: scene.getOutliner() - Outliner from catnip not available in 1.7.10
-        // scene.getOutliner().showLine(start, start, end).lineWidth(big ? 1/8f : 1/16f).colored(color.getColor());
+        scene.getOutliner()
+            .showLine(start, start, end)
+            .lineWidth(big ? 1 / 8f : 1 / 16f)
+            .colored(color.getColor());
     }
 }
