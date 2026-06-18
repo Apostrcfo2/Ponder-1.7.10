@@ -3,11 +3,11 @@ package net.createmod.ponder1710.foundation.instruction;
 import net.createmod.ponder1710.api.PonderPalette;
 import net.createmod.ponder1710.foundation.PonderScene;
 
-// import net.minecraft.world.phys.AABB; // AxisAlignedBB in 1.7.10
-// import net.minecraft.world.phys.Vec3; // net.minecraft.util.Vec3 in 1.7.10
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 
+// AABB -> AxisAlignedBB in 1.7.10
+// Outliner available from metanip
 public class HighlightValueBoxInstruction extends TickingInstruction {
 
     private final Vec3 vec;
@@ -22,9 +22,13 @@ public class HighlightValueBoxInstruction extends TickingInstruction {
     @Override
     public void tick(PonderScene scene) {
         super.tick(scene);
-        // TODO: scene.getOutliner() - Outliner from catnip not available in 1.7.10
-        // AxisAlignedBB point = AxisAlignedBB.getBoundingBox(vec.xCoord, vec.yCoord, vec.zCoord, vec.xCoord, vec.yCoord, vec.zCoord);
-        // AxisAlignedBB expanded = point.expand(expands.xCoord, expands.yCoord, expands.zCoord);
-        // scene.getOutliner().chaseAABB(vec, ...).lineWidth(1 / 15f).colored(PonderPalette.WHITE.getColor());
+        AxisAlignedBB point = AxisAlignedBB.getBoundingBox(
+            vec.xCoord, vec.yCoord, vec.zCoord,
+            vec.xCoord, vec.yCoord, vec.zCoord);
+        AxisAlignedBB expanded = point.expand(expands.xCoord, expands.yCoord, expands.zCoord);
+        scene.getOutliner()
+            .chaseAABB(vec, remainingTicks + 1 >= totalTicks ? point : expanded)
+            .lineWidth(1 / 15f)
+            .colored(PonderPalette.WHITE.getColor());
     }
 }
