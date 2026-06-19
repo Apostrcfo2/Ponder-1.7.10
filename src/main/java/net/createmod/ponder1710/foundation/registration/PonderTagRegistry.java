@@ -15,8 +15,6 @@ import net.createmod.ponder1710.Ponder;
 import net.createmod.ponder1710.api.registration.TagRegistryAccess;
 import net.createmod.ponder1710.foundation.PonderTag;
 
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
-// import net.minecraft.world.item.Items; // different package in 1.7.10
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;

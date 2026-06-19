@@ -5,9 +5,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 
-// import net.minecraft.client.resources.language.I18n; // different in 1.7.10
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
-
+import net.createmod.metanip.data.Couple;
 import net.createmod.ponder1710.Ponder;
 import net.createmod.ponder1710.api.registration.LangRegistryAccess;
 import net.createmod.ponder1710.foundation.PonderIndex;
@@ -23,7 +21,7 @@ public class PonderLocalization implements LangRegistryAccess {
 
     public final Map<ResourceLocation, String> shared = new HashMap<>();
     
-    public final Map<ResourceLocation, String[]> tag = new HashMap<>();
+    public final Map<ResourceLocation, Couple<String>> tag = new HashMap<>();
     public final Map<ResourceLocation, Map<String, String>> specific = new HashMap<>();
 
     public void clearAll() {
@@ -41,7 +39,7 @@ public class PonderLocalization implements LangRegistryAccess {
     }
 
     public void registerTag(ResourceLocation key, String title, String description) {
-        tag.put(key, new String[]{title, description});
+        tag.put(key, Couple.create(title, description));
     }
 
     public void registerSpecific(ResourceLocation sceneId, String key, String enUS) {
@@ -82,14 +80,14 @@ public class PonderLocalization implements LangRegistryAccess {
     @Override
     public String getTagName(ResourceLocation key) {
         if (PonderIndex.editingModeActive())
-            return tag.containsKey(key) ? tag.get(key)[0] : ("unregistered tag entry: " + key);
+            return tag.containsKey(key) ? tag.get(key).getFirst() : ("unregistered tag entry: " + key);
         return StatCollector.translateToLocal(langKeyForTag(key));
     }
 
     @Override
     public String getTagDescription(ResourceLocation key) {
         if (PonderIndex.editingModeActive())
-            return tag.containsKey(key) ? tag.get(key)[1] : ("unregistered tag entry: " + key);
+            return tag.containsKey(key) ? tag.get(key).getSecond() : ("unregistered tag entry: " + key);
         return StatCollector.translateToLocal(langKeyForTagDescription(key));
     }
 
@@ -162,8 +160,8 @@ public class PonderLocalization implements LangRegistryAccess {
 
         tag.forEach((k, v) -> {
             if (k.getResourceDomain().equals(modId)) {
-                consumer.accept(langKeyForTag(k), v[0]);
-                consumer.accept(langKeyForTagDescription(k), v[1]);
+                consumer.accept(langKeyForTag(k), v.getFirst());
+                consumer.accept(langKeyForTagDescription(k), v.getSecond());
             }
         });
 

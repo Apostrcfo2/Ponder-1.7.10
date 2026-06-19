@@ -7,7 +7,6 @@ import net.createmod.ponder1710.api.registration.MultiTagBuilder;
 import net.createmod.ponder1710.api.registration.PonderTagRegistrationHelper;
 import net.createmod.ponder1710.api.registration.TagBuilder;
 import net.createmod.ponder1710.foundation.PonderTag;
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
 import net.minecraft.util.ResourceLocation;
 
 public class DefaultPonderTagRegistrationHelper implements PonderTagRegistrationHelper<ResourceLocation> {
