@@ -52,12 +52,24 @@ public class PonderUI extends AbstractPonderScreen {
     public static int ponderTicks;
     public static float ponderPartialTicksPaused;
 
-    public static final int BACKGROUND_TRANSPARENT = 0xdd000000;
-    public static final int BACKGROUND_FLAT        = 0xff000000;
-    public static final int BACKGROUND_IMPORTANT   = 0xdd0e0e20;
-    public static final int COLOR_IDLE             = 0x40ffeedd;
-    public static final int COLOR_HOVER            = 0x70ffffff;
-    public static final int COLOR_HIGHLIGHT        = 0xf0ffeedd;
+    public static final Color BACKGROUND_TRANSPARENT = new Color(0xdd000000, true);
+    public static final Color BACKGROUND_FLAT        = new Color(0xff000000, true);
+    public static final Color BACKGROUND_IMPORTANT   = new Color(0xdd0e0e20, true);
+    public static final net.createmod.metanip.data.Couple<Color> COLOR_IDLE = net.createmod.metanip.data.Couple.create(
+        new Color(0x40_ffeedd, true), new Color(0x20_ffeedd, true)
+    ).map(Color::setImmutable);
+    public static final net.createmod.metanip.data.Couple<Color> COLOR_HOVER = net.createmod.metanip.data.Couple.create(
+        new Color(0x70_ffffff, true), new Color(0x30_ffffff, true)
+    ).map(Color::setImmutable);
+    public static final net.createmod.metanip.data.Couple<Color> COLOR_HIGHLIGHT = net.createmod.metanip.data.Couple.create(
+        new Color(0xf0_ffeedd, true), new Color(0x60_ffeedd, true)
+    ).map(Color::setImmutable);
+    public static final net.createmod.metanip.data.Couple<Color> MISSING_VANILLA_ENTRY = net.createmod.metanip.data.Couple.create(
+        new Color(0x50_5000ff, true), new Color(0x50_28007f, true)
+    ).map(Color::setImmutable);
+    public static final net.createmod.metanip.data.Couple<Color> MISSING_MODDED_ENTRY = net.createmod.metanip.data.Couple.create(
+        new Color(0x70_984500, true), new Color(0x70_692400, true)
+    ).map(Color::setImmutable);
 
     private final List<PonderScene> scenes;
     private final List<PonderTag>   tags;
@@ -187,6 +199,12 @@ public class PonderUI extends AbstractPonderScreen {
         visiting.remove(node);
         visited.add(node);
         result.add(node);
+    }
+
+    @Override
+    protected void initBackTrackIcon(BoxWidget backTrack) {
+        if (stack != null && stack.getItem() != null)
+            backTrack.showing(stack);
     }
 
     @Override
@@ -447,7 +465,7 @@ public class PonderUI extends AbstractPonderScreen {
         if (identifyMode) {
             GL11.glPushMatrix();
             GL11.glTranslatef(mouseX, mouseY, 100);
-            if (hoveredTooltipItem == null || hoveredTooltipItem.func_190926_b()) {
+            if (hoveredTooltipItem == null || hoveredTooltipItem.getItem() == null) {
                 String text = Ponder.lang().translate(AbstractPonderScreen.IDENTIFY_MODE,
                     Minecraft.getMinecraft().gameSettings.keyDrop.getKeyDescription()).string();
                 drawHoveringText(java.util.Collections.singletonList(text), 0, 0);
@@ -583,9 +601,8 @@ public class PonderUI extends AbstractPonderScreen {
         UIRenderHelper.streak(0, 0, streakH/2, streakH, (int)(streakW*fade));
         UIRenderHelper.streak(180, 0, streakH/2, streakH, (int)(30*fade));
 
-        new BoxElement().withBackground(new Color(BACKGROUND_FLAT, true))
-            .gradientBorder(net.createmod.metanip.data.Couple.create(
-                new Color(COLOR_IDLE, true), new Color(COLOR_IDLE, true)))
+        new BoxElement().withBackground(BACKGROUND_FLAT)
+            .gradientBorder(COLOR_IDLE)
             .at(-34, 2, 100).withBounds(30, 30).render();
 
         if (stack != null)
@@ -638,7 +655,7 @@ public class PonderUI extends AbstractPonderScreen {
                 c = borderColors.getSecond(); break;
         }
 
-        new BoxElement().withBackground(new Color(BACKGROUND_FLAT, true))
+        new BoxElement().withBackground(BACKGROUND_FLAT)
             .gradientBorder(borderColors)
             .at(boxX, boxY, 100).withBounds(w, h).render();
 
@@ -685,6 +702,12 @@ public class PonderUI extends AbstractPonderScreen {
             return (pt + (ui.extendedTickLength - ui.extendedTickTimer)) / (ui.extendedTickLength + 1);
         }
         return pt;
+    }
+
+    @Override
+    protected String getBreadcrumbTitle() {
+        if (chapter != null) return chapter.getTitle();
+        return stack != null ? stack.getDisplayName() : "";
     }
 
     public ItemStack getSubject()       { return stack; }

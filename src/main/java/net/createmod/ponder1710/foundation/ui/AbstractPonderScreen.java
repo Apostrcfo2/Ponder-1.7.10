@@ -3,16 +3,8 @@ package net.createmod.ponder1710.foundation.ui;
 import static net.createmod.ponder1710.foundation.registration.PonderLocalization.UI_PREFIX;
 
 import net.createmod.metanip.gui.NavigatableSimiScreen;
-import net.createmod.metanip.gui.ScreenOpener;
-import net.createmod.metanip.theme.Color;
 
 public abstract class AbstractPonderScreen extends NavigatableSimiScreen {
-
-    protected static final net.createmod.metanip.data.Couple<Color> COLOR_NAV_ARROW =
-        net.createmod.metanip.data.Couple.create(
-            new Color(0x80ffeedd, true),
-            new Color(0x40ffeedd, true)
-        );
 
     public static final String INDEX_TITLE = UI_PREFIX + "index_title";
     public static final String WELCOME = UI_PREFIX + "welcome";
@@ -34,16 +26,7 @@ public abstract class AbstractPonderScreen extends NavigatableSimiScreen {
     public static final String EXIT = UI_PREFIX + "exit";
     public static final String ASSOCIATED = UI_PREFIX + "associated";
 
-    @Override
-    public void initGui() {
-        super.initGui();
-    }
-
-    protected void centerScalingOn(int x, int y) {
-        // Called before screen transitions for scaling animation center
-    }
-
-    protected String getBreadcrumbTitle() { return ""; }
-
-    protected void initBackTrackIcon(net.createmod.metanip.gui.widget.BoxWidget backTrack) {}
+    // initBackTrackIcon stays abstract here - implemented by concrete screens (e.g. PonderUI)
+    // centerScalingOn and getBreadcrumbTitle already have working implementations in
+    // NavigatableSimiScreen - no need to override with empty bodies
 }
