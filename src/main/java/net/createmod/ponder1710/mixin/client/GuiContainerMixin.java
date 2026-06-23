@@ -12,19 +12,17 @@ import net.minecraft.item.ItemStack;
 @Mixin(GuiContainer.class)
 public class GuiContainerMixin {
 
-    // Hook tooltip rendering to inject Ponder hint
-    @Inject(
-        method = "drawScreen",
-        at = @At("TAIL")
-    )
+    // Track hovered item each frame so PonderTooltipHandler can update
+    @Inject(method = "drawScreen", at = @At("TAIL"))
     private void ponder$onDrawScreen(int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         GuiContainer self = (GuiContainer)(Object)this;
-        ItemStack hovered = self.mc.thePlayer.inventory.getItemStack();
-        if (hovered == null && self.inventorySlots != null) {
-            net.minecraft.inventory.Slot slot = self.getSlotUnderMouse();
-            if (slot != null && slot.getHasStack())
-                hovered = slot.getStack();
-        }
-        PonderTooltipHandler.onHoveredItem(hovered);
+
+        ItemStack hovered = null;
+        net.minecraft.inventory.Slot slot = self.getSlotUnderMouse();
+        if (slot != null && slot.getHasStack())
+            hovered = slot.getStack();
+
+        if (hovered != null)
+            PonderTooltipHandler.updateHovered(hovered);
     }
 }

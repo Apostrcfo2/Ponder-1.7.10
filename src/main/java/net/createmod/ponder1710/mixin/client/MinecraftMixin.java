@@ -5,7 +5,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.createmod.metanip.animation.AnimationTickHolder;
 import net.createmod.metanip.outliner.Outliner;
 import net.createmod.ponder1710.PonderClient;
 import net.createmod.ponder1710.foundation.PonderTooltipHandler;
@@ -17,8 +16,7 @@ public class MinecraftMixin {
     // Hook game tick for AnimationTickHolder and Ponder
     @Inject(method = "runTick", at = @At("HEAD"))
     private void ponder$onTick(CallbackInfo ci) {
-        AnimationTickHolder.tick();
-        PonderClient.onTick();
+        PonderClient.onTick(); // includes AnimationTickHolder.tick()
         PonderTooltipHandler.tick();
     }
 
