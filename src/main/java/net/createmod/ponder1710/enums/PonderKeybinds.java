@@ -1,11 +1,5 @@
 package net.createmod.ponder1710.enums;
 
-// import org.lwjgl.glfw.GLFW; // GLFW not available in 1.7.10 - uses LWJGL 2
-// import net.createmod.metanip.client.ConflictSafeKeyMapping; // TODO: catnip not available
-// import net.createmod.metanip.platform.CatnipClientServices; // TODO: catnip not available
-// import net.minecraft.client.KeyMapping; // KeyBinding in 1.7.10
-// import net.minecraft.network.chat.Component; // not available in 1.7.10
-
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.settings.KeyBinding;
@@ -20,18 +14,32 @@ public enum PonderKeybinds {
     private final KeyBinding mapping;
 
     PonderKeybinds(String description, int defaultKey) {
-        // KeyBinding in 1.7.10
         this.mapping = new KeyBinding("key.ponder." + description, defaultKey, CATEGORY);
     }
 
     public static void register() {
-        for (PonderKeybinds key : values()) {
+        for (PonderKeybinds key : values())
             ClientRegistry.registerKeyBinding(key.mapping);
-        }
     }
 
+    // Primary check - is the key currently held down
     public boolean isDown() {
         return mapping.getIsKeyPressed();
+    }
+
+    // Alias used by some components
+    public boolean isKeyDown() {
+        return isDown();
+    }
+
+    // Human-readable key name for tooltips
+    public String getKeyDescription() {
+        return KeyBinding.getKeyDisplayString(mapping.getKeyCode());
+    }
+
+    // Component equivalent for text display
+    public String message() {
+        return getKeyDescription();
     }
 
     public KeyBinding getMapping() {

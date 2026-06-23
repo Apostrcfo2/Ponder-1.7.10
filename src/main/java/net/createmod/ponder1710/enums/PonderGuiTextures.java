@@ -2,7 +2,6 @@ package net.createmod.ponder1710.enums;
 
 
 import net.createmod.metanip.theme.Color;
-import net.createmod.metanip.theme.Color;
 import net.createmod.ponder1710.Ponder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
