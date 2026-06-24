@@ -297,3 +297,4 @@ public class VecHelper {
     public static Vec3 axisAlingedPlaneOf(ForgeDirection face) {
         return axisAlingedPlaneOf(Vec3.createVectorHelper(face.offsetX, face.offsetY, face.offsetZ));
     }
+}
