@@ -168,7 +168,6 @@ public class VecHelper {
 
 
 
-}
 
     // Previously TODO - now implemented for 1.7.10
 
