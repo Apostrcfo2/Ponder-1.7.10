@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 
+import net.createmod.metanip.math.Pointing;
 import net.createmod.ponder1710.Ponder;
 import net.createmod.ponder1710.api.ParticleEmitter;
 import net.createmod.ponder1710.api.PonderPalette;

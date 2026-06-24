@@ -5,6 +5,9 @@ dependencies {
     // UniMixins - same version as ReCreate
     implementation("io.github.legacymoddingmc:unimixins:0.2.1:dev")
 
+    // FastUtil - IntList etc
+    implementation("it.unimi.dsi:fastutil:8.5.6")
+
     // JOML - Matrix math
     implementation("org.joml:joml:1.10.8")
 
