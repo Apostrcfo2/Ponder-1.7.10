@@ -16,6 +16,3 @@ dependencies {
     compileOnly "org.jetbrains:annotations:24.0.1"
 }
 
-configurations {
-    api.extendsFrom implementation
-}
