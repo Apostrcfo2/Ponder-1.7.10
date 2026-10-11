@@ -1,0 +1,22 @@
+ponder1710.ui.hold_to_ponder=Tryck [%s] för att visualisera
+ponder1710.ui.subject=Scenämne
+ponder1710.ui.pondering=Visualiserar...
+ponder1710.ui.pondering_tag=Visualiserar...
+ponder1710.ui.identify_mode=Identifieringsläge aktivt.
+Återuppta med [%s]
+ponder1710.ui.associated=Tillhörande artiklar
+ponder1710.ui.close=Stäng
+ponder1710.ui.identify=Identifiera
+ponder1710.ui.next=Nästa scen
+ponder1710.ui.next_up=Nästa:
+ponder1710.ui.previous=Föregående scen
+ponder1710.ui.replay=Spela om
+ponder1710.ui.think_back=Tänk tillbaka
+ponder1710.ui.slow_text=Bekväm läsning
+ponder1710.ui.exit=Lämna
+ponder1710.ui.welcome=Välkommen till visualisering
+ponder1710.ui.categories=Tillgängliga kategorier inom %s
+ponder1710.ui.index_description=Klicka på en av ikonerna för att lära dig mer om tillhörande föremål och block
+ponder1710.ui.index_title=Visualiseringsindex
+ponder1710.ponder.shared.sneak_and=Smyg +
+ponder1710.ponder.shared.ctrl_and=Ctrl +

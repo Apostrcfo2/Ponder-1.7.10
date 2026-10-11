@@ -1,9 +1,6 @@
 package net.createmod.ponder1710.api.element;
 
 import net.createmod.ponder1710.api.PonderPalette;
-
-// import net.minecraft.resources.ResourceLocation; // 1.7.10 uses different package
-// import net.minecraft.world.phys.Vec3; // 1.7.10 uses net.minecraft.util.Vec3
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 

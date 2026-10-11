@@ -6,7 +6,6 @@ import java.util.function.Function;
 import net.createmod.ponder1710.api.registration.MultiTagBuilder;
 import net.createmod.ponder1710.api.registration.PonderTagRegistrationHelper;
 import net.createmod.ponder1710.api.registration.TagBuilder;
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
 import net.minecraft.util.ResourceLocation;
 
 public class GenericPonderTagRegistrationHelper<T> implements PonderTagRegistrationHelper<T> {
@@ -42,21 +41,21 @@ public class GenericPonderTagRegistrationHelper<T> implements PonderTagRegistrat
 
 	@Override
 	public MultiTagBuilder.Tag<T> addToTag(ResourceLocation tag) {
-		return new GenericMultiTagBuilder<T>().new Tag(this, List.of(tag));
+		return new GenericMultiTagBuilder<T>().new Tag(this, java.util.Arrays.asList(tag));
 	}
 
 	@Override
 	public MultiTagBuilder.Tag<T> addToTag(ResourceLocation... tags) {
-		return new GenericMultiTagBuilder<T>().new Tag(this, List.of(tags));
+		return new GenericMultiTagBuilder<T>().new Tag(this, java.util.Arrays.asList(tags));
 	}
 
 	@Override
 	public MultiTagBuilder.Component addToComponent(T component) {
-		return new GenericMultiTagBuilder<T>().new Component(this, List.of(component));
+		return new GenericMultiTagBuilder<T>().new Component(this, java.util.Arrays.asList(component));
 	}
 
 	@Override
 	public MultiTagBuilder.Component addToComponent(T... components) {
-		return new GenericMultiTagBuilder<T>().new Component(this, List.of(components));
+		return new GenericMultiTagBuilder<T>().new Component(this, java.util.Arrays.asList(components));
 	}
 }

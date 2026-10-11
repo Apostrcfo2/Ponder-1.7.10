@@ -6,10 +6,6 @@ import java.util.stream.Stream;
 import net.createmod.ponder1710.api.registration.IndexExclusionHelper;
 import net.createmod.ponder1710.api.registration.PonderPlugin;
 
-// import net.minecraft.world.item.BlockItem; // ItemBlock in 1.7.10
-// import net.minecraft.world.item.Item; // different package in 1.7.10
-// import net.minecraft.world.level.ItemLike; // not available in 1.7.10
-// import net.minecraft.world.level.block.Block; // different package in 1.7.10
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;

@@ -1,6 +1,5 @@
 package net.createmod.ponder1710.api.element;
 
-// import net.minecraft.world.phys.Vec3; // 1.7.10 uses net.minecraft.util.Vec3
 import net.minecraft.util.Vec3;
 
 public interface ParrotElement extends AnimatedSceneElement {

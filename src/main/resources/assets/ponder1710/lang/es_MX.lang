@@ -1,0 +1,22 @@
+ponder1710.ui.hold_to_ponder=Mantén [%s] para considerar
+ponder1710.ui.subject=Tema de esta escena
+ponder1710.ui.pondering=Considerando sobre...
+ponder1710.ui.pondering_tag=Considerando sobre...
+ponder1710.ui.identify_mode=Identificando modo activo.
+Reanuda con [%s]
+ponder1710.ui.associated=Entradas asociadas
+ponder1710.ui.close=Cerrar
+ponder1710.ui.identify=Identificar
+ponder1710.ui.next=Escena siguiente
+ponder1710.ui.next_up=Siguiente:
+ponder1710.ui.previous=Escena previa
+ponder1710.ui.replay=Repetición
+ponder1710.ui.think_back=Volver atrás
+ponder1710.ui.slow_text=Lectura cómoda
+ponder1710.ui.exit=Salir
+ponder1710.ui.welcome=Bienvenido al instructivo de Create
+ponder1710.ui.categories=Categorías disponibles
+ponder1710.ui.index_description=Haga clic en uno de los iconos para conocer sus objetos y bloques asociados
+ponder1710.ui.index_title=Índice
+ponder1710.ponder.shared.sneak_and=Mayús izdo. +
+ponder1710.ponder.shared.ctrl_and=Ctrl +

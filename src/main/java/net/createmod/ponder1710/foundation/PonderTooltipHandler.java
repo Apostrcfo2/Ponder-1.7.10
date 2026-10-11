@@ -6,35 +6,23 @@ import java.util.function.Consumer;
 
 import com.google.common.base.Strings;
 
-// import com.mojang.blaze3d.systems.RenderSystem; // not available in 1.7.10
-// import net.createmod.catnip.animation.AnimationTickHolder; // TODO: catnip not available
-// import net.createmod.catnip.animation.LerpedFloat; // TODO: catnip not available
-// import net.createmod.catnip.data.Couple; // TODO: catnip not available
-// import net.createmod.catnip.gui.NavigatableSimiScreen; // TODO: catnip not available
-// import net.createmod.catnip.gui.ScreenOpener; // TODO: catnip not available
-// import net.createmod.catnip.registry.RegisteredObjectsHelper; // TODO: catnip not available
-// import net.createmod.catnip.theme.Color; // TODO: catnip not available
-// import net.minecraft.ChatFormatting; // different in 1.7.10
-// import net.minecraft.client.gui.Font; // FontRenderer in 1.7.10
-// import net.minecraft.client.gui.screens.Screen; // GuiScreen in 1.7.10
-// import net.minecraft.network.chat.Component; // not available in 1.7.10
-// import net.minecraft.network.chat.MutableComponent; // not available in 1.7.10
-// import net.minecraft.world.item.ItemStack; // different package in 1.7.10
-
-import net.createmod.ponder1710.Ponder;
-import net.createmod.ponder1710.enums.PonderKeybinds;
+import net.createmod.metanip.animation.AnimationTickHolder;
+import net.createmod.metanip.animation.LerpedFloat;
+import net.createmod.metanip.gui.ScreenOpener;
+import net.createmod.metanip.registry.RegisteredObjectsHelper;
 import net.createmod.ponder1710.foundation.registration.PonderLocalization;
 import net.createmod.ponder1710.foundation.ui.PonderUI;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
 
 public class PonderTooltipHandler {
 
     public static boolean enable = true;
 
-    // TODO: LerpedFloat from catnip not available - replaced with simple float
-    static float holdKeyProgress = 0;
+    static LerpedFloat holdKeyProgress = LerpedFloat.linear().startWithValue(0);
     static ItemStack hoveredStack = null;
     static ItemStack trackingStack = null;
     static boolean subject = false;
@@ -43,7 +31,7 @@ public class PonderTooltipHandler {
     static final List<Consumer<ItemStack>> hoveredStackCallbacks = new ArrayList<>();
 
     public static final String HOLD_TO_PONDER = PonderLocalization.UI_PREFIX + "hold_to_ponder";
-    public static final String SUBJECT = PonderLocalization.UI_PREFIX + "subject";
+    public static final String SUBJECT        = PonderLocalization.UI_PREFIX + "subject";
 
     public static void tick() {
         deferTick = true;
@@ -55,26 +43,97 @@ public class PonderTooltipHandler {
 
         if (hoveredStack == null || trackingStack == null) {
             trackingStack = null;
-            holdKeyProgress = 0;
+            holdKeyProgress.startWithValue(0);
             return;
         }
 
-        if (!subject && PonderKeybinds.PONDER.isDown() && mc.currentScreen != null) {
-            if (holdKeyProgress >= 1) {
-                mc.displayGuiScreen(PonderUI.of(trackingStack));
-                holdKeyProgress = 0;
+        float value = holdKeyProgress.getValue();
+
+        if (!subject && org.lwjgl.input.Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && mc.currentScreen != null) {
+            if (value >= 1) {
+                ScreenOpener.transitionTo(PonderUI.of(trackingStack));
+                holdKeyProgress.startWithValue(0);
                 return;
             }
-            holdKeyProgress = Math.min(1, holdKeyProgress + Math.max(.25f, holdKeyProgress) * .25f);
+            holdKeyProgress.setValue(Math.min(1, value + Math.max(.25f, value) * .25f));
         } else {
-            holdKeyProgress = Math.max(0, holdKeyProgress - .05f);
+            holdKeyProgress.setValue(Math.max(0, value - .05f));
         }
 
         hoveredStack = null;
     }
 
-    // TODO: addToTooltip - tooltip system different in 1.7.10
-    // In 1.7.10, tooltips are added via getItemStackDisplayName and getItemInformation
+    // Called from GuiContainerMixin / tooltip hook
+    public static void addToTooltip(List<String> tooltip, ItemStack stack) {
+        if (!enable) return;
+
+        updateHovered(stack);
+
+        if (deferTick) deferredTick();
+
+        if (trackingStack != stack) return;
+
+        float renderPT = AnimationTickHolder.getPartialTicksUI();
+        float progress = Math.min(1, holdKeyProgress.getValue(renderPT) * 8 / 7f);
+
+        String line;
+        if (subject) {
+            line = EnumChatFormatting.GREEN + "Pondering...";
+        } else {
+            line = makeProgressBar(progress);
+        }
+
+        if (tooltip.size() < 2) tooltip.add(line);
+        else tooltip.add(1, line);
+    }
+
+    public static void setHovered(ItemStack stack) { updateHovered(stack); }
+
+    protected static void updateHovered(ItemStack stack) {
+        Minecraft mc = Minecraft.getMinecraft();
+        boolean inPonderUI = mc.currentScreen instanceof PonderUI;
+
+        ItemStack prevStack = trackingStack;
+        hoveredStack = null;
+        subject = false;
+
+        if (inPonderUI) {
+            PonderUI ponderUI = (PonderUI) mc.currentScreen;
+            ItemStack uiSubject = ponderUI.getSubject();
+            if (uiSubject != null && uiSubject.getItem() == stack.getItem())
+                subject = true;
+        }
+
+        if (stack == null || stack.getItem() == null) return;
+
+        ResourceLocation key = RegisteredObjectsHelper.getKeyOrThrow(stack.getItem());
+        if (!PonderIndex.getSceneAccess().doScenesExistForId(key)) return;
+
+        if (prevStack == null || prevStack.getItem() != stack.getItem())
+            holdKeyProgress.startWithValue(0);
+
+        hoveredStack = stack;
+        trackingStack = stack;
+
+        for (Consumer<ItemStack> cb : hoveredStackCallbacks)
+            cb.accept(hoveredStack);
+    }
+
+    private static String makeProgressBar(float progress) {
+        String keyName = org.lwjgl.input.Keyboard.getKeyName(net.minecraft.client.Minecraft.getMinecraft().gameSettings.keyBindForward.getKeyCode());
+
+        if (progress > 0) {
+            int total = 20;
+            int current = (int)(progress * total);
+            return EnumChatFormatting.GRAY + Strings.repeat("|", current)
+                + EnumChatFormatting.DARK_GRAY + Strings.repeat("|", total - current);
+        }
+
+        String translated = net.minecraft.util.StatCollector.translateToLocalFormatted(
+            HOLD_TO_PONDER, EnumChatFormatting.GRAY + "[" + keyName + "]" + EnumChatFormatting.DARK_GRAY
+        );
+        return EnumChatFormatting.DARK_GRAY + translated;
+    }
 
     public synchronized static void registerHoveredPonderStackCallback(Consumer<ItemStack> consumer) {
         hoveredStackCallbacks.add(consumer);

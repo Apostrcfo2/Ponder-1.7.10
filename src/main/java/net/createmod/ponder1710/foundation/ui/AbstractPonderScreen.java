@@ -2,13 +2,9 @@ package net.createmod.ponder1710.foundation.ui;
 
 import static net.createmod.ponder1710.foundation.registration.PonderLocalization.UI_PREFIX;
 
-// import net.createmod.catnip.gui.NavigatableSimiScreen; // TODO: catnip not available
-// import net.createmod.catnip.gui.ScreenOpener; // TODO: catnip not available
-// import net.minecraft.network.chat.Component; // not available in 1.7.10
+import net.createmod.metanip.gui.NavigatableSimiScreen;
 
-import net.minecraft.client.gui.GuiScreen;
-
-public abstract class AbstractPonderScreen extends GuiScreen {
+public abstract class AbstractPonderScreen extends NavigatableSimiScreen {
 
     public static final String INDEX_TITLE = UI_PREFIX + "index_title";
     public static final String WELCOME = UI_PREFIX + "welcome";
@@ -30,9 +26,7 @@ public abstract class AbstractPonderScreen extends GuiScreen {
     public static final String EXIT = UI_PREFIX + "exit";
     public static final String ASSOCIATED = UI_PREFIX + "associated";
 
-    @Override
-    public void initGui() {
-        super.initGui();
-        // TODO: backTrack button from NavigatableSimiScreen not available in 1.7.10
-    }
+    // initBackTrackIcon stays abstract here - implemented by concrete screens (e.g. PonderUI)
+    // centerScalingOn and getBreadcrumbTitle already have working implementations in
+    // NavigatableSimiScreen - no need to override with empty bodies
 }

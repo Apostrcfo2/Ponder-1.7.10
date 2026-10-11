@@ -1,0 +1,19 @@
+ponder1710.ui.hold_to_ponder=kama sona la o awen luka e [%s]
+ponder1710.ui.pondering=sina kama sona e ni:
+ponder1710.ui.pondering_tag=sina kama sona e ni:
+ponder1710.ui.identify_mode=nasin sona li lon.
+o open kepeken [%s]
+ponder1710.ui.associated=toki poka
+ponder1710.ui.close=pini
+ponder1710.ui.identify=sona
+ponder1710.ui.next=toki kama
+ponder1710.ui.next_up=ni li kama:
+ponder1710.ui.previous=lipu pini
+ponder1710.ui.replay=tawa open
+ponder1710.ui.think_back=sona pini
+ponder1710.ui.slow_text=lipu pi tawa lili
+ponder1710.ui.exit=weka
+ponder1710.ui.welcome=kama pona tawa lipu sona
+ponder1710.ui.index_title=lipu pi sona ilo
+ponder1710.ponder.shared.sneak_and=tawa anpa en
+ponder1710.ponder.shared.ctrl_and=nena [ctrl] +

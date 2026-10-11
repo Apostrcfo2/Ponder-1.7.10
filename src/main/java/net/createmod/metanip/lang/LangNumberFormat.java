@@ -4,7 +4,6 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 import net.createmod.metanip.platform.CatnipClientServices;
-import net.minecraft.util.Mth;
 
 public class LangNumberFormat {
 
@@ -23,7 +22,7 @@ public class LangNumberFormat {
 	}
 
 	public static String format(double d) {
-		if (Mth.equal(d, 0))
+		if (Math.abs(d) < 1e-10)
 			d = 0;
 		return numberFormat.get()
 			.format(d)

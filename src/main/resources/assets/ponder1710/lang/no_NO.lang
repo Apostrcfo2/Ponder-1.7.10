@@ -1,0 +1,23 @@
+ponder1710.ui.hold_to_ponder=Hold [%s] for å undre
+ponder1710.ui.subject=Emnet for denne scenen
+ponder1710.ui.pondering=Undrer om...
+ponder1710.ui.pondering_tag=Undrer om...
+ponder1710.ui.identify_mode=Identifiseringsmodus aktiv.
+Fortsett avspilling med [%s]
+ponder1710.ui.associated=Tilknyttede emner
+ponder1710.ui.close=Lukk
+ponder1710.ui.identify=Identifiser
+ponder1710.ui.next=Neste scene
+ponder1710.ui.next_up=Neste:
+ponder1710.ui.previous=Forrige scene
+ponder1710.ui.replay=Spill på nytt
+ponder1710.ui.think_back=Tenk tilbake
+ponder1710.ui.slow_text=Komfortabel lesing
+ponder1710.ui.exit=Avslutt
+ponder1710.ui.welcome=Velkommen til Undring
+ponder1710.ui.categories=Tilgjengelige kategorier i %s
+ponder1710.ui.index_description=Trykk på en av ikonene for å lære mer om gjenstandene og blokkene i kategorien
+ponder1710.ui.index_title=Undringsindeks
+ponder1710.ponder.shared.sneak_and=Snik +
+ponder1710.ponder.shared.ctrl_and=Ctrl +
+key.ponder.ponder=Undre

@@ -1,20 +1,22 @@
 package net.createmod.metanip.math;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
+// import net.minecraft.core.BlockPos; // 1.7.10 uses x,y,z
+// import net.minecraft.world.level.levelgen.structure.BoundingBox; // not available in 1.7.10
+// Using int[] {minX, minY, minZ, maxX, maxY, maxZ} as BoundingBox replacement
 
 public class BBHelper {
 
-	public static BoundingBox encapsulate(BoundingBox bb, BlockPos pos) {
-		return new BoundingBox(Math.min(bb.minX(), pos.getX()), Math.min(bb.minY(), pos.getY()),
-			Math.min(bb.minZ(), pos.getZ()), Math.max(bb.maxX(), pos.getX()), Math.max(bb.maxY(), pos.getY()),
-			Math.max(bb.maxZ(), pos.getZ()));
-	}
+    public static int[] encapsulate(int[] bb, int x, int y, int z) {
+        return new int[]{
+            Math.min(bb[0], x), Math.min(bb[1], y), Math.min(bb[2], z),
+            Math.max(bb[3], x), Math.max(bb[4], y), Math.max(bb[5], z)
+        };
+    }
 
-	public static BoundingBox encapsulate(BoundingBox bb, BoundingBox bb2) {
-		return new BoundingBox(Math.min(bb.minX(), bb2.minX()), Math.min(bb.minY(), bb2.minY()),
-			Math.min(bb.minZ(), bb2.minZ()), Math.max(bb.maxX(), bb2.maxX()), Math.max(bb.maxY(), bb2.maxY()),
-			Math.max(bb.maxZ(), bb2.maxZ()));
-	}
-
+    public static int[] encapsulate(int[] bb, int[] bb2) {
+        return new int[]{
+            Math.min(bb[0], bb2[0]), Math.min(bb[1], bb2[1]), Math.min(bb[2], bb2[2]),
+            Math.max(bb[3], bb2[3]), Math.max(bb[4], bb2[4]), Math.max(bb[5], bb2[5])
+        };
+    }
 }

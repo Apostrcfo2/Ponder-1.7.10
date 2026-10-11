@@ -1,0 +1,20 @@
+ponder1710.ui.hold_to_ponder=>Mantén [%s] para reflexionar
+ponder1710.ui.subject=Sujeto de esta escena
+ponder1710.ui.pondering=Reflexionando sobre...
+ponder1710.ui.pondering_tag=Reflexionando sobre...
+ponder1710.ui.identify_mode=Modo de identificación activado.
+Despausa con [%s]
+ponder1710.ui.associated=Entradas asociadas
+ponder1710.ui.close=Cerrar
+ponder1710.ui.identify=Identificar
+ponder1710.ui.next=Siguiente Escena
+ponder1710.ui.previous=Escena Previa
+ponder1710.ui.replay=Reiniciar
+ponder1710.ui.think_back=Pensar Atrás
+ponder1710.ui.slow_text=Lectura Cómoda
+ponder1710.ui.exit=Salir
+ponder1710.ui.welcome=Bienvenido a Reflexionar
+ponder1710.ui.categories=Categorías Disponibles en %s
+ponder1710.ui.index_description=Haz clic en uno de los iconos para conocer sus elementos y bloques asociados
+ponder1710.ui.index_title=Índice de Reflexión
+ponder1710.ponder.shared.sneak_and=Agáchate +

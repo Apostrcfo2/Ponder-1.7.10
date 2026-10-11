@@ -5,24 +5,23 @@ import java.util.function.Function;
 
 import net.createmod.ponder1710.api.element.ElementLink;
 import net.createmod.ponder1710.api.element.ParrotElement;
-// import net.minecraft.world.phys.Vec3; // 1.7.10 uses different package
+
 import net.minecraft.util.Vec3;
 
 public class AnimateParrotInstruction extends AnimateElementInstruction<ParrotElement> {
 
-	public static AnimateParrotInstruction rotate(ElementLink<ParrotElement> link, Vec3 rotation, int ticks) {
-		return new AnimateParrotInstruction(link, rotation, ticks, (wse, v) -> wse.setRotation(v, ticks == 0),
-			ParrotElement::getRotation);
-	}
+    public static AnimateParrotInstruction rotate(ElementLink<ParrotElement> link, Vec3 rotation, int ticks) {
+        return new AnimateParrotInstruction(link, rotation, ticks,
+            (wse, v) -> wse.setRotation(v, ticks == 0), ParrotElement::getRotation);
+    }
 
-	public static AnimateParrotInstruction move(ElementLink<ParrotElement> link, Vec3 offset, int ticks) {
-		return new AnimateParrotInstruction(link, offset, ticks, (wse, v) -> wse.setPositionOffset(v, ticks == 0),
-			ParrotElement::getPositionOffset);
-	}
+    public static AnimateParrotInstruction move(ElementLink<ParrotElement> link, Vec3 offset, int ticks) {
+        return new AnimateParrotInstruction(link, offset, ticks,
+            (wse, v) -> wse.setPositionOffset(v, ticks == 0), ParrotElement::getPositionOffset);
+    }
 
-	protected AnimateParrotInstruction(ElementLink<ParrotElement> link, Vec3 totalDelta, int ticks,
-									   BiConsumer<ParrotElement, Vec3> setter, Function<ParrotElement, Vec3> getter) {
-		super(link, totalDelta, ticks, setter, getter);
-	}
-
+    protected AnimateParrotInstruction(ElementLink<ParrotElement> link, Vec3 totalDelta, int ticks,
+        BiConsumer<ParrotElement, Vec3> setter, Function<ParrotElement, Vec3> getter) {
+        super(link, totalDelta, ticks, setter, getter);
+    }
 }

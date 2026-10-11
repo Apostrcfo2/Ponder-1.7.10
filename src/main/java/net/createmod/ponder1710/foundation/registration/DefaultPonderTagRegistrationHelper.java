@@ -7,7 +7,6 @@ import net.createmod.ponder1710.api.registration.MultiTagBuilder;
 import net.createmod.ponder1710.api.registration.PonderTagRegistrationHelper;
 import net.createmod.ponder1710.api.registration.TagBuilder;
 import net.createmod.ponder1710.foundation.PonderTag;
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
 import net.minecraft.util.ResourceLocation;
 
 public class DefaultPonderTagRegistrationHelper implements PonderTagRegistrationHelper<ResourceLocation> {
@@ -54,21 +53,21 @@ public class DefaultPonderTagRegistrationHelper implements PonderTagRegistration
 
 	@Override
 	public MultiTagBuilder.Tag<ResourceLocation> addToTag(ResourceLocation tag) {
-		return new GenericMultiTagBuilder<ResourceLocation>().new Tag(this, List.of(tag));
+		return new GenericMultiTagBuilder<ResourceLocation>().new Tag(this, java.util.Arrays.asList(tag));
 	}
 
 	@Override
 	public MultiTagBuilder.Tag<ResourceLocation> addToTag(ResourceLocation... tags) {
-		return new GenericMultiTagBuilder<ResourceLocation>().new Tag(this, List.of(tags));
+		return new GenericMultiTagBuilder<ResourceLocation>().new Tag(this, java.util.Arrays.asList(tags));
 	}
 
 	@Override
 	public MultiTagBuilder.Component addToComponent(ResourceLocation component) {
-		return new GenericMultiTagBuilder<ResourceLocation>().new Component(this, List.of(component));
+		return new GenericMultiTagBuilder<ResourceLocation>().new Component(this, java.util.Arrays.asList(component));
 	}
 
 	@Override
 	public MultiTagBuilder.Component addToComponent(ResourceLocation... components) {
-		return new GenericMultiTagBuilder<ResourceLocation>().new Component(this, List.of(components));
+		return new GenericMultiTagBuilder<ResourceLocation>().new Component(this, java.util.Arrays.asList(components));
 	}
 }

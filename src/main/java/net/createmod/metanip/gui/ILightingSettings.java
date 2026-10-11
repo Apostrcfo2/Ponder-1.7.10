@@ -1,12 +1,10 @@
 package net.createmod.metanip.gui;
 
-import com.mojang.blaze3d.platform.Lighting;
+import net.minecraft.client.renderer.RenderHelper;
 
 public interface ILightingSettings {
+    void applyLighting();
 
-	void applyLighting();
-
-	ILightingSettings DEFAULT_3D = Lighting::setupFor3DItems;
-	ILightingSettings DEFAULT_FLAT = Lighting::setupForFlatItems;
-
+    ILightingSettings DEFAULT_3D   = RenderHelper::enableStandardItemLighting;
+    ILightingSettings DEFAULT_FLAT = RenderHelper::enableGUIStandardItemLighting;
 }

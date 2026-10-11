@@ -1,0 +1,22 @@
+ponder1710.ui.hold_to_ponder=Pidä [%s] pohjassa pohtiaksesi
+ponder1710.ui.subject=Tämän kohtauksen aihe
+ponder1710.ui.pondering=Pohditaan...
+ponder1710.ui.pondering_tag=Pohditaan...
+ponder1710.ui.identify_mode=Tunnistustila aktiivisena.
+Keskeytä [%s]:lla
+ponder1710.ui.associated=Samankaltaiset pohdinnat
+ponder1710.ui.close=Sulje
+ponder1710.ui.identify=Tunnista
+ponder1710.ui.next=Seuraava kohtaus
+ponder1710.ui.next_up=Seuraavaksi:
+ponder1710.ui.previous=Edellinen kohtaus
+ponder1710.ui.replay=Toista
+ponder1710.ui.think_back=Muistele edellistä
+ponder1710.ui.slow_text=Mukava lukeminen
+ponder1710.ui.exit=Poistu
+ponder1710.ui.welcome=Tervettuloa pohtimaan
+ponder1710.ui.categories=Createssa saatavilla olevat kategoriat
+ponder1710.ui.index_description=Klikkaa kuvaketta oppiaksesi siihen liittyvistä esineistä ja palikoista
+ponder1710.ui.index_title=Pohdintahakemisto
+ponder1710.ponder.shared.sneak_and=Kyykky +
+ponder1710.ponder.shared.ctrl_and=Ctrl +

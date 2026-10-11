@@ -8,94 +8,146 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-// import com.mojang.blaze3d.vertex.PoseStack; // TODO: not available in 1.7.10 - use GL11
-// import net.createmod.catnip.levelWrappers.SchematicLevel; // TODO: catnip not available
-// import net.createmod.catnip.levelWrappers.WrappedClientLevel; // TODO: catnip not available
-// import net.createmod.catnip.platform.CatnipClientServices; // TODO: catnip not available
-// import net.createmod.catnip.render.SuperRenderTypeBuffer; // TODO: catnip not available
-
-import net.createmod.ponder1710.api.VirtualBlockEntity;
 import net.createmod.ponder1710.api.element.WorldSectionElement;
 import net.createmod.ponder1710.api.scene.Selection;
 import net.createmod.ponder1710.foundation.PonderIndex;
 import net.createmod.ponder1710.foundation.PonderScene;
 import net.createmod.ponder1710.foundation.PonderWorldParticles;
 
-// 1.7.10 equivalents
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.profiler.Profiler;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
-import net.minecraft.world.World;
+import net.minecraft.world.EnumDifficulty;
+import net.minecraft.world.WorldSettings;
+import net.minecraft.world.WorldType;
 
-// Commented - not available in 1.7.10:
-// import net.minecraft.client.Camera; // no Camera in 1.7.10
-// import net.minecraft.client.multiplayer.ClientLevel; // ClientLevel = WorldClient in 1.7.10
-// import net.minecraft.client.particle.Particle; // different in 1.7.10
-// import net.minecraft.client.renderer.MultiBufferSource; // not available
-// import net.minecraft.client.renderer.RenderType; // not available
-// import net.minecraft.client.renderer.entity.EntityRenderDispatcher; // different in 1.7.10
-// import net.minecraft.core.BlockPos; // 1.7.10 uses x,y,z or ChunkCoordinates
-// import net.minecraft.core.particles.BlockParticleOption; // not available
-// import net.minecraft.core.particles.ParticleOptions; // not available
-// import net.minecraft.core.particles.ParticleTypes; // not available
-// import net.minecraft.world.level.BlockGetter; // not available
-// import net.minecraft.world.level.Level; // Level = World in 1.7.10
-// import net.minecraft.world.level.LightLayer; // not available
-// import net.minecraft.world.level.block.Blocks; // different in 1.7.10
-// import net.minecraft.world.level.block.entity.BlockEntity; // BlockEntity = TileEntity in 1.7.10
-// import net.minecraft.world.level.block.state.BlockState; // not available in 1.7.10
-// import net.minecraft.world.phys.AABB; // AxisAlignedBB in 1.7.10
-// import net.minecraft.world.phys.shapes.VoxelShape; // not available in 1.7.10
+import su.sergiusonesimus.metaworlds.client.multiplayer.SubWorldClient;
+import su.sergiusonesimus.metaworlds.zmixin.interfaces.minecraft.world.IMixinWorld;
 
-// TODO: PonderLevel currently extends nothing - needs to extend SubWorldClient from Metaworlds
-// In the original it extends SchematicLevel from catnip which is equivalent to SubWorldClient
-// This will be implemented when Metaworlds integration is added
-public class PonderLevel {
+// PonderLevel extends SubWorldClient (MetaWorld Mixins)
+// Each Ponder scene is a real SubWorldClient registered in parent.getSubWorldsMap()
+// canUpdate = false: Ponder controls ticking manually
+// Coordinate transforms via IMixinWorld.transformToGlobal()
+public class PonderLevel extends SubWorldClient {
 
-    @Nullable
-    public PonderScene scene;
+    @Nullable public PonderScene scene;
 
-    // TODO: BlockPos -> using int x,y,z in 1.7.10
-    // TODO: BlockState -> using Block + metadata in 1.7.10
-    // TODO: CompoundTag -> NBTTagCompound in 1.7.10
-    // TODO: BlockEntity -> TileEntity in 1.7.10
-    protected Map<Long, Block> originalBlocks;
-    protected Map<Long, Integer> originalBlockMeta;
-    protected Map<Long, NBTTagCompound> originalBlockEntities;
-    protected Map<Long, Integer> blockBreakingProgressions;
-    protected List<Entity> originalEntities;
-    protected List<Entity> entities;
+    // Local block storage - SubWorldClient (inherited from vanilla WorldClient) relies on
+    // network chunk loading, which never happens for a client-only preview world like this.
+    // Without this override, setBlock()/getBlock() would silently read/write a shared blank
+    // dummy chunk and every read would return air. See SchematicLevel for the same pattern.
+    protected final Map<Long, Object[]> localBlocks = new HashMap<>();
 
-    protected PonderWorldParticles particles;
+    protected final Map<Long, Block>          originalBlocks;
+    protected final Map<Long, Integer>        originalBlockMeta;
+    protected final Map<Long, NBTTagCompound> originalBlockEntities;
+    protected final Map<Long, Integer>        blockBreakingProgressions;
+    protected final List<Entity>              originalEntities;
+    protected final List<Entity>              entities;
+    public final PonderWorldParticles          particles;
 
-    int overrideLight;
-    @Nullable
-    Selection mask;
+    int overrideLight = -1;
+    @Nullable Selection mask;
     boolean currentlyTickingEntities;
 
-    public PonderLevel(World original) {
-        originalBlocks = new HashMap<>();
-        originalBlockMeta = new HashMap<>();
-        originalBlockEntities = new HashMap<>();
+    // minX,minY,minZ,maxX,maxY,maxZ
+    private int[] bounds = {0, 0, 0, 0, 0, 0};
+
+    public PonderLevel(WorldClient parent, int subWorldId) {
+        super(
+            parent,
+            subWorldId,
+            Minecraft.getMinecraft().getNetHandler(),
+            new WorldSettings(0L, WorldSettings.GameType.CREATIVE, false, false, WorldType.DEFAULT),
+            parent.provider.dimensionId,
+            EnumDifficulty.PEACEFUL,
+            new Profiler()
+        );
+        this.canUpdate = false;
+        this.isRemote  = true;
+
+        originalBlocks            = new HashMap<>();
+        originalBlockMeta         = new HashMap<>();
+        originalBlockEntities     = new HashMap<>();
         blockBreakingProgressions = new HashMap<>();
-        originalEntities = new ArrayList<>();
-        entities = new ArrayList<>();
-        particles = new PonderWorldParticles(this);
+        originalEntities          = new ArrayList<>();
+        entities                  = new ArrayList<>();
+        particles                 = new PonderWorldParticles(this);
+    }
+
+    @Override
+    public Block getBlock(int x, int y, int z) {
+        Object[] entry = localBlocks.get(posToLong(x, y, z));
+        return entry != null ? (Block) entry[0] : Blocks.air;
+    }
+
+    @Override
+    public int getBlockMetadata(int x, int y, int z) {
+        Object[] entry = localBlocks.get(posToLong(x, y, z));
+        return entry != null ? (int) entry[1] : 0;
+    }
+
+    @Override
+    public boolean setBlock(int x, int y, int z, Block block, int meta, int flags) {
+        localBlocks.put(posToLong(x, y, z), new Object[]{block, meta});
+        return true;
+    }
+
+    @Override
+    public boolean setBlockToAir(int x, int y, int z) {
+        return setBlock(x, y, z, Blocks.air, 0, 3);
     }
 
     public void createBackup() {
-        // TODO: implement backup using 1.7.10 block/TileEntity system
+        originalBlocks.clear();
+        originalBlockMeta.clear();
+        originalBlockEntities.clear();
+        originalEntities.clear();
+
+        for (int x = bounds[0]; x <= bounds[3]; x++) {
+            for (int y = bounds[1]; y <= bounds[4]; y++) {
+                for (int z = bounds[2]; z <= bounds[5]; z++) {
+                    long key = posToLong(x, y, z);
+                    originalBlocks.put(key, getBlock(x, y, z));
+                    originalBlockMeta.put(key, getBlockMetadata(x, y, z));
+                    TileEntity te = getTileEntity(x, y, z);
+                    if (te != null) {
+                        NBTTagCompound nbt = new NBTTagCompound();
+                        te.writeToNBT(nbt);
+                        originalBlockEntities.put(key, nbt);
+                    }
+                }
+            }
+        }
     }
 
     public void restore() {
         entities.clear();
         blockBreakingProgressions.clear();
         particles.clearEffects();
+
+        for (int x = bounds[0]; x <= bounds[3]; x++) {
+            for (int y = bounds[1]; y <= bounds[4]; y++) {
+                for (int z = bounds[2]; z <= bounds[5]; z++) {
+                    long key  = posToLong(x, y, z);
+                    Block b   = originalBlocks.getOrDefault(key, Blocks.air);
+                    int meta  = originalBlockMeta.getOrDefault(key, 0);
+                    setBlock(x, y, z, b, meta, 2);
+                    if (originalBlockEntities.containsKey(key)) {
+                        TileEntity te = getTileEntity(x, y, z);
+                        if (te != null) te.readFromNBT(originalBlockEntities.get(key));
+                    }
+                }
+            }
+        }
+
         PonderIndex.forEachPlugin(plugin -> plugin.onPonderLevelRestore(this));
+        redraw();
     }
 
     private void redraw() {
@@ -103,64 +155,55 @@ public class PonderLevel {
             scene.forEach(WorldSectionElement.class, WorldSectionElement::queueRedraw);
     }
 
-    public void pushFakeLight(int light) {
-        this.overrideLight = light;
+    @Override
+    public void setBoundaries(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        super.setBoundaries(minX, minY, minZ, maxX, maxY, maxZ);
+        bounds[0] = minX; bounds[1] = minY; bounds[2] = minZ;
+        bounds[3] = maxX; bounds[4] = maxY; bounds[5] = maxZ;
     }
 
-    public void popLight() {
-        this.overrideLight = -1;
-    }
+    public int[] getBounds() { return bounds; }
 
-    public void setMask(@Nullable Selection mask) {
-        this.mask = mask;
-    }
-
-    public void clearMask() {
-        this.mask = null;
-    }
-
-    // TODO: renderEntities - needs GL11 port
-    // public void renderEntities(PoseStack ms, SuperRenderTypeBuffer buffer, Camera ari, float pt) { ... }
-
-    // TODO: renderParticles - needs GL11 port
-    // public void renderParticles(PoseStack ms, MultiBufferSource buffer, Camera ari, float pt) { ... }
-
+    @Override
     public void tick() {
+        // Ponder controls ticking — skip SubWorld physics
         currentlyTickingEntities = true;
         particles.tick();
-
-        for (Iterator<Entity> iterator = entities.iterator(); iterator.hasNext();) {
-            Entity entity = iterator.next();
-            entity.onUpdate();
-
-            // entity.getY() <= -.5f equivalent in 1.7.10
-            if (entity.posY <= -.5f)
-                entity.setDead();
-
-            if (entity.isDead)
-                iterator.remove();
+        for (Iterator<Entity> it = entities.iterator(); it.hasNext();) {
+            Entity e = it.next();
+            e.onUpdate();
+            if (e.posY <= -.5f) e.setDead();
+            if (e.isDead) it.remove();
         }
-
         currentlyTickingEntities = false;
     }
 
-    // TODO: addParticle - ParticleOptions not available in 1.7.10
-    // public void addParticle(ParticleOptions data, ...) { ... }
+    @Override
+    public int getLightBrightnessForSkyBlocks(int x, int y, int z, int minLight) {
+        if (overrideLight != -1) return overrideLight;
+        return 0xF000F0; // full bright
+    }
+
+    public void pushFakeLight(int light) { this.overrideLight = light; }
+    public void popLight()               { this.overrideLight = -1; }
+    public void setMask(@Nullable Selection mask) { this.mask = mask; }
+    public void clearMask() { this.mask = null; }
 
     public void addBlockDestroyEffects(int x, int y, int z, Block block, int meta) {
-        // TODO: reimplement using 1.7.10 particle system
+        // TODO: EntityDiggingFX particles
     }
 
-    public Map<Long, Integer> getBlockBreakingProgressions() {
-        return blockBreakingProgressions;
-    }
+    public Map<Long, Integer> getBlockBreakingProgressions() { return blockBreakingProgressions; }
+    public List<Entity> getEntityList() { return entities; }
 
-    public List<Entity> getEntityList() {
-        return entities;
-    }
-
-    // Helper to encode x,y,z into a long key
     public static long posToLong(int x, int y, int z) {
-        return ((long) x & 0xFFFFFFFFL) | (((long) y & 0xFFFFFFFFL) << 32) | (((long) z & 0xFFFFFFFFL) << 48);
+        return ((long)(x & 0xFFFF)) | (((long)(y & 0xFFFF)) << 16) | (((long)(z & 0xFFFF)) << 32);
+    }
+
+    public static int[] decodePos(long key) {
+        int x = (int)(key & 0xFFFF);
+        int y = (int)((key >> 16) & 0xFFFF);
+        int z = (int)((key >> 32) & 0xFFFF);
+        return new int[]{x, y, z};
     }
 }

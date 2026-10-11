@@ -1,0 +1,23 @@
+ponder1710.ui.hold_to_ponder=按住 [%s] 开始思索
+ponder1710.ui.subject=情景主题
+ponder1710.ui.pondering=思索……
+ponder1710.ui.pondering_tag=思索……
+ponder1710.ui.identify_mode=显示方块名称已启用
+按 [%s] 继续思索
+ponder1710.ui.associated=关联词条
+ponder1710.ui.close=思索结束
+ponder1710.ui.identify=显示方块名称
+ponder1710.ui.next=下一个情景
+ponder1710.ui.next_up=接下来：
+ponder1710.ui.previous=上一个情景
+ponder1710.ui.replay=重放
+ponder1710.ui.think_back=回想
+ponder1710.ui.slow_text=舒适阅读
+ponder1710.ui.exit=退出
+ponder1710.ui.welcome=欢迎来到思索界面
+ponder1710.ui.categories=%s中包含的条目
+ponder1710.ui.index_description=点击一个图标来查看相关的物品和方块
+ponder1710.ui.index_title=思索索引
+ponder1710.ponder.shared.sneak_and=潜行 +
+ponder1710.ponder.shared.ctrl_and=Ctrl +
+key.ponder.ponder=思索

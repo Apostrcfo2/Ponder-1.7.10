@@ -1,19 +1,4 @@
 package net.createmod.metanip.net.base;
-
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.entity.player.Player;
-
-public non-sealed interface ClientboundPacketPayload extends BasePacketPayload {
-	// TODO - Something
-
-	/**
-	 * Called on the main client thread.
-	 * Make sure that implementations are also annotated, or else servers may crash.
-	 */
-	void handle(LocalPlayer player);
-
-	default void handleInternal(Player player) {
-		if (player instanceof LocalPlayer localPlayer)
-			handle(localPlayer);
-	}
-}
+// NOT USED BY PONDER - stub for 1.7.10 compilation
+// Original class depends on APIs not available in 1.7.10 (DataFixers, NeoForge networking, Flywheel, etc.)
+public class ClientboundPacketPayload {}

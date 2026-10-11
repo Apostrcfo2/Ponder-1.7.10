@@ -1,0 +1,23 @@
+ponder1710.ui.hold_to_ponder=Houd [%s] ingedrukt om Na te Denken
+ponder1710.ui.subject=Onderwerp van deze scène
+ponder1710.ui.pondering=Onderzoeken over...
+ponder1710.ui.pondering_tag=Onderzoeken over...
+ponder1710.ui.identify_mode=Identificeringsmodus actief.
+Hervatten met [%s]
+ponder1710.ui.associated=Gerelateerde Vermeldingen
+ponder1710.ui.close=Sluiten
+ponder1710.ui.identify=Identificeren
+ponder1710.ui.next=Volgende Scène
+ponder1710.ui.next_up=Volgende:
+ponder1710.ui.previous=Vorige Scène
+ponder1710.ui.replay=Opnieuw afspelen
+ponder1710.ui.think_back=Terugdenken
+ponder1710.ui.slow_text=Comfortabel Lezen
+ponder1710.ui.exit=Verlaten
+ponder1710.ui.welcome=Welkom bij Onderzoek
+ponder1710.ui.categories=Beschikbare Categorieën in %s
+ponder1710.ui.index_description=Klik op een van de pictogrammen om te leren over de bijbehorende Items en Blokken
+ponder1710.ui.index_title=Denkindex
+ponder1710.ponder.shared.sneak_and=Sluipen +
+ponder1710.ponder.shared.ctrl_and=Ctrl +
+key.ponder.ponder=Overzicht

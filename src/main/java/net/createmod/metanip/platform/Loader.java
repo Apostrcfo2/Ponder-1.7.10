@@ -1,17 +1,12 @@
 package net.createmod.metanip.platform;
 
+// In 1.7.10 only Forge exists - no Fabric or NeoForge
 public enum Loader {
-	FABRIC, NEOFORGE;
+    FORGE;
 
-	public boolean isFabric() {
-		return this == FABRIC;
-	}
+    public boolean isForge()    { return this == FORGE; }
+    public boolean isFabric()   { return false; }
+    public boolean isNeoForge() { return false; }
 
-	public boolean isNeoForge() {
-		return this == NEOFORGE;
-	}
-
-	public boolean isCurrent() {
-		return this == CatnipServices.PLATFORM.getLoader();
-	}
+    public boolean isCurrent()  { return this == FORGE; }
 }

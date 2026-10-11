@@ -5,11 +5,11 @@ import net.createmod.ponder1710.api.element.ElementLink;
 import net.createmod.ponder1710.foundation.PonderScene;
 import net.createmod.ponder1710.foundation.element.ElementLinkImpl;
 
-// import net.minecraft.core.Direction; // ForgeDirection in 1.7.10
-// import net.minecraft.world.phys.Vec3; // net.minecraft.util.Vec3 in 1.7.10
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 
+// Direction -> ForgeDirection in 1.7.10
+// Vec3.atLowerCornerOf -> Vec3.createVectorHelper with offsets in 1.7.10
 public abstract class FadeIntoSceneInstruction<T extends AnimatedSceneElement> extends TickingInstruction {
 
     protected ForgeDirection fadeInFrom;
@@ -28,16 +28,12 @@ public abstract class FadeIntoSceneInstruction<T extends AnimatedSceneElement> e
         scene.addElement(element);
         element.setVisible(true);
         element.setFade(0);
-        if (fadeInFrom == null) {
-            element.setFadeVec(Vec3.createVectorHelper(0, 0, 0));
-        } else {
-            // Direction.getNormal() -> ForgeDirection offset in 1.7.10
-            element.setFadeVec(Vec3.createVectorHelper(
+        element.setFadeVec(fadeInFrom == null
+            ? Vec3.createVectorHelper(0, 0, 0)
+            : Vec3.createVectorHelper(
                 fadeInFrom.offsetX * 0.5,
                 fadeInFrom.offsetY * 0.5,
-                fadeInFrom.offsetZ * 0.5
-            ));
-        }
+                fadeInFrom.offsetZ * 0.5));
         if (elementLink != null)
             scene.linkElement(element, elementLink);
     }
@@ -48,8 +44,7 @@ public abstract class FadeIntoSceneInstruction<T extends AnimatedSceneElement> e
         float fade = totalTicks == 0 ? 1 : (remainingTicks / (float) totalTicks);
         element.setFade(1 - fade * fade);
         if (remainingTicks == 0) {
-            if (totalTicks == 0)
-                element.setFade(1);
+            if (totalTicks == 0) element.setFade(1);
             element.setFade(1);
         }
     }

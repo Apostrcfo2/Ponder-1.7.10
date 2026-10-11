@@ -1,0 +1,23 @@
+ponder1710.ui.hold_to_ponder=Töprengj a [%s] nyomva tartásával
+ponder1710.ui.subject=A jelenet tárgya
+ponder1710.ui.pondering=Töprengsz a...
+ponder1710.ui.pondering_tag=Töprengsz a...
+ponder1710.ui.identify_mode=Azonosítási mód aktív.
+[%s] - Szünet feloldása
+ponder1710.ui.associated=Kapcsolódó témák
+ponder1710.ui.close=Bezárás
+ponder1710.ui.identify=Azonosítás
+ponder1710.ui.next=Következő jelenet
+ponder1710.ui.next_up=Következik:
+ponder1710.ui.previous=Előző jelenet
+ponder1710.ui.replay=Újrajátszás
+ponder1710.ui.think_back=Visszalépés
+ponder1710.ui.slow_text=Kényelmes olvasás
+ponder1710.ui.exit=Kilépés
+ponder1710.ui.welcome=Üdvözlünk a Töprengésben
+ponder1710.ui.categories=A %s-alkatrészek kategóriái
+ponder1710.ui.index_description=Kattints az egyik ikonra, hogy többet tudj meg a vele kapcsolatos tárgyakról és blokkokról
+ponder1710.ui.index_title=Töprengésjegyzék
+ponder1710.ponder.shared.sneak_and=Lopakodás +
+ponder1710.ponder.shared.ctrl_and=Ctrl +
+key.ponder.ponder=Töprengés

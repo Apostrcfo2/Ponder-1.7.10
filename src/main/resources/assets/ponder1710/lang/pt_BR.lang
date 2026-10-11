@@ -1,0 +1,23 @@
+ponder1710.ui.hold_to_ponder=Segure [%s] para Ponderar
+ponder1710.ui.subject=Sujeito desta cena
+ponder1710.ui.pondering=Ponderando sobre...
+ponder1710.ui.pondering_tag=Ponderando sobre...
+ponder1710.ui.identify_mode=Modo de identificação ativo.
+Retomar com [%s]
+ponder1710.ui.associated=Entradas associadas
+ponder1710.ui.close=Fechar
+ponder1710.ui.identify=Identificar
+ponder1710.ui.next=Próxima Cena
+ponder1710.ui.next_up=A seguir:
+ponder1710.ui.previous=Cena Anterior
+ponder1710.ui.replay=Repetir
+ponder1710.ui.think_back=Pensar de volta
+ponder1710.ui.slow_text=Leitura Confortável
+ponder1710.ui.exit=Sair
+ponder1710.ui.welcome=Bem-vindo(a) ao ponderamento
+ponder1710.ui.categories=Categorias disponíveis em %s
+ponder1710.ui.index_description=Clique em um dos ícones para aprender sobre os seus Itens e Blocos associados
+ponder1710.ui.index_title=Tabela do ponderamento
+ponder1710.ponder.shared.sneak_and=Agache-se +
+ponder1710.ponder.shared.ctrl_and=Ctrl +
+key.ponder.ponder=Ponteiro

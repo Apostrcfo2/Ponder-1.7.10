@@ -1,69 +1,60 @@
 package net.createmod.metanip.math;
 
-import static net.minecraft.core.Direction.DOWN;
-import static net.minecraft.core.Direction.EAST;
-import static net.minecraft.core.Direction.NORTH;
-import static net.minecraft.core.Direction.SOUTH;
-import static net.minecraft.core.Direction.UP;
-import static net.minecraft.core.Direction.WEST;
+import net.minecraftforge.common.util.ForgeDirection;
 
-import net.minecraft.core.Direction;
-import net.minecraft.core.Direction.Axis;
-
-/**
- * A bunch of methods that got stripped out of Direction in 1.15
- *
- * @author Mojang
- */
 public class DirectionHelper {
 
-	public static Direction rotateAround(Direction dir, Axis axis) {
-		switch (axis) {
-			case X:
-				if (dir != WEST && dir != EAST) {
-					return rotateX(dir);
-				}
+    public static ForgeDirection rotateAround(ForgeDirection dir, int axis) {
+        // axis: 0=X, 1=Y, 2=Z
+        switch (axis) {
+            case 0: // X
+                if (dir != ForgeDirection.WEST && dir != ForgeDirection.EAST)
+                    return rotateX(dir);
+                return dir;
+            case 1: // Y
+                if (dir != ForgeDirection.UP && dir != ForgeDirection.DOWN)
+                    return rotateClockWise(dir);
+                return dir;
+            case 2: // Z
+                if (dir != ForgeDirection.NORTH && dir != ForgeDirection.SOUTH)
+                    return rotateZ(dir);
+                return dir;
+            default:
+                throw new IllegalStateException("Invalid axis: " + axis);
+        }
+    }
 
-				return dir;
-			case Y:
-				if (dir != UP && dir != DOWN) {
-					return dir.getClockWise();
-				}
+    public static ForgeDirection rotateX(ForgeDirection dir) {
+        switch (dir) {
+            case NORTH: return ForgeDirection.DOWN;
+            case SOUTH: return ForgeDirection.UP;
+            case UP:    return ForgeDirection.NORTH;
+            case DOWN:  return ForgeDirection.SOUTH;
+            default: throw new IllegalStateException("Unable to get X-rotated facing of " + dir);
+        }
+    }
 
-				return dir;
-			case Z:
-				if (dir != NORTH && dir != SOUTH) {
-					return rotateZ(dir);
-				}
+    public static ForgeDirection rotateZ(ForgeDirection dir) {
+        switch (dir) {
+            case EAST:  return ForgeDirection.DOWN;
+            case WEST:  return ForgeDirection.UP;
+            case UP:    return ForgeDirection.EAST;
+            case DOWN:  return ForgeDirection.WEST;
+            default: throw new IllegalStateException("Unable to get Z-rotated facing of " + dir);
+        }
+    }
 
-				return dir;
-			default:
-				throw new IllegalStateException("Unable to get CW facing for axis " + axis);
-		}
-	}
+    public static ForgeDirection rotateClockWise(ForgeDirection dir) {
+        switch (dir) {
+            case NORTH: return ForgeDirection.EAST;
+            case EAST:  return ForgeDirection.SOUTH;
+            case SOUTH: return ForgeDirection.WEST;
+            case WEST:  return ForgeDirection.NORTH;
+            default:    return dir;
+        }
+    }
 
-	public static Direction rotateX(Direction dir) {
-		return switch (dir) {
-			case NORTH -> DOWN;
-			case EAST, WEST -> throw new IllegalStateException("Unable to get X-rotated facing of " + dir);
-			case SOUTH -> UP;
-			case UP -> NORTH;
-			case DOWN -> SOUTH;
-		};
-	}
-
-	public static Direction rotateZ(Direction dir) {
-		return switch (dir) {
-			case EAST -> DOWN;
-			case SOUTH, NORTH -> throw new IllegalStateException("Unable to get Z-rotated facing of " + dir);
-			case WEST -> UP;
-			case UP -> EAST;
-			case DOWN -> WEST;
-		};
-	}
-
-	public static Direction getPositivePerpendicular(Axis horizontalAxis) {
-		return horizontalAxis == Axis.X ? SOUTH : EAST;
-	}
-
+    public static ForgeDirection getPositivePerpendicular(int horizontalAxis) {
+        return horizontalAxis == 0 ? ForgeDirection.SOUTH : ForgeDirection.EAST;
+    }
 }

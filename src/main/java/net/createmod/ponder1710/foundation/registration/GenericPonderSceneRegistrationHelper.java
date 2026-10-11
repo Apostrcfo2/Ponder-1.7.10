@@ -6,8 +6,9 @@ import java.util.function.Function;
 import net.createmod.ponder1710.api.registration.MultiSceneBuilder;
 import net.createmod.ponder1710.api.registration.PonderSceneRegistrationHelper;
 import net.createmod.ponder1710.api.registration.StoryBoardEntry;
+import java.util.function.Consumer;
+import net.createmod.ponder1710.api.level.PonderLevel;
 import net.createmod.ponder1710.api.scene.PonderStoryBoard;
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
 import net.minecraft.util.ResourceLocation;
 
 public class GenericPonderSceneRegistrationHelper<T> implements PonderSceneRegistrationHelper<T> {
@@ -36,7 +37,11 @@ public class GenericPonderSceneRegistrationHelper<T> implements PonderSceneRegis
 		return helperDelegate.addStoryBoard(keyGen.apply(component), schematicPath, storyBoard, tags);
 	}
 
-	@Override
+
+    @Override
+    public StoryBoardEntry addStoryBoard(T component, java.util.function.Consumer<net.createmod.ponder1710.api.level.PonderLevel> worldSetup, PonderStoryBoard storyBoard, ResourceLocation... tags) {
+        return helperDelegate.addStoryBoard(keyGen.apply(component), worldSetup, storyBoard, tags);
+    }
 	public MultiSceneBuilder forComponents(Iterable<? extends T> components) {
 		return new GenericMultiSceneBuilder<>(this, components);
 	}

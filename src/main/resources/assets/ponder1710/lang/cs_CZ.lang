@@ -1,0 +1,23 @@
+ponder1710.ui.hold_to_ponder=Podržte [%s] pro dumání
+ponder1710.ui.subject=Předmět této scény
+ponder1710.ui.pondering=Dumání o...
+ponder1710.ui.pondering_tag=Dumání o...
+ponder1710.ui.identify_mode=Režim identifikace je aktivní.
+Spusťte pomocí [%s]
+ponder1710.ui.associated=Přidružené položky
+ponder1710.ui.close=Zavřít
+ponder1710.ui.identify=Identifikovat
+ponder1710.ui.next=Další scéna
+ponder1710.ui.next_up=Na řadě:
+ponder1710.ui.previous=Předchozí scéna
+ponder1710.ui.replay=Přehrát znovu
+ponder1710.ui.think_back=Vrátit se
+ponder1710.ui.slow_text=Pohodlné čtení
+ponder1710.ui.exit=Odejít
+ponder1710.ui.welcome=Vítejte u dumání
+ponder1710.ui.categories=Dostupné kategorie v %s
+ponder1710.ui.index_description=Kliknutím na jednu z ikon se dozvíte o přidružených předmětech a blocích
+ponder1710.ui.index_title=Rejstřík dumání
+ponder1710.ponder.shared.sneak_and=Plížení +
+ponder1710.ponder.shared.ctrl_and=Ctrl +
+key.ponder.ponder=Dumat

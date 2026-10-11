@@ -1,0 +1,23 @@
+ponder1710.ui.hold_to_ponder=[%s] 長押しで思案画面を開く
+ponder1710.ui.subject=このシーンの主題
+ponder1710.ui.pondering=思案中...
+ponder1710.ui.pondering_tag=思案中...
+ponder1710.ui.identify_mode=確認モードになっています。
+ [%s] で一時停止を解除
+ponder1710.ui.associated=関連項目
+ponder1710.ui.close=閉じる
+ponder1710.ui.identify=ブロック名を確認
+ponder1710.ui.next=次のシーン
+ponder1710.ui.next_up=次:
+ponder1710.ui.previous=前のシーン
+ponder1710.ui.replay=最初から
+ponder1710.ui.think_back=戻る
+ponder1710.ui.slow_text=熟考(スロー再生)
+ponder1710.ui.exit=終了
+ponder1710.ui.welcome=思案画面へようこそ
+ponder1710.ui.categories=%sで閲覧できるカテゴリ
+ponder1710.ui.index_description=アイテムをクリックすると、関連するアイテムやブロックの情報が表示されます。
+ponder1710.ui.index_title=思案索引
+ponder1710.ponder.shared.sneak_and=スニーク + 
+ponder1710.ponder.shared.ctrl_and=Ctrl + 
+key.ponder.ponder=思案画面

@@ -1,0 +1,23 @@
+ponder1710.ui.hold_to_ponder=按住 [%s] 來查看此物品的教學
+ponder1710.ui.subject=本場景的主題
+ponder1710.ui.pondering=有關於…
+ponder1710.ui.pondering_tag=有關於…
+ponder1710.ui.identify_mode=暫停模式已啟動
+按 [%s] 來取消暫停模式
+ponder1710.ui.associated=相關物品
+ponder1710.ui.close=關閉
+ponder1710.ui.identify=暫停
+ponder1710.ui.next=下個場景
+ponder1710.ui.next_up=接下來:
+ponder1710.ui.previous=上個場景
+ponder1710.ui.replay=重播
+ponder1710.ui.think_back=返回
+ponder1710.ui.slow_text=放慢文字顯示速度
+ponder1710.ui.exit=離開
+ponder1710.ui.welcome=歡迎來到教學
+ponder1710.ui.categories=%s 中的分類
+ponder1710.ui.index_description=點擊其中一個圖像查看和他相關的物品以及方塊
+ponder1710.ui.index_title=教學首頁
+ponder1710.ponder.shared.sneak_and=潛行 +
+ponder1710.ponder.shared.ctrl_and=Ctrl +
+key.ponder.ponder=思索

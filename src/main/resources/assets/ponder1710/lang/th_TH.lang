@@ -1,0 +1,22 @@
+ponder1710.ui.hold_to_ponder=กด [%s] ค้างเพื่อดูตัวอย่างการใช้งาน
+ponder1710.ui.subject=เนื้อหาหลักของฉากนี้
+ponder1710.ui.pondering=ตัวอย่างการใช้งานเกี่ยวกับ...
+ponder1710.ui.pondering_tag=ตัวอย่างการใช้งานเกี่ยวกับ...
+ponder1710.ui.identify_mode=โหมดระบุวัตถุในฉากเปิดอยู่
+กด [%s] เพื่อเล่นฉากต่อ
+ponder1710.ui.associated=หัวข้อที่เกี่ยวข้อง
+ponder1710.ui.close=ปิดฉาก
+ponder1710.ui.identify=ระบุวัตถุในฉาก
+ponder1710.ui.next=ฉากถัดไป
+ponder1710.ui.next_up=เรื่องต่อไป:
+ponder1710.ui.previous=ฉากก่อนหน้า
+ponder1710.ui.replay=เล่นซ้ำ
+ponder1710.ui.think_back=คิดกลับไปก่อนหน้า
+ponder1710.ui.slow_text=โหมดอ่านสบายๆ
+ponder1710.ui.exit=ออก
+ponder1710.ui.welcome=ยินดีต้อนรับสู่สารบัญนึกคิด
+ponder1710.ui.categories=หมวดหมู่ที่เรียกดูได้ใน %s
+ponder1710.ui.index_description=คลิกไอคอนใดก็ได้เพื่อเรียนรู้เกี่ยวกับไอเทมและบล็อกต่างๆ ในหมวดหมู่นั้นๆ
+ponder1710.ui.index_title=สารบัญนึกคิด
+ponder1710.ponder.shared.sneak_and=ย่อ +
+ponder1710.ponder.shared.ctrl_and=Ctrl +

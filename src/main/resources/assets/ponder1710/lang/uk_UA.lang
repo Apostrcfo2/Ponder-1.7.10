@@ -1,0 +1,23 @@
+ponder1710.ui.hold_to_ponder=Утримуйте [%s], щоб обдумати
+ponder1710.ui.subject=Об’єкт цієї сцени
+ponder1710.ui.pondering=Тема роздуму
+ponder1710.ui.pondering_tag=Тема роздуму
+ponder1710.ui.identify_mode=Режим розпізнавання увімкнено.
+Натисніть [%s], щоби продовжити
+ponder1710.ui.associated=Пов’язані записи
+ponder1710.ui.close=Закрити
+ponder1710.ui.identify=Розпізнавання
+ponder1710.ui.next=Наступна сцена
+ponder1710.ui.next_up=Далі:
+ponder1710.ui.previous=Попередня сцена
+ponder1710.ui.replay=Відтворити спочатку
+ponder1710.ui.think_back=Назад
+ponder1710.ui.slow_text=Зручне читання
+ponder1710.ui.exit=Вийти
+ponder1710.ui.welcome=Вітаємо в роздумах
+ponder1710.ui.categories=Доступні категорії в %s
+ponder1710.ui.index_description=Клацніть по одному зі значків, щоби дізнатися про пов’язані предмети та блоки
+ponder1710.ui.index_title=Зміст роздумів
+ponder1710.ponder.shared.sneak_and=Крадіться +
+ponder1710.ponder.shared.ctrl_and=Ctrl +
+key.ponder.ponder=Обдумати

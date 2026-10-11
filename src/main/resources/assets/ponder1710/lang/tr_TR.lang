@@ -1,0 +1,23 @@
+ponder1710.ui.hold_to_ponder=İncelemek için [%s] Basılı Tut
+ponder1710.ui.subject=Bu sahnenin konusu
+ponder1710.ui.pondering=İnceleniyor...
+ponder1710.ui.pondering_tag=İnceleniyor...
+ponder1710.ui.identify_mode=Tanımlama modu etkin.
+[%s] ile durdurun
+ponder1710.ui.associated=Bağlantılı Girdiler
+ponder1710.ui.close=Kapat
+ponder1710.ui.identify=Tanımla
+ponder1710.ui.next=Sonraki Sahne
+ponder1710.ui.next_up=Bir Sonraki:
+ponder1710.ui.previous=Önceki Sahne
+ponder1710.ui.replay=Yeniden Oynat
+ponder1710.ui.think_back=Öncekini İncele
+ponder1710.ui.slow_text=Rahat Okuma
+ponder1710.ui.exit=Çıkış
+ponder1710.ui.welcome=İncele'ye Hoş Geldin
+ponder1710.ui.categories=%s'de Mevcut Kategoriler
+ponder1710.ui.index_description=Bağlantılı Eşyalar ve Bloklar hakkında bilgi edinmek için ikonlardan birine tıklayın
+ponder1710.ui.index_title=İncele İndisi
+ponder1710.ponder.shared.sneak_and=Eğilme +
+ponder1710.ponder.shared.ctrl_and=Ctrl +
+key.ponder.ponder=İncele

@@ -9,25 +9,20 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-// import net.createmod.catnip.outliner.Outline.OutlineParams; // TODO: catnip not available
-// import net.createmod.catnip.outliner.Outliner; // TODO: catnip not available
-// import net.minecraft.core.BlockPos; // 1.7.10 uses x,y,z
-// import net.minecraft.world.level.levelgen.structure.BoundingBox; // not available in 1.7.10
-// import net.minecraft.world.phys.AABB; // AxisAlignedBB in 1.7.10
-// import net.minecraft.world.phys.Vec3; // net.minecraft.util.Vec3 in 1.7.10
-
+import net.createmod.metanip.outliner.Outline.OutlineParams;
+import net.createmod.metanip.outliner.Outliner;
 import net.createmod.ponder1710.api.scene.Selection;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 
 public class SelectionImpl {
 
-    // int[] {minX, minY, minZ, maxX, maxY, maxZ} as BoundingBox replacement
     public static Selection of(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
         return new Simple(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     private static class Compound implements Selection {
-        // int[] {x,y,z} as BlockPos replacement
+
         private final Set<Long> posSet;
         @Nullable
         private Vec3 center;
@@ -41,8 +36,26 @@ public class SelectionImpl {
             posSet = new HashSet<>(template);
         }
 
+        // BUG FIX: previous offset (30_000_000) needed ~25 bits to represent, but each
+        // field is only allocated 20 bits (0xFFFFF = 1_048_575) before being shifted into
+        // place. That caused x's high bits to bleed into y's field (and y's into z's),
+        // corrupting every decoded position once two or more axes were non-zero.
+        // 500_000 fits safely within 20 bits (max representable offset is 1_048_575),
+        // giving a usable coordinate range of roughly -500_000..+548_575 per axis, which is
+        // enormously more than any Ponder scene will ever need.
+        private static final long OFFSET = 500_000L;
+        private static final long MASK   = 0xFFFFFL;
+
         private static long encodePos(int x, int y, int z) {
-            return ((long)(x + 30000000)) | ((long)(y + 30000000) << 20) | ((long)(z + 30000000) << 40);
+            return ((x + OFFSET) & MASK) | (((y + OFFSET) & MASK) << 20) | (((z + OFFSET) & MASK) << 40);
+        }
+
+        private static int[] decodePos(long encoded) {
+            return new int[]{
+                (int)((encoded & MASK) - OFFSET),
+                (int)(((encoded >> 20) & MASK) - OFFSET),
+                (int)(((encoded >> 40) & MASK) - OFFSET)
+            };
         }
 
         @Override
@@ -70,13 +83,16 @@ public class SelectionImpl {
             if (posSet.isEmpty()) return Vec3.createVectorHelper(0, 0, 0);
             double sx = 0, sy = 0, sz = 0;
             for (long encoded : posSet) {
-                int x = (int)((encoded & 0xFFFFF) - 30000000);
-                int y = (int)(((encoded >> 20) & 0xFFFFF) - 30000000);
-                int z = (int)(((encoded >> 40) & 0xFFFFF) - 30000000);
-                sx += x; sy += y; sz += z;
+                int[] pos = decodePos(encoded);
+                sx += pos[0]; sy += pos[1]; sz += pos[2];
             }
             double n = posSet.size();
             return center = Vec3.createVectorHelper(sx/n + 0.5, sy/n + 0.5, sz/n + 0.5);
+        }
+
+        @Override
+        public OutlineParams makeOutline(Outliner outliner, Object slot) {
+            return outliner.showCluster(slot, this);
         }
 
         @Override
@@ -87,22 +103,19 @@ public class SelectionImpl {
         @Override
         public Iterator<int[]> iterator() {
             List<int[]> list = new ArrayList<>();
-            for (long encoded : posSet) {
-                int x = (int)((encoded & 0xFFFFF) - 30000000);
-                int y = (int)(((encoded >> 20) & 0xFFFFF) - 30000000);
-                int z = (int)(((encoded >> 40) & 0xFFFFF) - 30000000);
-                list.add(new int[]{x, y, z});
-            }
+            for (long encoded : posSet)
+                list.add(decodePos(encoded));
             return list.iterator();
         }
 
         @Override
-        public void forEach(Consumer<int[]> consumer) {
+        public void forEachPos(Consumer<int[]> consumer) {
             for (int[] pos : this) consumer.accept(pos);
         }
     }
 
     private static class Simple implements Selection {
+
         private final int minX, minY, minZ, maxX, maxY, maxZ;
 
         public Simple(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
@@ -141,6 +154,12 @@ public class SelectionImpl {
         }
 
         @Override
+        public OutlineParams makeOutline(Outliner outliner, Object slot) {
+            AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(minX, minY, minZ, maxX+1, maxY+1, maxZ+1);
+            return outliner.showAABB(slot, aabb);
+        }
+
+        @Override
         public Selection copy() {
             return new Simple(minX, minY, minZ, maxX, maxY, maxZ);
         }
@@ -156,7 +175,7 @@ public class SelectionImpl {
         }
 
         @Override
-        public void forEach(Consumer<int[]> consumer) {
+        public void forEachPos(Consumer<int[]> consumer) {
             for (int[] pos : this) consumer.accept(pos);
         }
     }

@@ -6,9 +6,6 @@ import javax.annotation.Nullable;
 
 import net.createmod.ponder1710.api.registration.TagBuilder;
 
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
-// import net.minecraft.world.item.ItemStack; // different package in 1.7.10
-// import net.minecraft.world.level.ItemLike; // not available in 1.7.10
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -69,8 +66,8 @@ public class PonderTagBuilder implements TagBuilder {
         return icon(id);
     }
 
-    @Override
     // ItemLike -> Item in 1.7.10
+    @Override
     public TagBuilder item(Item item, boolean useAsIcon, boolean useAsMainItem) {
         if (useAsIcon)
             this.itemIcon = new ItemStack(item);

@@ -4,7 +4,6 @@ import net.createmod.ponder1710.Ponder;
 import net.createmod.ponder1710.api.ParticleEmitter;
 import net.createmod.ponder1710.foundation.PonderScene;
 
-// import net.minecraft.world.phys.Vec3; // net.minecraft.util.Vec3 in 1.7.10
 import net.minecraft.util.Vec3;
 
 public class EmitParticlesInstruction extends TickingInstruction {

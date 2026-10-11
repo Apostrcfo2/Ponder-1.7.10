@@ -1,66 +1,47 @@
 package net.createmod.metanip.render;
 
-import java.util.function.BiFunction;
+// RenderType system not available in 1.7.10
+// In 1.7.10 rendering is done via GL11 directly
+// This class acts as a stub providing GL state setup equivalents
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.util.ResourceLocation;
 
-import net.createmod.ponder1710.Ponder;
-import net.createmod.ponder1710.enums.PonderSpecialTextures;
-import net.createmod.ponder1710.mixin.client.accessor.RenderTypeAccessor;
-import net.minecraft.Util;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import org.lwjgl.opengl.GL11;
 
-public abstract class PonderRenderTypes extends RenderType {
+public abstract class PonderRenderTypes {
 
-	private static final RenderType OUTLINE_SOLID =
-		RenderTypeAccessor.catnip$create(createLayerName("outline_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, false, CompositeState.builder()
-			.setShaderState(RENDERTYPE_ENTITY_SOLID_SHADER)
-			.setTextureState(new TextureStateShard(PonderSpecialTextures.BLANK.getLocation(), false, false))
-			.setCullState(CULL)
-			.setLightmapState(LIGHTMAP)
-			.setOverlayState(OVERLAY)
-			.createCompositeState(false));
+    // In 1.7.10 we just set GL state directly before rendering
+    // outlineSolid: opaque colored rendering with entity lighting
+    public static void beginOutlineSolid() {
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+    }
 
-	private static final BiFunction<ResourceLocation, Boolean, RenderType> OUTLINE_TRANSLUCENT = Util.memoize((texture, cull) ->
-		RenderTypeAccessor.catnip$create(createLayerName("outline_translucent" + (cull ? "_cull" : "")), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder()
-			.setShaderState(cull ? RENDERTYPE_ENTITY_TRANSLUCENT_CULL_SHADER : RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
-			.setTextureState(new TextureStateShard(texture, false, false))
-			.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-			.setCullState(cull ? CULL : NO_CULL)
-			.setLightmapState(LIGHTMAP)
-			.setOverlayState(OVERLAY)
-			.setWriteMaskState(COLOR_WRITE)
-			.createCompositeState(false)));
+    // outlineTranslucent: translucent face rendering with texture
+    public static void beginOutlineTranslucent(ResourceLocation texture, boolean cull) {
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        net.minecraft.client.Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
+        if (cull) GL11.glEnable(GL11.GL_CULL_FACE);
+        else GL11.glDisable(GL11.GL_CULL_FACE);
+    }
 
-	private static final RenderType FLUID =
-		RenderTypeAccessor.catnip$create(createLayerName("fluid"), DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, true, CompositeState.builder()
-			.setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
-			.setTextureState(BLOCK_SHEET_MIPPED)
-			.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-			.setLightmapState(LIGHTMAP)
-			//.setOverlayState(NO_OVERLAY)
-			.createCompositeState(true));
+    public static void beginFluid() {
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+    }
 
-	public static RenderType outlineSolid() {
-		return OUTLINE_SOLID;
-	}
+    public static void end() {
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_CULL_FACE);
+    }
 
-	public static RenderType outlineTranslucent(ResourceLocation texture, boolean cull) {
-		return OUTLINE_TRANSLUCENT.apply(texture, cull);
-	}
-
-	//TODO vanilla uses the translucent render type for fluids, need to investigate if this is even needed
-	public static RenderType fluid() {
-		return FLUID;
-	}
-
-	private static String createLayerName(String name) {
-		return Ponder.MOD_ID + ":" + name;
-	}
-
-	private PonderRenderTypes(String name, VertexFormat format, VertexFormat.Mode mode, int bufferSize, boolean affectsCrumbling, boolean sortOnUpload, Runnable setupState, Runnable clearState) {
-		super(name, format, mode, bufferSize, affectsCrumbling, sortOnUpload, setupState, clearState);
-	}
+    // Stub methods for compatibility with Outliner calls
+    public static Object outlineSolid()                                      { return null; }
+    public static Object outlineTranslucent(ResourceLocation tex, boolean c) { return null; }
+    public static Object fluid()                                              { return null; }
 }

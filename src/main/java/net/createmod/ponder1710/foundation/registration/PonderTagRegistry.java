@@ -15,8 +15,6 @@ import net.createmod.ponder1710.Ponder;
 import net.createmod.ponder1710.api.registration.TagRegistryAccess;
 import net.createmod.ponder1710.foundation.PonderTag;
 
-// import net.minecraft.resources.ResourceLocation; // different package in 1.7.10
-// import net.minecraft.world.item.Items; // different package in 1.7.10
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -31,8 +29,8 @@ public class PonderTagRegistry implements TagRegistryAccess {
     private final PonderTag MISSING = new PonderTag(
         Ponder.asResource("not_registered"),
         null,
-        new ItemStack(Items.barrier),
-        new ItemStack(Items.barrier)
+        new ItemStack(net.minecraft.init.Blocks.air),
+        new ItemStack(net.minecraft.init.Blocks.air)
     );
 
     private boolean allowRegistration = true;
@@ -92,7 +90,7 @@ public class PonderTagRegistry implements TagRegistryAccess {
         return componentTagMap.entries().stream()
             .filter(e -> e.getValue().equals(tag))
             .map(Map.Entry::getKey)
-            .collect(ImmutableSet.toImmutableSet());
+            .collect(java.util.stream.Collectors.toSet()); // was ImmutableSet;
     }
 
     @Override

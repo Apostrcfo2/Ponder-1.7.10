@@ -1,0 +1,23 @@
+ponder1710.ui.hold_to_ponder=Tieni premuto [%s] per Riflettere
+ponder1710.ui.subject=Soggetto della scena
+ponder1710.ui.pondering=Riflessione riguardante...
+ponder1710.ui.pondering_tag=Riflessione riguardante...
+ponder1710.ui.identify_mode=Modalità Approfondimento attiva.
+Riprendi con [%s]
+ponder1710.ui.associated=Voci correlate
+ponder1710.ui.close=Chiudi
+ponder1710.ui.identify=Approfondisci
+ponder1710.ui.next=Scena successiva
+ponder1710.ui.next_up=Prossima scena:
+ponder1710.ui.previous=Scena precedente
+ponder1710.ui.replay=Riavvia
+ponder1710.ui.think_back=Torna indietro
+ponder1710.ui.slow_text=Testo rallentato
+ponder1710.ui.exit=Esci
+ponder1710.ui.welcome=È tempo di Riflettere
+ponder1710.ui.categories=Categorie disponibili in %s
+ponder1710.ui.index_description=Premi su una delle icone per imparare di più riguardo ai suoi oggetti e blocchi
+ponder1710.ui.index_title=Catalogo di Riflessione
+ponder1710.ponder.shared.sneak_and=Accov. +
+ponder1710.ponder.shared.ctrl_and=Ctrl +
+key.ponder.ponder=Rifletti

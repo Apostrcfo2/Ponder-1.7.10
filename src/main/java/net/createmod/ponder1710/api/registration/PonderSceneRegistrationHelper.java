@@ -2,6 +2,8 @@ package net.createmod.ponder1710.api.registration;
 
 import java.util.function.Function;
 
+import java.util.function.Consumer;
+import net.createmod.ponder1710.api.level.PonderLevel;
 import net.createmod.ponder1710.api.scene.PonderStoryBoard;
 import net.minecraft.util.ResourceLocation;
 
@@ -12,6 +14,8 @@ public interface PonderSceneRegistrationHelper<T> {
     StoryBoardEntry addStoryBoard(T component, ResourceLocation schematicLocation, PonderStoryBoard storyBoard, ResourceLocation... tags);
 
     StoryBoardEntry addStoryBoard(T component, String schematicPath, PonderStoryBoard storyBoard, ResourceLocation... tags);
+
+    StoryBoardEntry addStoryBoard(T component, java.util.function.Consumer<net.createmod.ponder1710.api.level.PonderLevel> worldSetup, PonderStoryBoard storyBoard, ResourceLocation... tags);
 
     MultiSceneBuilder forComponents(T... components);
 
